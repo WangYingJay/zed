@@ -14,6 +14,8 @@ doctest = false
 
 [features]
 default = []
+# 音频设备枚举/测试页：依赖 audio+cpal+rodio（audio 在 macOS 上会拉 libwebrtc）
+audio = ["dep:audio", "dep:cpal", "dep:rodio"]
 test-support = []
 
 [dependencies]
@@ -21,7 +23,7 @@ agent.workspace = true
 agent_settings.workspace = true
 agent_skills.workspace = true
 anyhow.workspace = true
-audio.workspace = true
+audio = { workspace = true, optional = true }
 client.workspace = true
 cloud_api_types.workspace = true
 component.workspace = true
@@ -30,7 +32,7 @@ collections.workspace = true
 context_server.workspace = true
 copilot.workspace = true
 copilot_ui.workspace = true
-cpal.workspace = true
+cpal = { workspace = true, optional = true }
 edit_prediction.workspace = true
 edit_prediction_ui.workspace = true
 editor.workspace = true
@@ -55,7 +57,7 @@ regex.workspace = true
 platform_title_bar.workspace = true
 project.workspace = true
 release_channel.workspace = true
-rodio.workspace = true
+rodio = { workspace = true, optional = true }
 schemars.workspace = true
 search.workspace = true
 serde.workspace = true

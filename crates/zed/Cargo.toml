@@ -15,7 +15,21 @@ workspace = true
 tracy = ["ztracing/tracy"]
 # LEAK_BACKTRACE=1 cargo run --features zed/track-project-leak --profile release-fast
 track-project-leak = ["gpui/leak-detection"]
+# A档精简：默认关闭通话/音视频，避免硬链 livekit/libwebrtc/cpal 等重原生依赖以降内存。
+# 需要协作通话时显式启用：cargo build -p zed --features calls
+calls = [
+    "dep:audio",
+    "dep:call",
+    "dep:collab_ui",
+    "agent_ui/audio",
+    "git_ui/call",
+    "gpui_platform/screen-capture",
+    "settings_ui/audio",
+    "sidebar/audio",
+    "title_bar/calls",
+]
 test-support = [
+    "calls",
     "gpui/test-support",
     "gpui_platform/screen-capture",
     "dep:image",
@@ -29,6 +43,7 @@ test-support = [
     "title_bar/test-support",
 ]
 visual-tests = [
+    "calls",
     "gpui/test-support",
     "gpui_platform/screen-capture",
     "gpui_platform/test-support",
@@ -73,15 +88,15 @@ agent.workspace = true
 agent_servers = { workspace = true, optional = true }
 agent_settings.workspace = true
 agent_skills.workspace = true
-agent_ui = { workspace = true, features = ["audio"] }
+agent_ui.workspace = true
 anyhow.workspace = true
 askpass.workspace = true
 assets.workspace = true
-audio.workspace = true
+audio = { workspace = true, optional = true }
 auto_update.workspace = true
 auto_update_ui.workspace = true
 breadcrumbs.workspace = true
-call.workspace = true
+call = { workspace = true, optional = true }
 call_hierarchy.workspace = true
 channel.workspace = true
 chrono.workspace = true
@@ -90,7 +105,7 @@ cli.workspace = true
 client.workspace = true
 clock = { workspace = true, optional = true }
 codestral.workspace = true
-collab_ui.workspace = true
+collab_ui = { workspace = true, optional = true }
 collections.workspace = true
 command_palette.workspace = true
 component_preview.workspace = true
@@ -118,12 +133,12 @@ fs.workspace = true
 futures.workspace = true
 git.workspace = true
 git_hosting_providers.workspace = true
-git_ui = { workspace = true, features = ["call"] }
+git_ui.workspace = true
 git_ui_core.workspace = true
 go_to_line.workspace = true
 gpui = { workspace = true, features = ["profiler", "stacker"] }
+# screen-capture 随 calls feature 开启，避免默认构建拉起录屏相关原生依赖
 gpui_platform = { workspace = true, features = [
-    "screen-capture",
     "font-kit",
     "wayland",
     "x11",

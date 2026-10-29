@@ -14,8 +14,11 @@ doctest = false
 
 [features]
 default = []
+# 通话/屏幕共享 UI：依赖 call + livekit，由 zed 的 calls feature 打开
+calls = ["dep:call", "dep:livekit_client", "gpui/screen-capture"]
 
 test-support = [
+    "calls",
     "call/test-support",
     "client/test-support",
 
@@ -34,7 +37,7 @@ anyhow.workspace = true
 auto_update.workspace = true
 fs.workspace = true
 platform_title_bar.workspace = true
-call.workspace = true
+call = { workspace = true, optional = true }
 channel.workspace = true
 chrono.workspace = true
 client.workspace = true
@@ -43,9 +46,9 @@ command_palette_hooks.workspace = true
 db.workspace = true
 
 git_ui_core.workspace = true
-gpui = { workspace = true, features = ["screen-capture"] }
+gpui.workspace = true
 icons.workspace = true
-livekit_client.workspace = true
+livekit_client = { workspace = true, optional = true }
 path.workspace = true
 project.workspace = true
 recent_projects.workspace = true

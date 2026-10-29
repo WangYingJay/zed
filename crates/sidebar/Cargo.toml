@@ -14,6 +14,8 @@ doctest = false
 
 [features]
 default = []
+# 透传 agent_ui 的通知音效；由 zed 的 calls feature 打开
+audio = ["agent_ui/audio"]
 
 [dependencies]
 acp_thread.workspace = true
@@ -22,7 +24,7 @@ async-channel.workspace = true
 agent.workspace = true
 agent-client-protocol.workspace = true
 agent_settings.workspace = true
-agent_ui = { workspace = true, features = ["audio"] }
+agent_ui.workspace = true
 anyhow.workspace = true
 chrono.workspace = true
 editor.workspace = true

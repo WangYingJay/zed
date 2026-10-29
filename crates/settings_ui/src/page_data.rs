@@ -1,9 +1,10 @@
 use gpui::{Action as _, App};
 use itertools::Itertools as _;
 use settings::{
-    AudioInputDeviceName, AudioOutputDeviceName, EditPredictionDataCollectionChoice,
-    LanguageSettingsContent, SemanticTokens, SettingsContent,
+    EditPredictionDataCollectionChoice, LanguageSettingsContent, SemanticTokens, SettingsContent,
 };
+#[cfg(feature = "audio")]
+use settings::{AudioInputDeviceName, AudioOutputDeviceName};
 use std::sync::{Arc, OnceLock};
 use strum::{EnumMessage, IntoDiscriminant as _, VariantArray};
 use theme::SystemAppearance;
@@ -13,20 +14,26 @@ use crate::{
     ActionLink, DynamicItem, PROJECT, SettingField, SettingItem, SettingsFieldMetadata,
     SettingsPage, SettingsPageItem, SubPageLink, USER, active_language, all_language_names,
     pages::{
-        open_audio_test_window, render_edit_prediction_setup_page, render_external_agents_page,
-        render_llm_providers_page, render_mcp_servers_page, render_sandbox_settings_page,
-        render_skills_setup_page, render_tool_permissions_setup_page,
+        render_edit_prediction_setup_page, render_external_agents_page, render_llm_providers_page,
+        render_mcp_servers_page, render_sandbox_settings_page, render_skills_setup_page,
+        render_tool_permissions_setup_page,
     },
 };
+#[cfg(feature = "audio")]
+use crate::pages::open_audio_test_window;
 
 const DEFAULT_STRING: String = String::new();
 /// A default empty string reference. Useful in `pick` functions for cases either in dynamic item fields, or when dealing with `settings::Maybe`
 /// to avoid the "NO DEFAULT" case.
 const DEFAULT_EMPTY_STRING: Option<&String> = Some(&DEFAULT_STRING);
 
+#[cfg(feature = "audio")]
 const DEFAULT_AUDIO_OUTPUT: AudioOutputDeviceName = AudioOutputDeviceName(None);
+#[cfg(feature = "audio")]
 const DEFAULT_EMPTY_AUDIO_OUTPUT: Option<&AudioOutputDeviceName> = Some(&DEFAULT_AUDIO_OUTPUT);
+#[cfg(feature = "audio")]
 const DEFAULT_AUDIO_INPUT: AudioInputDeviceName = AudioInputDeviceName(None);
+#[cfg(feature = "audio")]
 const DEFAULT_EMPTY_AUDIO_INPUT: Option<&AudioInputDeviceName> = Some(&DEFAULT_AUDIO_INPUT);
 
 macro_rules! concat_sections {
@@ -75,6 +82,8 @@ pub(crate) fn settings_data(cx: &App) -> Vec<SettingsPage> {
         debugger_page(),
         terminal_page(),
         version_control_page(),
+        // 协作/通话设置页依赖音频设备枚举，无 audio feature 时整页省略
+        #[cfg(feature = "audio")]
         collaboration_page(),
         ai_page(cx),
         network_page(),
@@ -8637,6 +8646,7 @@ fn version_control_page() -> SettingsPage {
     }
 }
 
+#[cfg(feature = "audio")]
 fn collaboration_page() -> SettingsPage {
     fn calls_section() -> [SettingsPageItem; 3] {
         [

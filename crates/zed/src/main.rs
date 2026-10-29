@@ -20,6 +20,7 @@ use anyhow::{Context as _, Result};
 use clap::Parser;
 use cli::FORCE_CLI_MODE_ENV_VAR_NAME;
 use client::{Client, ProxySettings, RefreshLlmTokenListener, UserStore, parse_zed_link};
+#[cfg(feature = "calls")]
 use collab_ui::channel_view::ChannelView;
 use collections::HashMap;
 use crashes::InitCrashHandler;
@@ -733,6 +734,8 @@ fn main() {
         repl::notebook::init(cx);
         diagnostics::init(cx);
 
+        // 通话/音视频子系统随 calls feature 初始化，默认构建不链 livekit/webrtc
+        #[cfg(feature = "calls")]
         audio::init(cx);
         workspace::init(app_state.clone(), cx);
         ui_prompt::init(cx);
@@ -770,9 +773,14 @@ fn main() {
         theme_selector::init(cx);
         settings_profile_selector::init(cx);
         language_tools::init(cx);
+        #[cfg(feature = "calls")]
         call::init(app_state.client.clone(), app_state.user_store.clone(), cx);
         notifications::init(app_state.client.clone(), app_state.user_store.clone(), cx);
+        // collab_ui::init 会顺带 title_bar::init；无 calls 时需单独初始化标题栏
+        #[cfg(feature = "calls")]
         collab_ui::init(&app_state, cx);
+        #[cfg(not(feature = "calls"))]
+        title_bar::init(cx);
         git_ui::init(cx);
         feedback::init(cx);
         markdown_preview::init(cx);
@@ -1335,20 +1343,28 @@ fn handle_open_request(request: OpenRequest, app_state: Arc<AppState>, cx: &mut 
                 let workspace = workspace_window.read_with(cx, |mw, _| mw.workspace().clone())?;
                 let weak_workspace = workspace.downgrade();
 
-                let mut promises = Vec::new();
-                for (channel_id, heading) in request.open_channel_notes {
-                    promises.push(cx.update_window(workspace_window.into(), |_, window, cx| {
-                        ChannelView::open(
-                            client::ChannelId(channel_id),
-                            heading,
-                            workspace.clone(),
-                            window,
-                            cx,
-                        )
-                    })?)
+                // Channel notes UI 属于 collab_ui，无 calls feature 时跳过打开
+                #[cfg(feature = "calls")]
+                {
+                    let mut promises = Vec::new();
+                    for (channel_id, heading) in request.open_channel_notes {
+                        promises.push(cx.update_window(workspace_window.into(), |_, window, cx| {
+                            ChannelView::open(
+                                client::ChannelId(channel_id),
+                                heading,
+                                workspace.clone(),
+                                window,
+                                cx,
+                            )
+                        })?)
+                    }
+                    for result in future::join_all(promises).await {
+                        result.notify_workspace_async_err(weak_workspace.clone(), cx);
+                    }
                 }
-                for result in future::join_all(promises).await {
-                    result.notify_workspace_async_err(weak_workspace.clone(), cx);
+                #[cfg(not(feature = "calls"))]
+                {
+                    let _ = (request.open_channel_notes, workspace, weak_workspace);
                 }
                 anyhow::Ok(())
             })

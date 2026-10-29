@@ -1,4 +1,7 @@
+// 音频设备页依赖 cpal/rodio/audio（进而 libwebrtc），随 settings_ui/audio feature 编译
+#[cfg(feature = "audio")]
 mod audio_input_output_setup;
+#[cfg(feature = "audio")]
 mod audio_test_window;
 mod edit_prediction_provider_setup;
 mod external_agents_page;
@@ -10,9 +13,11 @@ mod skill_creator;
 mod skills_setup;
 mod tool_permissions_setup;
 
+#[cfg(feature = "audio")]
 pub(crate) use audio_input_output_setup::{
     render_input_audio_device_dropdown, render_output_audio_device_dropdown,
 };
+#[cfg(feature = "audio")]
 pub(crate) use audio_test_window::open_audio_test_window;
 pub(crate) use edit_prediction_provider_setup::render_edit_prediction_setup_page;
 pub(crate) use external_agents_page::{
