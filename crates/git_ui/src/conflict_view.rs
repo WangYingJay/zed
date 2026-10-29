@@ -1,4 +1,3 @@
-use agent_settings::AgentSettings;
 use collections::{HashMap, HashSet};
 use editor::{
     ConflictsOurs, ConflictsOursMarker, ConflictsOuter, ConflictsTheirs, ConflictsTheirsMarker,
@@ -14,9 +13,8 @@ use project::{
     ConflictRegion, ConflictSet, ConflictSetUpdate, Project,
     git_store::{GitStore, GitStoreEvent, RepositoryEvent},
 };
-use settings::Settings;
 use std::{ops::Range, sync::Arc};
-use ui::{ButtonLike, Divider, Tooltip, prelude::*};
+use ui::{Divider, prelude::*};
 use util::debug_panic;
 use workspace::{HideStatusItem, StatusItemView, Workspace, item::ItemHandle};
 use zed_actions::agent::{
@@ -337,7 +335,8 @@ fn render_conflict_buttons(
     editor: WeakEntity<Editor>,
     cx: &mut BlockContext,
 ) -> AnyElement {
-    let is_ai_enabled = AgentSettings::get_global(cx).enabled(cx);
+    // B档第三刀：无 agent_settings，冲突区不展示 Agent 解决入口
+    let is_ai_enabled = false;
 
     h_flex()
         .id(cx.block_id)
@@ -567,13 +566,9 @@ impl MergeConflictIndicator {
                 | GitStoreEvent::RepositoryUpdated(_, RepositoryEvent::StatusesChanged, _)
         );
 
-        let agent_settings = AgentSettings::get_global(cx);
-        if !agent_settings.enabled(cx)
-            || !agent_settings.show_merge_conflict_indicator
-            || !conflicts_changed
-        {
-            return;
-        }
+        // B档第三刀：无 agent 合并冲突指示器
+        let _ = conflicts_changed;
+        return;
 
         let project = self.project.read(cx);
         if project.is_via_collab() {
@@ -614,77 +609,9 @@ impl MergeConflictIndicator {
 }
 
 impl Render for MergeConflictIndicator {
-    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let agent_settings = AgentSettings::get_global(cx);
-        if !agent_settings.enabled(cx)
-            || !agent_settings.show_merge_conflict_indicator
-            || self.conflicted_paths.is_empty()
-            || self.dismissed
-        {
-            return Empty.into_any_element();
-        }
-
-        let file_count = self.conflicted_paths.len();
-
-        let message: SharedString = format!(
-            "Resolve Merge Conflict{} with Agent",
-            if file_count == 1 { "" } else { "s" }
-        )
-        .into();
-
-        let tooltip_label: SharedString = format!(
-            "Found {} {} across the codebase",
-            file_count,
-            if file_count == 1 {
-                "conflict"
-            } else {
-                "conflicts"
-            }
-        )
-        .into();
-
-        let border_color = cx.theme().colors().text_accent.opacity(0.2);
-
-        h_flex()
-            .h(rems_from_px(22_f32))
-            .rounded_sm()
-            .border_1()
-            .border_color(border_color)
-            .child(
-                ButtonLike::new("update-button")
-                    .tab_index(0isize)
-                    .aria_label(message.clone())
-                    .child(
-                        h_flex()
-                            .h_full()
-                            .gap_1()
-                            .child(
-                                Icon::new(IconName::GitMergeConflict)
-                                    .size(IconSize::Small)
-                                    .color(Color::Muted),
-                            )
-                            .child(Label::new(message).size(LabelSize::Small)),
-                    )
-                    .tooltip(move |_, cx| {
-                        Tooltip::with_meta(
-                            tooltip_label.clone(),
-                            None,
-                            "Click to Resolve with Agent",
-                            cx,
-                        )
-                    })
-                    .on_click(cx.listener(|this, _, window, cx| {
-                        this.resolve_with_agent(window, cx);
-                    })),
-            )
-            .child(
-                div().border_l_1().border_color(border_color).child(
-                    IconButton::new("dismiss-merge-conflicts", IconName::Close)
-                        .icon_size(IconSize::XSmall)
-                        .on_click(cx.listener(Self::dismiss)),
-                ),
-            )
-            .into_any_element()
+    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
+        // B档第三刀：固定不渲染 Agent 冲突指示器
+        Empty.into_any_element()
     }
 }
 

@@ -2,7 +2,6 @@ use std::path::PathBuf;
 
 use super::*;
 use crate::item::test::TestItem;
-use agent_settings::AgentSettings;
 use client::proto;
 use fs::{FakeFs, Fs};
 use gpui::{TestAppContext, VisualTestContext};
@@ -140,9 +139,7 @@ async fn test_multi_workspace_collapses_when_agent_is_disabled(cx: &mut TestAppC
     });
 
     cx.update(|_window, cx| {
-        let mut settings = AgentSettings::get_global(cx).clone();
-        settings.enabled = false;
-        AgentSettings::override_global(settings, cx);
+        // B档第三刀：AgentSettings 测试桩已移除
     });
     cx.run_until_parked();
 
@@ -367,9 +364,7 @@ async fn test_open_directory_in_existing_window_respects_auto_open_setting(
         .await;
 
     cx.update(|cx| {
-        let mut settings = AgentSettings::get_global(cx).clone();
-        settings.threads_sidebar.auto_open = false;
-        AgentSettings::override_global(settings, cx);
+        // B档第三刀：AgentSettings 测试桩已移除
     });
 
     let project = Project::test(app_state.fs.clone(), [path!("/project_a").as_ref()], cx).await;

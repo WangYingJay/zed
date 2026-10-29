@@ -6,7 +6,6 @@ use crate::{
         render_send_review_to_agent_button,
     },
 };
-use agent_settings::AgentSettings;
 use anyhow::{Context as _, Result, anyhow};
 use editor::{
     Addon, Editor, EditorEvent, HiddenDiffHunkRenderer, SplittableEditor,
@@ -796,9 +795,9 @@ impl Render for BranchDiffToolbar {
             .multibuffer()
             .read(cx)
             .is_empty();
-        let is_ai_enabled = AgentSettings::get_global(cx).enabled(cx);
-
-        let show_review_button = !is_multibuffer_empty && is_ai_enabled;
+        // B档第三刀：无 agent，不展示 Review with Agent
+        let show_review_button = false;
+        let _ = is_multibuffer_empty;
 
         h_flex()
             .my_neg_1()
