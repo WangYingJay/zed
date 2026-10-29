@@ -1,11 +1,9 @@
 use crate::handle_open_request;
 use crate::restore_or_create_workspace;
-use agent_ui::ExternalSourcePrompt;
 use anyhow::{Context as _, Result, anyhow};
 use cli::{CliRequest, CliResponse, CliResponseSink};
 use cli::{IpcHandshake, ipc};
 use client::{ZedLink, parse_zed_link};
-use db::kvp::KeyValueStore;
 use editor::Editor;
 use fs::Fs;
 use futures::channel::mpsc::{UnboundedReceiver, UnboundedSender};
@@ -16,8 +14,6 @@ use futures::{FutureExt, StreamExt};
 use git_ui::multi_diff_view::MultiDiffView;
 use git_ui_core::file_diff_view::FileDiffView;
 use gpui::{App, AsyncApp, Global, TaskExt, WindowHandle};
-use onboarding::FIRST_OPEN;
-use onboarding::show_onboarding_view;
 use recent_projects::{RemoteSettings, navigate_to_positions, open_remote_project};
 use remote::{RemoteConnectionOptions, WslConnectionOptions};
 use settings::Settings;
@@ -57,8 +53,9 @@ pub enum OpenRequestKind {
     Extension {
         extension_id: String,
     },
+    // B档硬删：Agent 已移除；保留变体以免解析 zed://agent 崩溃，prompt 仅作占位字符串
     AgentPanel {
-        external_source_prompt: Option<ExternalSourcePrompt>,
+        external_source_prompt: Option<String>,
     },
     InstallSkill {
         /// Full `SKILL.md` contents embedded in a `zed://skill` share link.
@@ -221,12 +218,11 @@ impl OpenRequest {
     }
 
     fn parse_agent_url(&mut self, agent_path: &str) {
-        // Format: "" or "?prompt=<text>".
+        // Format: "" or "?prompt=<text>". B档硬删 Agent：仅保留字符串占位。
         let agent_path = agent_path.strip_prefix('/').unwrap_or(agent_path);
         let external_source_prompt = agent_path.strip_prefix('?').and_then(|query| {
             url::form_urlencoded::parse(query.as_bytes())
-                .find_map(|(key, value)| (key == "prompt").then_some(value))
-                .and_then(|prompt| ExternalSourcePrompt::new(prompt.as_ref()))
+                .find_map(|(key, value)| (key == "prompt").then(|| value.into_owned()))
         });
         self.kind = Some(OpenRequestKind::AgentPanel {
             external_source_prompt,
@@ -860,24 +856,17 @@ async fn open_workspaces(
         };
 
     if grouped_locations.is_empty() {
-        // If we have no paths to open, show the welcome screen if this is the first launch
-        let kvp = cx.update(|cx| KeyValueStore::global(cx));
-        if matches!(kvp.read_kvp(FIRST_OPEN), Ok(None)) {
-            cx.update(|cx| show_onboarding_view(app_state, cx).detach());
-        }
-        // If not the first launch, show an empty window with empty editor
-        else {
-            cx.update(|cx| {
-                let open_options = OpenOptions {
-                    env,
-                    ..Default::default()
-                };
-                workspace::open_new(open_options, app_state, cx, |workspace, window, cx| {
-                    Editor::new_file(workspace, &Default::default(), window, cx)
-                })
-                .detach_and_log_err(cx);
-            });
-        }
+        // B档硬删：无 onboarding；无路径时直接开空编辑器
+        cx.update(|cx| {
+            let open_options = OpenOptions {
+                env,
+                ..Default::default()
+            };
+            workspace::open_new(open_options, app_state, cx, |workspace, window, cx| {
+                Editor::new_file(workspace, &Default::default(), window, cx)
+            })
+            .detach_and_log_err(cx);
+        });
         return Ok(());
     }
     // If there are paths to open, open a workspace for each grouping of paths

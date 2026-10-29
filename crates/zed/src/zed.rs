@@ -1,5 +1,4 @@
 mod app_menus;
-pub mod edit_prediction_registry;
 #[cfg(target_os = "macos")]
 pub(crate) mod mac_only_instance;
 mod migrate;
@@ -15,8 +14,6 @@ pub mod visual_tests;
 #[cfg(target_os = "windows")]
 pub(crate) mod windows_only_instance;
 
-use agent_settings::{UserAgentsMdState, init_user_agents_md};
-use agent_ui::AgentDiffToolbar;
 use anyhow::Context as _;
 pub use app_menus::*;
 use assets::Assets;
@@ -24,12 +21,9 @@ use assets::Assets;
 use breadcrumbs::Breadcrumbs;
 use client::zed_urls;
 use collections::VecDeque;
-use debugger_ui::debugger_panel::DebugPanel;
 use editor::{Editor, MultiBuffer};
-use extension_host::ExtensionStore;
 use feature_flags::{FeatureFlagAppExt as _, PanicFeatureFlag};
 use fs::Fs;
-use futures::FutureExt as _;
 use futures::{StreamExt, channel::mpsc, select_biased};
 use git_ui::branch_diff::BranchDiffToolbar;
 use git_ui::commit_view::CommitViewToolbar;
@@ -40,21 +34,18 @@ use git_ui::staged_diff::StagedDiffToolbar;
 use git_ui::unstaged_diff::UnstagedDiffToolbar;
 use git_ui_core::file_diff_view::FileDiffStyleToolbar;
 use gpui::{
-    Action, App, AppContext as _, AsyncWindowContext, ClipboardItem, Context, DismissEvent,
+    Action, App, AppContext as _, ClipboardItem, Context, DismissEvent,
     Element, Entity, FocusHandle, Focusable, Image, ImageFormat, KeyBinding, ParentElement,
     PathPromptOptions, PromptLevel, ReadGlobal, SharedString, Size, Task, TaskExt, TitlebarOptions,
     UpdateGlobal, WeakEntity, Window, WindowBounds, WindowHandle, WindowKind, WindowOptions,
     actions, image_cache, img, point, px, retain_all,
 };
-use image_viewer::ImageInfo;
 use language::Capability;
-use language_onboarding::BasedPyrightBanner;
 use language_tools::lsp_button::{self, LspButton};
 use language_tools::lsp_log_view::LspLogToolbarItemView;
 use markdown::{Markdown, MarkdownElement, MarkdownFont, MarkdownStyle};
 use migrate::{MigrationBanner, MigrationEvent, MigrationNotification, MigrationType};
 use migrator::migrate_keymap;
-use onboarding::multibuffer_hint::MultibufferHint;
 pub use open_listener::*;
 use outline_panel::OutlinePanel;
 use paths::{
@@ -77,7 +68,6 @@ use settings::{
     SettingsFile, SettingsStore, VIM_KEYMAP_PATH, initial_local_debug_tasks_content,
     initial_project_settings_content, initial_tasks_content, update_settings_file,
 };
-use sidebar::Sidebar;
 #[cfg(debug_assertions)]
 use workspace::workspace_error::{ErrorAction, ErrorSeverity, WorkspaceError};
 
@@ -99,7 +89,7 @@ use vim_mode_setting::VimModeSetting;
 use workspace::notifications::{NotificationId, dismiss_app_notification, show_app_notification};
 
 use workspace::{
-    AppState, MultiWorkspace, NewFile, NewWindow, OpenLog, Panel, Toast, Workspace,
+    AppState, MultiWorkspace, NewFile, NewWindow, OpenLog, Toast, Workspace,
     WorkspaceSettings, create_and_open_local_file,
     notifications::simple_message_notification::MessageNotification, open_new,
 };
@@ -506,46 +496,21 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut App) {
         cx.subscribe_in(
             &multi_workspace_handle,
             window,
-            |this, _multi_workspace, event: &workspace::MultiWorkspaceEvent, window, cx| {
+            |_this, _multi_workspace, event: &workspace::MultiWorkspaceEvent, window, _cx| {
                 let workspace::MultiWorkspaceEvent::ActiveWorkspaceChanged { source_workspace } =
                     event
                 else {
                     return;
                 };
 
-                let active_workspace = this.workspace().clone();
-                let source_workspace = source_workspace.clone();
-                active_workspace.update(cx, |workspace, cx| {
-                    if let Some(ref source) = source_workspace {
-                        if let Some(panel) = workspace.panel::<agent_ui::AgentPanel>(cx) {
-                            panel.update(cx, |panel, cx| {
-                                panel.initialize_from_source_workspace_if_needed(
-                                    source.clone(),
-                                    window,
-                                    cx,
-                                );
-                            });
-                        }
-                    }
-
-                    ensure_agent_panel_for_workspace(workspace, source_workspace, window, cx)
-                        .detach_and_log_err(cx);
-                });
+                // B档硬删：无 AgentPanel / sidebar
+                let _ = (source_workspace, window);
             },
         )
         .detach();
 
-        cx.defer(move |cx| {
-            window_handle
-                .update(cx, |_, window, cx| {
-                    let sidebar =
-                        cx.new(|cx| Sidebar::new(multi_workspace_handle.clone(), window, cx));
-                    multi_workspace_handle.update(cx, |multi_workspace, cx| {
-                        multi_workspace.register_sidebar(sidebar, cx);
-                    });
-                })
-                .ok();
-        });
+        // B档硬删：不注册 Agent sidebar
+        let _ = (window_handle, multi_workspace_handle);
     })
     .detach();
 
@@ -584,25 +549,8 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut App) {
             }
         }
 
-        let edit_prediction_menu_handle = PopoverMenuHandle::default();
-        let edit_prediction_ui = cx.new(|cx| {
-            edit_prediction_ui::EditPredictionButton::new(
-                app_state.fs.clone(),
-                app_state.user_store.clone(),
-                edit_prediction_menu_handle.clone(),
-                workspace.project().clone(),
-                cx,
-            )
-        });
-        workspace.register_action({
-            move |_, _: &edit_prediction_ui::ToggleMenu, window, cx| {
-                edit_prediction_menu_handle.toggle(window, cx);
-            }
-        });
-
+        // B档硬删：status bar 只留搜索 / LSP / 文件名 / Git / 编码语言 / 光标等基础项
         let search_button = cx.new(|_| search::search_status_button::SearchButton::new());
-        let diagnostic_summary =
-            cx.new(|cx| diagnostics::items::DiagnosticIndicator::new(workspace, cx));
         let active_file_name = cx.new(|_| workspace::active_file_name::ActiveFileName::new());
         let activity_indicator = activity_indicator::ActivityIndicator::new(workspace, window, cx);
         let active_buffer_encoding =
@@ -611,10 +559,6 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut App) {
             cx.new(|_| language_selector::ActiveBufferLanguage::new(workspace));
         let active_toolchain_language =
             cx.new(|cx| toolchain_selector::ActiveToolchain::new(workspace, window, cx));
-        let vim_mode_indicator = cx.new(|cx| vim::ModeIndicator::new(window, cx));
-        let pending_keystrokes_indicator =
-            cx.new(|cx| which_key::PendingKeystrokesIndicator::new(window, cx));
-        let image_info = cx.new(|_cx| ImageInfo::new(workspace));
 
         let lsp_button_menu_handle = PopoverMenuHandle::default();
         let lsp_button =
@@ -635,21 +579,15 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut App) {
         workspace.status_bar().update(cx, |status_bar, cx| {
             status_bar.add_left_item(search_button, window, cx);
             status_bar.add_left_item(lsp_button, window, cx);
-            status_bar.add_left_item(diagnostic_summary, window, cx);
             status_bar.add_left_item(active_file_name, window, cx);
             status_bar.add_left_item(git_blame_status, window, cx);
             status_bar.add_left_item(merge_conflict_indicator, window, cx);
             status_bar.add_left_item(activity_indicator, window, cx);
-            status_bar.add_right_item(edit_prediction_ui, window, cx);
             status_bar.add_right_item(active_buffer_encoding, window, cx);
             status_bar.add_right_item(active_buffer_language, window, cx);
             status_bar.add_right_item(active_toolchain_language, window, cx);
             status_bar.add_right_item(line_ending_indicator, window, cx);
             status_bar.add_right_item(cursor_position, window, cx);
-            status_bar.add_right_item(image_info, window, cx);
-            // Keep these last so they stay leftmost and can change without moving the other items.
-            status_bar.add_right_item(vim_mode_indicator, window, cx);
-            status_bar.add_right_item(pending_keystrokes_indicator, window, cx);
         });
 
         let panels_task = initialize_panels(window, cx);
@@ -777,11 +715,11 @@ fn show_software_emulation_warning_if_needed(
 
 fn initialize_panels(window: &mut Window, cx: &mut Context<Workspace>) -> Task<anyhow::Result<()>> {
     cx.spawn_in(window, async move |workspace_handle, cx| {
+        // B档硬删：只保留项目 / 大纲 / 终端 / Git（+ calls 时 Collab）
         let project_panel = ProjectPanel::load(workspace_handle.clone(), cx.clone());
         let outline_panel = OutlinePanel::load(workspace_handle.clone(), cx.clone());
         let terminal_panel = TerminalPanel::load(workspace_handle.clone(), cx.clone());
         let git_panel = GitPanel::load(workspace_handle.clone(), cx.clone());
-        let debug_panel = DebugPanel::load(workspace_handle.clone(), cx);
 
         async fn add_panel_when_ready(
             panel_task: impl Future<Output = anyhow::Result<Entity<impl workspace::Panel>>> + 'static,
@@ -798,7 +736,6 @@ fn initialize_panels(window: &mut Window, cx: &mut Context<Workspace>) -> Task<a
             }
         }
 
-        // CollabPanel 依赖 call/livekit，无 calls 时不加载（futures::join 内不宜夹 cfg）
         #[cfg(feature = "calls")]
         {
             let channels_panel =
@@ -809,8 +746,6 @@ fn initialize_panels(window: &mut Window, cx: &mut Context<Workspace>) -> Task<a
                 add_panel_when_ready(terminal_panel, workspace_handle.clone(), cx.clone()),
                 add_panel_when_ready(git_panel, workspace_handle.clone(), cx.clone()),
                 add_panel_when_ready(channels_panel, workspace_handle.clone(), cx.clone()),
-                add_panel_when_ready(debug_panel, workspace_handle.clone(), cx.clone()),
-                initialize_agent_panel(workspace_handle.clone(), cx.clone()).map(|r| r.log_err()),
             );
         }
         #[cfg(not(feature = "calls"))]
@@ -820,8 +755,6 @@ fn initialize_panels(window: &mut Window, cx: &mut Context<Workspace>) -> Task<a
                 add_panel_when_ready(outline_panel, workspace_handle.clone(), cx.clone()),
                 add_panel_when_ready(terminal_panel, workspace_handle.clone(), cx.clone()),
                 add_panel_when_ready(git_panel, workspace_handle.clone(), cx.clone()),
-                add_panel_when_ready(debug_panel, workspace_handle.clone(), cx.clone()),
-                initialize_agent_panel(workspace_handle.clone(), cx.clone()).map(|r| r.log_err()),
             );
         }
 
@@ -831,100 +764,6 @@ fn initialize_panels(window: &mut Window, cx: &mut Context<Workspace>) -> Task<a
 
         anyhow::Ok(())
     })
-}
-
-fn setup_or_teardown_ai_panel<P: Panel>(
-    workspace: &mut Workspace,
-    window: &mut Window,
-    cx: &mut Context<Workspace>,
-    load_panel: impl FnOnce(
-        WeakEntity<Workspace>,
-        AsyncWindowContext,
-    ) -> Task<anyhow::Result<Entity<P>>>
-    + 'static,
-) -> Task<anyhow::Result<()>> {
-    let disable_ai = SettingsStore::global(cx)
-        .get::<DisableAiSettings>(None)
-        .disable_ai
-        || cfg!(test);
-    let existing_panel = workspace.panel::<P>(cx);
-    match (disable_ai, existing_panel) {
-        (false, None) => cx.spawn_in(window, async move |workspace, cx| {
-            let panel = load_panel(workspace.clone(), cx.clone()).await?;
-            workspace.update_in(cx, |workspace, window, cx| {
-                let disable_ai = SettingsStore::global(cx)
-                    .get::<DisableAiSettings>(None)
-                    .disable_ai;
-                let have_panel = workspace.panel::<P>(cx).is_some();
-                if !disable_ai && !have_panel {
-                    workspace.add_panel(panel, window, cx);
-                }
-            })
-        }),
-        (true, Some(existing_panel)) => {
-            workspace.remove_panel::<P>(&existing_panel, window, cx);
-            Task::ready(Ok(()))
-        }
-        _ => Task::ready(Ok(())),
-    }
-}
-
-fn ensure_agent_panel_for_workspace(
-    workspace: &mut Workspace,
-    source_workspace: Option<WeakEntity<Workspace>>,
-    window: &mut Window,
-    cx: &mut Context<Workspace>,
-) -> Task<anyhow::Result<()>> {
-    let task = setup_or_teardown_ai_panel(workspace, window, cx, move |workspace, cx| {
-        agent_ui::AgentPanel::load(workspace, cx)
-    });
-
-    cx.spawn_in(window, async move |workspace, cx| {
-        task.await?;
-        workspace.update_in(cx, |workspace, window, cx| {
-            if let Some(source_workspace) = source_workspace.clone()
-                && let Some(panel) = workspace.panel::<agent_ui::AgentPanel>(cx)
-            {
-                panel.update(cx, |panel, cx| {
-                    panel.initialize_from_source_workspace_if_needed(source_workspace, window, cx);
-                });
-            }
-        })
-    })
-}
-
-async fn initialize_agent_panel(
-    workspace_handle: WeakEntity<Workspace>,
-    mut cx: AsyncWindowContext,
-) -> anyhow::Result<()> {
-    workspace_handle
-        .update_in(&mut cx, |workspace, window, cx| {
-            ensure_agent_panel_for_workspace(workspace, None, window, cx)
-        })?
-        .await?;
-
-    workspace_handle.update_in(&mut cx, |workspace, window, cx| {
-        cx.observe_global_in::<SettingsStore>(window, move |workspace, window, cx| {
-            ensure_agent_panel_for_workspace(workspace, None, window, cx).detach_and_log_err(cx);
-        })
-        .detach();
-
-        // Register the actions that are shared between `assistant` and `assistant2`.
-        //
-        // We need to do this here instead of within the individual `init`
-        // functions so that we only register the actions once.
-        //
-        // Once we ship `assistant2` we can push this back down into `agent::agent_panel::init`.
-        if !cfg!(test) {
-            workspace
-                .register_action(agent_ui::AgentPanel::toggle_focus)
-                .register_action(agent_ui::AgentPanel::focus)
-                .register_action(agent_ui::AgentPanel::toggle)
-                .register_action(agent_ui::InlineAssistant::inline_assist);
-        }
-    })?;
-
-    anyhow::Ok(())
 }
 
 fn register_actions(
@@ -1433,7 +1272,7 @@ fn register_actions(
         });
     }
 
-    workspace.register_action(sidebar::dump_workspace_info);
+    // B档硬删：sidebar::dump_workspace_info 已移除
 
     #[cfg(debug_assertions)]
     workspace.register_action(|workspace, _: &ShowWorkspaceError, _, cx| {
@@ -1484,8 +1323,7 @@ fn initialize_pane(
     let workspace_handle = cx.weak_entity();
     pane.update(cx, |pane, cx| {
         pane.toolbar().update(cx, |toolbar, cx| {
-            let multibuffer_hint = cx.new(|_| MultibufferHint::new());
-            toolbar.add_item(multibuffer_hint, window, cx);
+            // B档硬删：去掉 onboarding hint / diagnostics / DAP / ACP / 图片预览 / Agent diff 等工具条
             let solo_diff_style_toolbar = cx.new(SoloDiffStyleToolbar::new);
             toolbar.add_item(solo_diff_style_toolbar, window, cx);
             let file_diff_style_toolbar = cx.new(FileDiffStyleToolbar::new);
@@ -1503,16 +1341,10 @@ fn initialize_pane(
             let quick_action_bar =
                 cx.new(|cx| QuickActionBar::new(buffer_search_bar, workspace, cx));
             toolbar.add_item(quick_action_bar, window, cx);
-            let diagnostic_editor_controls = cx.new(|_| diagnostics::ToolbarControls::new());
-            toolbar.add_item(diagnostic_editor_controls, window, cx);
             let project_search_bar = cx.new(|_| ProjectSearchBar::new());
             toolbar.add_item(project_search_bar, window, cx);
             let lsp_log_item = cx.new(|_| LspLogToolbarItemView::new());
             toolbar.add_item(lsp_log_item, window, cx);
-            let dap_log_item = cx.new(|_| debugger_tools::DapLogToolbarItemView::new());
-            toolbar.add_item(dap_log_item, window, cx);
-            let acp_tools_item = cx.new(|_| acp_tools::AcpToolsToolbarItemView::new());
-            toolbar.add_item(acp_tools_item, window, cx);
             let telemetry_log_item =
                 cx.new(|cx| telemetry_log::TelemetryLogToolbarItemView::new(window, cx));
             toolbar.add_item(telemetry_log_item, window, cx);
@@ -1536,12 +1368,6 @@ fn initialize_pane(
             toolbar.add_item(solo_diff_git_toolbar, window, cx);
             let commit_view_toolbar = cx.new(|_| CommitViewToolbar::new());
             toolbar.add_item(commit_view_toolbar, window, cx);
-            let agent_diff_toolbar = cx.new(AgentDiffToolbar::new);
-            toolbar.add_item(agent_diff_toolbar, window, cx);
-            let basedpyright_banner = cx.new(|cx| BasedPyrightBanner::new(workspace, cx));
-            toolbar.add_item(basedpyright_banner, window, cx);
-            let image_view_toolbar = cx.new(|_| image_viewer::ImageViewToolbarControls::new());
-            toolbar.add_item(image_view_toolbar, window, cx);
         })
     });
 }
@@ -2102,31 +1928,7 @@ fn init_reduce_motion(cx: &mut App) {
     cx.observe_global::<SettingsStore>(apply).detach();
 }
 
-/// Starts watching `~/.config/zed/AGENTS.md` (or the platform equivalent) and
-/// surfaces any read errors using the same notification UI as settings errors.
-///
-/// The file itself is loaded into [`agent_settings::UserAgentsMd`] for inclusion
-/// in prompts.
-pub fn watch_user_agents_md(fs: Arc<dyn fs::Fs>, cx: &mut App) {
-    struct UserAgentsMdParseError;
-    let notification_id = NotificationId::unique::<UserAgentsMdParseError>();
-
-    init_user_agents_md(fs, cx, move |state, cx| match state {
-        UserAgentsMdState::Loaded(_) | UserAgentsMdState::Empty => {
-            dismiss_app_notification(&notification_id, cx);
-        }
-        UserAgentsMdState::Error(message) => {
-            let path = paths::agents_file().display().to_string();
-            log::error!("Failed to load user AGENTS.md from {path}: {message}");
-            let body = format!("Failed to load {path}\n{message}");
-            let notification_id = notification_id.clone();
-            show_app_notification(notification_id, cx, move |cx| {
-                let body = body.clone();
-                cx.new(|cx| MessageNotification::new(body, cx))
-            });
-        }
-    });
-}
+// B档硬删：watch_user_agents_md / AGENTS.md 监视已移除
 
 pub fn watch_settings_files(fs: Arc<dyn fs::Fs>, cx: &mut App) {
     MigrationNotification::set_global(cx.new(|_| MigrationNotification), cx);
@@ -2361,8 +2163,7 @@ fn reload_keymaps(cx: &mut App, mut user_key_bindings: Vec<KeyBinding>) {
         "New Window",
         workspace::NewWindow,
     )]);
-    // todo: nicer api here?
-    keymap_editor::KeymapEventChannel::trigger_keymap_changed(cx);
+    // B档硬删：keymap_editor 事件通道已移除
 }
 
 pub fn load_default_keymap(cx: &mut App) {
@@ -2793,10 +2594,8 @@ fn open_settings_file(
 /// Eagerly loads the active theme and icon theme based on the selections in the
 /// theme settings.
 ///
-/// This fast path exists to load these themes as soon as possible so the user
-/// doesn't see the default themes while waiting on extensions to load.
+/// B档硬删：不再从 extension_host 预取扩展主题（未 init WASM 主机）；仅依赖内置主题注册表。
 pub(crate) fn eager_load_active_theme_and_icon_theme(fs: Arc<dyn Fs>, cx: &mut App) {
-    let extension_store = ExtensionStore::global(cx);
     let theme_registry = ThemeRegistry::global(cx);
     let theme_settings = ThemeSettings::get_global(cx);
     let appearance = SystemAppearance::global(cx).0;
@@ -2808,25 +2607,18 @@ pub(crate) fn eager_load_active_theme_and_icon_theme(fs: Arc<dyn Fs>, cx: &mut A
 
     let theme_name = theme_settings.theme.name(appearance);
     let icon_theme_name = theme_settings.icon_theme.name(appearance);
+    // 无 ExtensionStore：扩展主题路径恒为 None，内置主题已在 registry 则跳过
     let themes_to_load = [
         theme_registry
             .get(&theme_name.0)
             .is_err()
-            .then(|| {
-                extension_store
-                    .read(cx)
-                    .path_to_extension_theme(&theme_name.0)
-            })
+            .then(|| None::<PathBuf>)
             .flatten()
             .map(LoadTarget::Theme),
         theme_registry
             .get_icon_theme(&icon_theme_name.0)
             .is_err()
-            .then(|| {
-                extension_store
-                    .read(cx)
-                    .path_to_extension_icon_theme(&icon_theme_name.0)
-            })
+            .then(|| None::<(PathBuf, PathBuf)>)
             .flatten()
             .map(LoadTarget::IconTheme),
     ];

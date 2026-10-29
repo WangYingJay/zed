@@ -9,7 +9,10 @@ pub struct TitleBarSettings {
     pub show_branch_name: bool,
     pub show_worktree_name: bool,
     pub show_project_items: bool,
+    // B档硬删登录 UI：字段保留以兼容 settings schema，运行时不再读取
+    #[allow(dead_code)]
     pub show_sign_in: bool,
+    #[allow(dead_code)]
     pub show_user_menu: bool,
     pub show_menus: bool,
     pub open_menus_on_hover: bool,

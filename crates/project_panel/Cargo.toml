@@ -43,13 +43,12 @@ worktree.workspace = true
 workspace.workspace = true
 language.workspace = true
 markdown.workspace = true
-markdown_preview.workspace = true
+# B档硬删：不再依赖 markdown_preview / svg_preview（预览从项目面板拿掉）
 zed_actions.workspace = true
 telemetry.workspace = true
 notifications.workspace = true
 fs.workspace = true
 log.workspace = true
-svg_preview.workspace = true
 
 [dev-dependencies]
 client = { workspace = true, features = ["test-support"] }

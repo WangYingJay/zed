@@ -31,10 +31,9 @@ use client::{Client, UserStore, zed_urls};
 use command_palette_hooks::CommandPaletteFilter;
 
 use gpui::{
-    Action, Anchor, Animation, AnimationExt, AnyElement, App, Context, Element, Entity, Focusable,
+    Action, Anchor, AnyElement, App, Context, Element, Entity, Focusable,
     InteractiveElement, IntoElement, MouseButton, ParentElement, Render,
     StatefulInteractiveElement, Styled, Subscription, WeakEntity, Window, actions, div,
-    pulsating_between,
 };
 #[cfg(feature = "calls")]
 use gpui::TaskExt;
@@ -48,7 +47,6 @@ use settings::{Settings as _, SettingsStore};
 
 use std::any::TypeId;
 use std::sync::Arc;
-use std::time::Duration;
 use theme::ActiveTheme;
 use title_bar_settings::TitleBarSettings;
 use ui::{
@@ -360,19 +358,7 @@ impl Render for TitleBar {
 
         let status = self.client.status();
         let status = &*status.borrow();
-        let user = self.user_store.read(cx).current_user();
-        let is_signing_in = user.is_none()
-            && matches!(
-                status,
-                client::Status::Authenticating
-                    | client::Status::Authenticated
-                    | client::Status::Connecting
-            );
-        let is_signed_out_or_auth_error = user.is_none()
-            && matches!(
-                status,
-                client::Status::SignedOut | client::Status::AuthenticationError
-            );
+        // B档硬删：不读 user / 不渲染 Sign In、用户菜单、登录中（本地编辑器无账号体系）
 
         // 通话控件在 collab 模块，仅 calls feature 下可用；无 feature 时不挂 child，避免缺方法
         #[cfg(feature = "calls")]
@@ -390,29 +376,6 @@ impl Render for TitleBar {
             trailing
                 .children(self.render_connection_status(status, cx))
                 .child(self.update_version.clone())
-                .when(
-                    user.is_none()
-                        && is_signed_out_or_auth_error
-                        && TitleBarSettings::get_global(cx).show_sign_in,
-                    |this| this.child(self.render_sign_in_button(cx)),
-                )
-                .when(is_signing_in, |this| {
-                    this.child(
-                        Label::new("Signing in…")
-                            .size(LabelSize::Small)
-                            .color(Color::Muted)
-                            .with_animation(
-                                "signing-in",
-                                Animation::new(Duration::from_secs(2))
-                                    .repeat()
-                                    .with_easing(pulsating_between(0.4, 0.8)),
-                                |label, delta| label.alpha(delta),
-                            ),
-                    )
-                })
-                .when(TitleBarSettings::get_global(cx).show_user_menu, |this| {
-                    this.child(self.render_user_menu_button(cx))
-                })
                 .into_any_element(),
         );
 
@@ -1225,6 +1188,8 @@ impl TitleBar {
         }
     }
 
+    // B档硬删：登录按钮保留函数以免大段删改 collab 测试，默认路径不再调用
+    #[allow(dead_code)]
     pub fn render_sign_in_button(&mut self, _: &mut Context<Self>) -> Button {
         let client = self.client.clone();
         let workspace = self.workspace.clone();
@@ -1245,6 +1210,7 @@ impl TitleBar {
             })
     }
 
+    #[allow(dead_code)]
     pub fn render_user_menu_button(&mut self, cx: &mut Context<Self>) -> impl Element {
         let show_update_button = self.update_version.read(cx).show_update_in_menu_bar();
 

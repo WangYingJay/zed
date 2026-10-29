@@ -1,13 +1,11 @@
 #[cfg(feature = "calls")]
 use collab_ui::collab_panel;
 use gpui::{App, Menu, MenuItem, OsAction};
-use project::DisableAiSettings;
-use release_channel::ReleaseChannel;
-use settings::Settings;
 use terminal_view::terminal_panel;
-use zed_actions::{Quit, assistant, debug_panel, dev, git_panel, project_panel};
+use zed_actions::{Quit, git_panel, project_panel};
 
-pub fn app_menus(cx: &mut App) -> Vec<Menu> {
+/// B档硬删：菜单只保留本地编辑器壳 + 项目/大纲/终端/Git（+ calls 时 Collab）。
+pub fn app_menus(_cx: &mut App) -> Vec<Menu> {
     let mut view_items = vec![
         MenuItem::action(
             "Zoom In",
@@ -44,7 +42,6 @@ pub fn app_menus(cx: &mut App) -> Vec<Menu> {
         MenuItem::action("Project Panel", project_panel::ToggleFocus),
         MenuItem::action("Outline Panel", outline_panel::ToggleFocus),
     ];
-    // Collab Panel 仅在启用通话栈时出现在菜单中
     #[cfg(feature = "calls")]
     view_items.push(MenuItem::action(
         "Collab Panel",
@@ -52,27 +49,9 @@ pub fn app_menus(cx: &mut App) -> Vec<Menu> {
     ));
     view_items.extend([
         MenuItem::action("Terminal Panel", terminal_panel::Toggle),
-        MenuItem::action("Debugger Panel", debug_panel::ToggleFocus),
-    ]);
-
-    if !DisableAiSettings::get_global(cx).disable_ai {
-        view_items.push(MenuItem::action("Agent Panel", assistant::ToggleFocus));
-    }
-
-    view_items.extend([
         MenuItem::action("Git Panel", git_panel::ToggleFocus),
         MenuItem::separator(),
-        MenuItem::action("Diagnostics", diagnostics::Deploy),
-        MenuItem::separator(),
     ]);
-
-    if ReleaseChannel::try_global(cx) == Some(ReleaseChannel::Dev) {
-        view_items.push(MenuItem::action(
-            "Toggle GPUI Inspector",
-            dev::ToggleInspector,
-        ));
-        view_items.push(MenuItem::separator());
-    }
 
     vec![
         Menu {
@@ -89,7 +68,6 @@ pub fn app_menus(cx: &mut App) -> Vec<Menu> {
                     MenuItem::action("Open Project Settings File", super::OpenProjectSettingsFile),
                     MenuItem::action("Open Default Settings", super::OpenDefaultSettings),
                     MenuItem::separator(),
-                    MenuItem::action("Open Keymap", zed_actions::OpenKeymap),
                     MenuItem::action("Open Keymap File", zed_actions::OpenKeymapFile),
                     MenuItem::action("Open Default Key Bindings", zed_actions::OpenDefaultKeymap),
                     MenuItem::separator(),
@@ -106,7 +84,6 @@ pub fn app_menus(cx: &mut App) -> Vec<Menu> {
                 #[cfg(target_os = "macos")]
                 MenuItem::os_submenu("Services", gpui::SystemMenuType::Services),
                 MenuItem::separator(),
-                MenuItem::action("Extensions", zed_actions::Extensions::default()),
                 #[cfg(not(target_os = "windows"))]
                 MenuItem::action("Install CLI", install_cli::InstallCliBinary),
                 MenuItem::separator(),
@@ -138,7 +115,6 @@ pub fn app_menus(cx: &mut App) -> Vec<Menu> {
                     workspace::Open::default(),
                 ),
                 MenuItem::action("Open Recent…", zed_actions::OpenRecent::default()),
-                MenuItem::action("Open Remote…", zed_actions::OpenRemote::default()),
                 MenuItem::separator(),
                 MenuItem::action("Add Folder to Project…", workspace::AddFolderToProject),
                 MenuItem::separator(),
@@ -241,7 +217,6 @@ pub fn app_menus(cx: &mut App) -> Vec<Menu> {
                 MenuItem::action("Command Palette...", zed_actions::command_palette::Toggle),
                 MenuItem::separator(),
                 MenuItem::action("Go to File...", workspace::ToggleFileFinder::default()),
-                // MenuItem::action("Go to Symbol in Project", project_symbols::Toggle),
                 MenuItem::action(
                     "Go to Symbol in Editor...",
                     zed_actions::outline::ToggleOutline,
@@ -264,8 +239,6 @@ pub fn app_menus(cx: &mut App) -> Vec<Menu> {
                     "Find All References",
                     editor::actions::FindAllReferences::default(),
                 ),
-                MenuItem::action("Show Incoming Calls", call_hierarchy::ShowIncomingCalls),
-                MenuItem::action("Show Outgoing Calls", call_hierarchy::ShowOutgoingCalls),
                 MenuItem::separator(),
                 MenuItem::action("Next Problem", editor::actions::GoToDiagnostic::default()),
                 MenuItem::action(
@@ -284,19 +257,8 @@ pub fn app_menus(cx: &mut App) -> Vec<Menu> {
                         reveal_target: None,
                     },
                 ),
-                MenuItem::action("Start Debugger", debugger_ui::Start),
                 MenuItem::separator(),
                 MenuItem::action("Edit tasks.json…", zed_actions::OpenProjectTasks),
-                MenuItem::action("Edit debug.json…", zed_actions::OpenProjectDebugTasks),
-                MenuItem::separator(),
-                MenuItem::action("Continue", debugger_ui::Continue),
-                MenuItem::action("Step Over", debugger_ui::StepOver),
-                MenuItem::action("Step Into", debugger_ui::StepInto),
-                MenuItem::action("Step Out", debugger_ui::StepOut),
-                MenuItem::separator(),
-                MenuItem::action("Toggle Breakpoint", editor::actions::ToggleBreakpoint),
-                MenuItem::action("Edit Breakpoint", editor::actions::EditLogBreakpoint),
-                MenuItem::action("Clear All Breakpoints", debugger_ui::ClearAllBreakpoints),
             ],
         },
         Menu {
@@ -312,35 +274,12 @@ pub fn app_menus(cx: &mut App) -> Vec<Menu> {
             name: "Help".into(),
             disabled: false,
             items: vec![
-                MenuItem::action(
-                    "View Release Notes Locally",
-                    auto_update_ui::ViewReleaseNotesLocally,
-                ),
-                MenuItem::action("View Telemetry", zed_actions::OpenTelemetryLog),
                 MenuItem::action("View Dependency Licenses", zed_actions::OpenLicenses),
-                MenuItem::action("Show Welcome", onboarding::ShowWelcome),
-                MenuItem::separator(),
-                MenuItem::action("File Bug Report...", zed_actions::feedback::FileBugReport),
-                MenuItem::action("Request Feature...", zed_actions::feedback::RequestFeature),
-                MenuItem::action("Email Us...", zed_actions::feedback::EmailZed),
                 MenuItem::separator(),
                 MenuItem::action(
                     "Documentation",
                     super::OpenBrowser {
                         url: "https://zed.dev/docs".into(),
-                    },
-                ),
-                MenuItem::action("Zed Repository", feedback::OpenZedRepo),
-                MenuItem::action(
-                    "Zed Twitter",
-                    super::OpenBrowser {
-                        url: "https://twitter.com/zeddotdev".into(),
-                    },
-                ),
-                MenuItem::action(
-                    "Join the Team",
-                    super::OpenBrowser {
-                        url: "https://zed.dev/jobs".into(),
                     },
                 ),
             ],

@@ -30,7 +30,6 @@ use gpui::{
 };
 use itertools::Itertools;
 use language::DiagnosticSeverity;
-use markdown_preview::markdown_preview_view::MarkdownPreviewView;
 use menu::{Confirm, SelectFirst, SelectLast, SelectNext, SelectPrevious};
 use notifications::status_toast::StatusToast;
 use project::{
@@ -58,7 +57,6 @@ use std::{
     sync::Arc,
     time::{Duration, Instant},
 };
-use svg_preview::svg_preview_view::SvgPreviewView;
 use theme_settings::ThemeSettings;
 use ui::{
     ContextMenu, DecoratedIcon, IconDecoration, IconDecorationKind, IndentGuideColors,
@@ -452,12 +450,9 @@ actions!(
         Undo,
         /// Redoes the last undone file operation.
         Redo,
-        /// Opens a markdown preview for the selected file.
-        OpenMarkdownPreview,
         /// Opens the context menu for the selected entry.
         OpenContextMenu,
-        /// Opens an SVG preview for the selected file.
-        OpenSvgPreview,
+        // B档硬删：OpenMarkdownPreview / OpenSvgPreview 已移除
     ]
 );
 
@@ -1156,10 +1151,8 @@ impl ProjectPanel {
             let is_remote = project.is_remote();
             let is_collab = project.is_via_collab();
             let is_local = project.is_local() || project.is_via_wsl_with_host_interop(cx);
-            let file_name = Path::new(entry_file_name(entry, worktree.root_name()));
-            let is_markdown =
-                !is_dir && MarkdownPreviewView::is_markdown_path(file_name, project.languages());
-            let is_svg = !is_dir && SvgPreviewView::is_svg_path(file_name);
+            let _file_name = Path::new(entry_file_name(entry, worktree.root_name()));
+            // B档硬删：不再提供 Markdown/SVG 预览菜单项
 
             let settings = ProjectPanelSettings::get_global(cx);
             let visible_worktrees_count = project.visible_worktrees(cx).count();
@@ -1188,13 +1181,7 @@ impl ProjectPanel {
             let context_menu = ContextMenu::build(window, cx, |menu, _, _| {
                 menu.context(self.focus_handle.clone()).map(|menu| {
                     if is_read_only {
-                        menu.when(is_markdown, |menu| {
-                            menu.action("Open Markdown Preview", Box::new(OpenMarkdownPreview))
-                        })
-                        .when(is_svg, |menu| {
-                            menu.action("Open SVG Preview", Box::new(OpenSvgPreview))
-                        })
-                        .when(is_dir, |menu| {
+                        menu.when(is_dir, |menu| {
                             menu.action("Search Inside", Box::new(NewSearchInDirectory))
                         })
                     } else {
@@ -1211,12 +1198,6 @@ impl ProjectPanel {
                                 menu.action("Open in Default App", Box::new(OpenWithSystem))
                             })
                             .action("Open in Terminal", Box::new(OpenInTerminal))
-                            .when(is_markdown, |menu| {
-                                menu.action("Open Markdown Preview", Box::new(OpenMarkdownPreview))
-                            })
-                            .when(is_svg, |menu| {
-                                menu.action("Open SVG Preview", Box::new(OpenSvgPreview))
-                            })
                             .when(is_dir, |menu| {
                                 menu.separator()
                                     .action("Find in Folder…", Box::new(NewSearchInDirectory))
@@ -2001,47 +1982,6 @@ impl ProjectPanel {
             window,
             cx,
         );
-    }
-
-    fn open_markdown_preview(
-        &mut self,
-        _: &OpenMarkdownPreview,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) {
-        let Some((project_path, file_name)) = self.selected_file(cx) else {
-            return;
-        };
-        if !MarkdownPreviewView::is_markdown_path(
-            Path::new(file_name),
-            self.project.read(cx).languages(),
-        ) {
-            return;
-        }
-        self.workspace
-            .update(cx, |workspace, cx| {
-                MarkdownPreviewView::open_for_project_path(project_path, workspace, window, cx);
-            })
-            .ok();
-    }
-
-    fn open_svg_preview(
-        &mut self,
-        _: &OpenSvgPreview,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) {
-        let Some((project_path, file_name)) = self.selected_file(cx) else {
-            return;
-        };
-        if !SvgPreviewView::is_svg_path(Path::new(file_name)) {
-            return;
-        }
-        self.workspace
-            .update(cx, |workspace, cx| {
-                SvgPreviewView::open_for_project_path(project_path, workspace, window, cx)
-            })
-            .ok();
     }
 
     fn open_internal(
@@ -7681,8 +7621,6 @@ impl Render for ProjectPanel {
                 .on_action(cx.listener(Self::open_permanent))
                 .on_action(cx.listener(Self::open_split_vertical))
                 .on_action(cx.listener(Self::open_split_horizontal))
-                .on_action(cx.listener(Self::open_markdown_preview))
-                .on_action(cx.listener(Self::open_svg_preview))
                 .on_action(cx.listener(Self::confirm))
                 .on_action(cx.listener(Self::cancel))
                 .on_action(cx.listener(Self::copy_path))
