@@ -12,7 +12,6 @@ use dev_container::{
     start_dev_container_with_config,
 };
 use editor::Editor;
-use extension_host::ExtensionStore;
 use filter::{FilterData, FilteredServer};
 use futures::{FutureExt, StreamExt as _, channel::oneshot, future::Shared};
 use gpui::{
@@ -2275,15 +2274,13 @@ impl RemoteServerProjects {
                         return;
                     }
                 };
-            cx.update(|_, cx| {
-                ExtensionStore::global(cx).update(cx, |this, cx| {
-                    for extension in &dev_container_connection.extension_ids {
-                        log::info!("Installing extension {extension} from devcontainer");
-                        this.install_latest_extension(Arc::from(extension.clone()), cx);
-                    }
-                })
-            })
-            .log_err();
+            // B档第二刀：不链 extension_host，跳过从 devcontainer 清单装扩展。
+            if !dev_container_connection.extension_ids.is_empty() {
+                log::info!(
+                    "Skipping {} extension install(s) from devcontainer (extension_host removed)",
+                    dev_container_connection.extension_ids.len()
+                );
+            }
 
             entity
                 .update(cx, |this, cx| {

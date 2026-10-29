@@ -1,5 +1,4 @@
 use collections::{HashMap, HashSet, VecDeque};
-use edit_prediction::EditPredictionStore;
 use editor::{Editor, EditorEvent, MultiBufferOffset, actions::MoveToEnd, scroll::Autoscroll};
 use gpui::{
     Anchor, App, Context, Entity, EventEmitter, FocusHandle, Focusable, IntoElement, ParentElement,
@@ -391,11 +390,9 @@ impl LspLogView {
         (editor, vec![editor_subscription, search_subscription])
     }
     pub(crate) fn sync_copilot_for_project(&self, cx: &mut App) {
-        let server = EditPredictionStore::try_global(cx)
-            .and_then(|store| store.read(cx).copilot_for_project(&self.project))
-            .and_then(|copilot| copilot.read(cx).language_server().cloned());
+        // B档第二刀：无 edit_prediction/copilot 时清空日志里的 copilot server 条目。
         self.log_store.update(cx, |log_store, cx| {
-            log_store.sync_copilot_for_project(&self.project.downgrade(), server, cx);
+            log_store.sync_copilot_for_project(&self.project.downgrade(), None, cx);
         });
     }
 

@@ -83,9 +83,8 @@ required-features = ["visual-tests"]
 action_log = { workspace = true, optional = true }
 activity_indicator.workspace = true
 agent_servers = { workspace = true, optional = true }
-# agent_settings 仍被 settings_ui 硬链；zed 仅残留 keymap/disable_ai 相关设置类型
+# agent_settings：keymap/disable_ai 等设置类型；AI settings_ui 页已拆
 agent_settings.workspace = true
-agent_skills.workspace = true
 anyhow.workspace = true
 askpass.workspace = true
 assets.workspace = true

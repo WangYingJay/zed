@@ -71,9 +71,20 @@ use project::{
     },
     project_settings::{GitPathStyle, ProjectSettings},
 };
-use prompt_store::RULES_FILE_NAMES;
-
 use serde::{Deserialize, Serialize};
+
+// B档第二刀：内联规则文件名，避免 git_ui → prompt_store → agent_skills。
+const RULES_FILE_NAMES: &[&str] = &[
+    ".rules",
+    ".cursorrules",
+    ".windsurfrules",
+    ".clinerules",
+    ".github/copilot-instructions.md",
+    "AGENT.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "GEMINI.md",
+];
 use settings::{
     GitPanelClickBehavior, GitPanelCommitEditor, GitPanelGroupBy, GitPanelSortBy, Settings,
     SettingsStore, StatusStyle, update_settings_file,

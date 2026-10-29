@@ -951,11 +951,6 @@ fn handle_open_request(request: OpenRequest, app_state: Arc<AppState>, cx: &mut 
                 let _ = external_source_prompt;
                 log::warn!("zed://agent ignored: Agent UI hard-removed");
             }
-            OpenRequestKind::InstallSkill { content } => {
-                // B档硬删：无 Skill Creator / 账号技能安装
-                let _ = content;
-                log::warn!("zed://skill ignored: skill creator hard-removed from lean build");
-            }
             OpenRequestKind::DockMenuAction { index } => {
                 cx.perform_dock_menu_action(index);
             }
