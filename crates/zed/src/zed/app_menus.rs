@@ -76,9 +76,7 @@ pub fn app_menus(_cx: &mut App) -> Vec<Menu> {
                 #[cfg(target_os = "macos")]
                 MenuItem::os_submenu("服务", gpui::SystemMenuType::Services),
                 MenuItem::separator(),
-                #[cfg(not(target_os = "windows"))]
-                MenuItem::action("安装命令行工具", install_cli::InstallCliBinary),
-                MenuItem::separator(),
+                // B档第八刀：卸 install_cli（菜单不再提供「安装命令行工具」）
                 #[cfg(target_os = "macos")]
                 MenuItem::action("隐藏 Zed", super::Hide),
                 #[cfg(target_os = "macos")]

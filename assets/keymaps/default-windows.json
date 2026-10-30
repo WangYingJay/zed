@@ -903,9 +903,7 @@
     "use_key_equivalents": true,
     "bindings": {
       "ctrl-shift-alt-f": "workspace::FollowNextCollaborator",
-      "shift-alt-i": "dev::ToggleInspector",
-      "ctrl-alt-shift-p": "dev::ToggleFpsOverlay",
-      "ctrl-alt-shift-d": "dev::ResetFrameOverlayStats"
+      "shift-alt-i": "dev::ToggleInspector"
     }
   },
   {

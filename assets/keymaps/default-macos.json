@@ -1009,9 +1009,7 @@
     "use_key_equivalents": true,
     "bindings": {
       "ctrl-alt-cmd-f": "workspace::FollowNextCollaborator",
-      "cmd-alt-i": "dev::ToggleInspector",
-      "ctrl-alt-shift-p": "dev::ToggleFpsOverlay",
-      "ctrl-alt-shift-o": "dev::ResetFrameOverlayStats"
+      "cmd-alt-i": "dev::ToggleInspector"
     }
   },
   {

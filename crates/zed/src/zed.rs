@@ -89,12 +89,12 @@ use vim_mode_setting::VimModeSetting;
 use workspace::notifications::{NotificationId, dismiss_app_notification, show_app_notification};
 
 use workspace::{
-    AppState, MultiWorkspace, NewFile, NewWindow, OpenLog, Toast, Workspace,
+    AppState, MultiWorkspace, NewFile, NewWindow, OpenLog, Workspace,
     WorkspaceSettings, create_and_open_local_file,
     notifications::simple_message_notification::MessageNotification, open_new,
 };
 use workspace::{CloseProject, CloseWindow, RestoreBanner, with_active_or_new_workspace};
-use workspace::{Pane, notifications::DetachAndPromptErr};
+use workspace::Pane;
 use zed_actions::{
     About, GetMerch, OpenAccountSettings, OpenBrowser, OpenDocs, OpenProjectTasks,
     OpenServerSettings, OpenSettingsFile, OpenStatusPage, OpenZedUrl, Quit,
@@ -463,22 +463,7 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut App) {
             .detach();
         }
 
-        cx.spawn_in(window, async move |_this, cx| {
-            const TELEMETRY_INTERVAL: std::time::Duration = std::time::Duration::from_mins(5);
-            loop {
-                cx.background_executor().timer(TELEMETRY_INTERVAL).await;
-                if cx
-                    .update(|window, cx| {
-                        input_latency_ui::report_input_latency_telemetry(window, cx);
-                        input_latency_ui::report_frame_duration_telemetry(window, cx);
-                    })
-                    .is_err()
-                {
-                    break;
-                }
-            }
-        })
-        .detach();
+        // B档第八刀：卸 input_latency_ui 周期遥测
 
         let multi_workspace_handle = cx.entity().downgrade();
         window.on_window_should_close(cx, move |window, cx| {
@@ -776,52 +761,7 @@ fn register_actions(
         .register_action(|_, _: &OpenDocs, _, cx| cx.open_url(DOCS_URL))
         .register_action(|_, _: &OpenStatusPage, _, cx| cx.open_url(STATUS_URL))
         .register_action(|_, _: &GetMerch, _, cx| cx.open_url(MERCH_URL))
-        .register_action(
-            |workspace: &mut Workspace,
-             _: &input_latency_ui::DumpInputLatencyHistogram,
-             window: &mut Window,
-             cx: &mut Context<Workspace>| {
-                let project = workspace.project().clone();
-                // In a collab session the report buffer is visible to other
-                // participants, so attribute the data to this user's machine.
-                let reported_by = if project.read(cx).is_shared()
-                    || project.read(cx).is_via_collab()
-                {
-                    workspace
-                        .user_store()
-                        .read(cx)
-                        .current_user()
-                        .map(|user| user.username.to_string())
-                } else {
-                    None
-                };
-                let report_data = input_latency_ui::snapshot_input_latency_report(
-                    window,
-                    reported_by,
-                    cx,
-                );
-                cx.spawn_in(window, async move |workspace, cx| {
-                    let report = cx
-                        .background_spawn(async move {
-                            input_latency_ui::format_input_latency_report(&report_data)
-                        })
-                        .await;
-                    let buffer = project
-                        .update(cx, |project, cx| project.create_buffer(None, true, cx))
-                        .await?;
-                    buffer.update(cx, |buffer, cx| {
-                        buffer.set_text(report, cx);
-                    });
-                    workspace.update_in(cx, |workspace, window, cx| {
-                        let editor = cx
-                            .new(|cx| Editor::for_buffer(buffer, Some(project), window, cx));
-                        workspace
-                            .add_item_to_active_pane(Box::new(editor), None, true, window, cx);
-                    })
-                })
-                .detach_and_log_err(cx);
-            },
-        )
+        // B档第八刀：卸 DumpInputLatencyHistogram action
         .register_action(
             |workspace: &mut Workspace,
              _: &DumpAccessibilityTree,
@@ -894,14 +834,9 @@ fn register_actions(
                 window.toggle_fullscreen();
             }
         })
-        .register_action(|_, _: &zed_actions::dev::ToggleFpsOverlay, window, _| {
-            window.cycle_debug_frame_overlay_mode();
-        })
-        .register_action(
-            |_, _: &zed_actions::dev::ResetFrameOverlayStats, window, _| {
-                window.reset_debug_frame_overlay_stats();
-            },
-        )
+        // B档第八刀：卸 gpui profiler 后 FPS overlay API 不可用；保留 action 注册防 keymap panic
+        .register_action(|_, _: &zed_actions::dev::ToggleFpsOverlay, _, _| {})
+        .register_action(|_, _: &zed_actions::dev::ResetFrameOverlayStats, _, _| {})
         .register_action(|_, action: &OpenZedUrl, _, cx| {
             OpenListener::global(cx).open(RawOpenRequest {
                 urls: vec![String::from(&*action.url)],
@@ -1124,32 +1059,7 @@ fn register_actions(
                 }
             }
         })
-        .register_action(|_, _: &install_cli::RegisterZedScheme, window, cx| {
-            cx.spawn_in(window, async move |workspace, cx| {
-                install_cli::register_zed_scheme(cx).await?;
-                workspace.update_in(cx, |workspace, _, cx| {
-                    struct RegisterZedScheme;
-
-                    workspace.show_toast(
-                        Toast::new(
-                            NotificationId::unique::<RegisterZedScheme>(),
-                            format!(
-                                "zed:// links will now open in {}.",
-                                ReleaseChannel::global(cx).display_name()
-                            ),
-                        ),
-                        cx,
-                    )
-                })?;
-                Ok(())
-            })
-            .detach_and_prompt_err(
-                "Error registering zed:// scheme",
-                window,
-                cx,
-                |_, _, _| None,
-            );
-        })
+        // B档第八刀：卸 RegisterZedScheme / install_cli
         .register_action(open_project_settings_file)
         .register_action(open_project_tasks_file)
         .register_action(open_worktree_setup_tasks_file)
@@ -1237,8 +1147,7 @@ fn register_actions(
             }
         });
 
-    #[cfg(not(target_os = "windows"))]
-    workspace.register_action(install_cli);
+    // B档第八刀：卸 install_cli action 注册
 
     if workspace.project().read(cx).is_via_remote_server() {
         workspace.register_action({
@@ -1584,16 +1493,6 @@ fn open_about_window(cx: &mut App) {
         },
     )
     .log_err();
-}
-
-#[cfg(not(target_os = "windows"))]
-fn install_cli(
-    _: &mut Workspace,
-    _: &install_cli::InstallCliBinary,
-    window: &mut Window,
-    cx: &mut Context<Workspace>,
-) {
-    install_cli::install_cli_binary(window, cx)
 }
 
 static WAITING_QUIT_CONFIRMATION: AtomicBool = AtomicBool::new(false);

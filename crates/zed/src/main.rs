@@ -54,8 +54,7 @@ use std::{
     path::{Path, PathBuf},
     process,
     rc::Rc,
-    sync::{Arc, LazyLock, OnceLock},
-    time::Instant,
+    sync::{Arc, LazyLock},
 };
 use theme::{ActiveTheme, GlobalTheme, ThemeRegistry};
 use theme_settings::load_user_theme;
@@ -190,16 +189,8 @@ fn fail_to_open_window(e: anyhow::Error, _cx: &mut App) {
         .detach();
     }
 }
-static STARTUP_TIME: OnceLock<Instant> = OnceLock::new();
-
 fn main() {
-    STARTUP_TIME.get_or_init(|| Instant::now());
-
-    // If this process was re-executed as a Linux sandbox helper, run that mode
-    // without returning. Must run before argument parsing: the wrapped command's
-    // args are appended verbatim and would otherwise be misinterpreted as Zed's
-    // own arguments.
-    sandbox::run_sandbox_launcher_if_invoked();
+    // B档第八刀：卸 sandbox 启动旁路（agent sandbox 已出默认树；本进程不再做 sandbox helper）
 
     #[cfg(unix)]
     util::prevent_root_execution();
@@ -678,7 +669,7 @@ fn main() {
         // B档第七刀：卸掉 feedback（仅系统规格/报 bug 外链；无 client 旁路价值，整 crate 出默认树）
         settings_ui::init(cx);
         json_schema_store::init(cx);
-        miniprofiler_ui::init(*STARTUP_TIME.get().unwrap(), cx);
+        // B档第八刀：卸 miniprofiler_ui（及 gpui profiler feature）
         #[cfg(target_os = "windows")]
         etw_tracing::init(cx);
 

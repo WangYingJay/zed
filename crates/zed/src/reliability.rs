@@ -25,12 +25,11 @@ use sysinfo::{MemoryRefreshKind, ProcessRefreshKind, ProcessesToUpdate, RefreshK
 use util::ResultExt;
 use workspace::WorkspaceStore;
 
-mod hang_detection;
+// B档第八刀：卸 hang_telemetry / hang_detection（保留 crashes 与 minidump 上传路径）
 
 type ProjectRegistry = Rc<RefCell<Vec<WeakEntity<Project>>>>;
 
 pub fn init(client: Arc<Client>, workspace_store: Entity<WorkspaceStore>, cx: &mut App) {
-    hang_detection::start(client.clone(), cx);
     let projects = ProjectRegistry::default();
     start_memory_usage_logging(workspace_store, projects.clone(), cx);
 
