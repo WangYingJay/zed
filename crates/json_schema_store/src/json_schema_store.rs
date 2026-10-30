@@ -80,12 +80,7 @@ pub fn init(cx: &mut App) {
         .detach();
     }
 
-    cx.observe_global::<dap::DapRegistry>(move |cx| {
-        cx.update_global::<SchemaStore, _>(|schema_store, cx| {
-            schema_store.notify_schema_changed(ChangedSchemas::DebugTasks, cx);
-        });
-    })
-    .detach();
+    // B档第九刀：无 DapRegistry，debug_tasks schema 固定为空 stub，无需观察。
 }
 
 #[derive(Default)]
@@ -382,10 +377,8 @@ async fn resolve_dynamic_schema(
             schema
         }
         "debug_tasks" => {
-            let adapter_schemas = cx.read_global::<dap::DapRegistry, _>(|dap_registry, _| {
-                dap_registry.adapters_schema()
-            });
-            task::DebugTaskFile::generate_json_schema(&adapter_schemas)
+            // B档第九刀：默认树无调试适配器，返回空 schema 集合。
+            task::DebugTaskFile::generate_json_schema(&task::AdapterSchemas(Vec::new()))
         }
         "keymap" => cx.update(settings::KeymapFile::generate_json_schema_for_registered_actions),
         "action" => {

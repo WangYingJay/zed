@@ -1,10 +1,9 @@
 use super::{Client, Status, TypedEnvelope, proto};
 use anyhow::{Context as _, Result};
 use chrono::{DateTime, Utc};
-use cloud_api_client::websocket_protocol::MessageToClient;
-use cloud_api_client::{
-    GetAuthenticatedUserResponse, KnownOrUnknown, Organization, OrganizationId, Plan, PlanInfo,
-    UpdateSystemSettingsBody,
+use crate::cloud_api_stub::{
+    GetAuthenticatedUserResponse, KnownOrUnknown, MessageToClient, Organization, OrganizationId,
+    Plan, PlanInfo, UpdateSystemSettingsBody,
 };
 use cloud_api_types::{OrganizationConfiguration, UsageLimit};
 
@@ -815,7 +814,7 @@ impl UserStore {
     pub fn plan(&self) -> Option<Plan> {
         #[cfg(debug_assertions)]
         if let Ok(plan) = std::env::var("ZED_SIMULATE_PLAN").as_ref() {
-            use cloud_api_client::Plan;
+            use crate::cloud_api_stub::Plan;
 
             return match plan.as_str() {
                 "free" => Some(Plan::ZedFree),

@@ -1,4 +1,5 @@
 mod capabilities;
+#[cfg(feature = "wasm-builder")]
 pub mod extension_builder;
 mod extension_events;
 mod extension_host_proxy;
@@ -190,33 +191,40 @@ pub trait Extension: Send + Sync + 'static {
     ) -> Result<DebugRequest>;
 }
 
+/// 解析扩展 WASM 中的 zed:api-version。
+/// B档第九刀：默认构建无 wasmparser；需 `wasm-builder` feature 才真正解析。
 pub fn parse_wasm_extension_version(extension_id: &str, wasm_bytes: &[u8]) -> Result<Version> {
-    let mut version = None;
+    #[cfg(feature = "wasm-builder")]
+    {
+        let mut version = None;
 
-    for part in wasmparser::Parser::new(0).parse_all(wasm_bytes) {
-        if let wasmparser::Payload::CustomSection(s) =
-            part.context("error parsing wasm extension")?
-            && s.name() == "zed:api-version"
-        {
-            version = parse_wasm_extension_version_custom_section(s.data());
-            if version.is_none() {
-                bail!(
-                    "extension {} has invalid zed:api-version section: {:?}",
-                    extension_id,
-                    s.data()
-                );
+        for part in wasmparser::Parser::new(0).parse_all(wasm_bytes) {
+            if let wasmparser::Payload::CustomSection(s) =
+                part.context("error parsing wasm extension")?
+                && s.name() == "zed:api-version"
+            {
+                version = parse_wasm_extension_version_custom_section(s.data());
+                if version.is_none() {
+                    bail!(
+                        "extension {} has invalid zed:api-version section: {:?}",
+                        extension_id,
+                        s.data()
+                    );
+                }
             }
         }
-    }
 
-    // The reason we wait until we're done parsing all of the Wasm bytes to return the version
-    // is to work around a panic that can happen inside of Wasmtime when the bytes are invalid.
-    //
-    // By parsing the entirety of the Wasm bytes before we return, we're able to detect this problem
-    // earlier as an `Err` rather than as a panic.
-    version.with_context(|| format!("extension {extension_id} has no zed:api-version section"))
+        // 完整解析再返回，避免无效字节在后续 Wasmtime 路径 panic。
+        version.with_context(|| format!("extension {extension_id} has no zed:api-version section"))
+    }
+    #[cfg(not(feature = "wasm-builder"))]
+    {
+        let _ = wasm_bytes;
+        bail!("WASM extension parsing disabled in this build ({extension_id})")
+    }
 }
 
+#[cfg(feature = "wasm-builder")]
 fn parse_wasm_extension_version_custom_section(data: &[u8]) -> Option<Version> {
     if data.len() == 6 {
         Some(Version::new(

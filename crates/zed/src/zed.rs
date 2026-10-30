@@ -104,10 +104,6 @@ const DOCS_URL: &str = "https://zed.dev/docs/";
 const STATUS_URL: &str = "https://status.zed.dev";
 const MERCH_URL: &str = "https://merch.zed.dev/";
 
-pub struct CrashHandler(pub Arc<crashes::Client>);
-
-impl gpui::Global for CrashHandler {}
-
 actions!(
     zed,
     [
@@ -529,9 +525,6 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut App) {
         if let Some(specs) = window.gpu_specs() {
             log::info!("Using GPU: {:?}", specs);
             show_software_emulation_warning_if_needed(specs.clone(), window, cx);
-            if let Some(crash_client) = cx.try_global::<CrashHandler>() {
-                crashes::set_gpu_info(&crash_client.0, specs);
-            }
         }
 
         // B档硬删：status bar 只留搜索 / LSP / 文件名 / Git / 编码语言 / 光标等基础项
@@ -2231,6 +2224,7 @@ fn open_worktree_setup_tasks_file(
 ) {
     // Kept harmless on purpose: tasks with the `create_worktree` hook run automatically
     // when a worktree is created, so the example must be safe to save unedited.
+    #[allow(dead_code)] // B档第九刀保留示例文案，供用户手抄进 tasks.json
     const WORKTREE_SETUP_TASK_EXAMPLE: &str = r#"  {
     // Runs automatically after Zed creates a new git worktree.
     // $ZED_WORKTREE_ROOT is the new worktree's root directory, and
@@ -2253,7 +2247,7 @@ fn open_worktree_setup_tasks_file(
 
     cx.spawn_in(window, async move |_, cx| {
         let editor = open_task.await?;
-        editor.update_in(cx, |editor, window, cx| {
+        editor.update_in(cx, |editor, _window, cx| {
             // Skip insertion if the file already mentions the hook (even in a comment,
             // like the seeded template's example — uncommenting it beats duplicating it).
             // `create_git_worktree` is a serde alias for the same hook.
@@ -2261,12 +2255,8 @@ fn open_worktree_setup_tasks_file(
             if text.contains("create_worktree") || text.contains("create_git_worktree") {
                 return anyhow::Ok(());
             }
-            tasks_ui::insert_task_json_into_editor(
-                editor,
-                WORKTREE_SETUP_TASK_EXAMPLE.to_string(),
-                window,
-                cx,
-            )
+            // B档第九刀：卸 tasks_ui 后不再自动插入示例 task，用户可手动编辑已打开的模板。
+            anyhow::Ok(())
         })?
     })
     .detach_and_log_err(cx);
@@ -6238,7 +6228,7 @@ mod tests {
 
             repl::init(app_state.fs.clone(), cx);
             repl::notebook::init(cx);
-            tasks_ui::init(cx);
+            // B档第九刀：默认树不 init tasks_ui（调试/跑 task 走 tasks.json 手改）。
             project::debugger::breakpoint_store::BreakpointStore::init(
                 &app_state.client.clone().into(),
             );

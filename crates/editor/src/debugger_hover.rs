@@ -1,5 +1,5 @@
 use anyhow::anyhow;
-use dap::client::SessionId;
+use project::SessionId;
 use gpui::{
     AnyElement, App, AsyncWindowContext, Bounds, Context, Entity, Focusable as _, Hsla,
     InteractiveElement, IntoElement, MouseButton, MouseDownEvent, ParentElement, Pixels, Render,

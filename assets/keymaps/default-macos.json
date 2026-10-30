@@ -254,8 +254,6 @@
       "cmd-alt-g m": "git::OpenModifiedFiles",
       "cmd-alt-g r": "git::ReviewDiff",
       "cmd-i": "editor::ShowSignatureHelp",
-      "f9": "editor::ToggleBreakpoint",
-      "shift-f9": "editor::EditLogBreakpoint",
       "ctrl-f12": "editor::GoToDeclaration",
       "alt-ctrl-f12": "editor::GoToDeclarationSplit",
       "ctrl-cmd-e": "editor::ToggleEditPrediction"
@@ -853,27 +851,7 @@
     "context": "Workspace && !Terminal",
     "use_key_equivalents": true,
     "bindings": {
-      "cmd-n": "workspace::NewFile",
-      "cmd-shift-r": "task::Spawn",
-      "cmd-alt-r": [
-        "task::Rerun",
-        {
-          "reevaluate_context": false
-        }
-      ],
-      "ctrl-alt-shift-r": [
-        "task::Spawn",
-        {
-          "reveal_target": "center"
-        }
-      ]
-    }
-  },
-  {
-    "context": "Workspace && debugger_running",
-    "use_key_equivalents": true,
-    "bindings": {
-      "f5": null
+      "cmd-n": "workspace::NewFile"
     }
   },
   {

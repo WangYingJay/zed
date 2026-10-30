@@ -150,7 +150,6 @@ use code_lens::CodeLensState;
 use collections::{BTreeMap, HashMap, HashSet, VecDeque};
 use convert_case::{Case, Casing};
 use cursor_animation::CursorAnimationStates;
-use dap::TelemetrySpawnLocation;
 use display_map::*;
 use document_colors::LspColorData;
 use document_links::LspDocumentLinks;
@@ -2360,10 +2359,8 @@ impl Editor {
             _ => None,
         };
 
-        let breakpoint_store = match (&mode, project.as_ref()) {
-            (EditorMode::Full { .. }, Some(project)) => Some(project.read(cx).breakpoint_store()),
-            _ => None,
-        };
+        // B档第九刀：默认树不挂断点 store，gutter 调试菜单与断点渲染为空。
+        let breakpoint_store = None;
 
         let mut code_action_providers = Vec::new();
         if let Some(project) = project.clone() {

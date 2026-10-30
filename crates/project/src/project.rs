@@ -33,7 +33,7 @@ use git_store::{Repository, RepositoryId};
 pub mod search_history;
 pub mod yarn;
 
-use dap::inline_value::{InlineValueLocation, VariableLookupKind, VariableScope};
+use debugger::{InlineValueLocation, VariableLookupKind, VariableScope};
 use itertools::{Either, Itertools};
 
 use crate::{
@@ -63,19 +63,17 @@ use client::{
 };
 use clock::ReplicaId;
 
-use dap::{
-    VariableReference,
-    client::{DebugAdapterClient, SessionId},
-};
-
 use collections::{BTreeSet, HashMap, HashSet, IndexSet};
 use debounced_delay::DebouncedDelay;
 pub use debugger::breakpoint_store::BreakpointWithPosition;
 use debugger::{
+    DebugAdapterClient, EvaluateResponse, Variable, VariableReference,
     breakpoint_store::{ActiveStackFrame, BreakpointStore},
     dap_store::{DapStore, DapStoreEvent},
     session::Session,
 };
+// B档第九刀：SessionId 来自 debugger stub（原 dap）
+pub use debugger::SessionId;
 
 pub use environment::ProjectEnvironment;
 
@@ -968,7 +966,7 @@ pub struct DebuggerHoverVariable {
 }
 
 impl DebuggerHoverVariable {
-    fn from_evaluate_response(expression: String, response: &dap::EvaluateResponse) -> Self {
+    fn from_evaluate_response(expression: String, response: &EvaluateResponse) -> Self {
         Self {
             evaluate_name: Some(expression.clone()),
             name: expression,
@@ -981,7 +979,7 @@ impl DebuggerHoverVariable {
         }
     }
 
-    fn from_dap_variable(variable: dap::Variable) -> Self {
+    fn from_dap_variable(variable: Variable) -> Self {
         Self {
             evaluate_name: variable.evaluate_name.filter(|name| !name.is_empty()),
             name: variable.name,

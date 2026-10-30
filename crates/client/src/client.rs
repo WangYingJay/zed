@@ -1,6 +1,7 @@
 #[cfg(any(test, feature = "test-support"))]
 pub mod test;
 
+mod cloud_api_stub;
 mod llm_token;
 mod proxy;
 pub mod telemetry;
@@ -8,15 +9,9 @@ pub mod user;
 pub mod zed_urls;
 
 use anyhow::{Context as _, Result, anyhow};
-use async_tungstenite::tungstenite::{
-    client::IntoClientRequest,
-    error::Error as WebsocketError,
-    http::{HeaderValue, Request, StatusCode},
-};
 use clock::SystemClock;
-use cloud_api_client::LlmApiToken;
-use cloud_api_client::websocket_protocol::MessageToClient;
-use cloud_api_client::{ClientApiError, CloudApiClient};
+use cloud_api_stub::{ClientApiError, CloudApiClient, LlmApiToken, MessageToClient};
+use http_client::http::{HeaderValue, Request, StatusCode};
 use cloud_api_types::OrganizationId;
 use credentials_provider::CredentialsProvider;
 use feature_flags::FeatureFlagAppExt as _;
@@ -250,24 +245,9 @@ pub enum EstablishConnectionError {
     #[error("{0}")]
     Other(#[from] anyhow::Error),
     #[error("{0}")]
-    InvalidHeaderValue(#[from] async_tungstenite::tungstenite::http::header::InvalidHeaderValue),
+    InvalidHeaderValue(#[from] http_client::http::header::InvalidHeaderValue),
     #[error("{0}")]
     Io(#[from] std::io::Error),
-    #[error("{0}")]
-    Websocket(#[from] async_tungstenite::tungstenite::http::Error),
-}
-
-impl From<WebsocketError> for EstablishConnectionError {
-    fn from(error: WebsocketError) -> Self {
-        if let WebsocketError::Http(response) = &error {
-            match response.status() {
-                StatusCode::UNAUTHORIZED => return EstablishConnectionError::Unauthorized,
-                StatusCode::UPGRADE_REQUIRED => return EstablishConnectionError::UpgradeRequired,
-                _ => {}
-            }
-        }
-        EstablishConnectionError::Other(error.into())
-    }
 }
 
 impl EstablishConnectionError {
@@ -980,34 +960,9 @@ impl Client {
     ///
     /// The connection is re-established with exponential backoff if it drops or fails to
     /// establish.
-    fn connect_to_cloud(self: &Arc<Self>, cx: &AsyncApp) {
-        let this = self.clone();
-        let task = cx.spawn(async move |cx| {
-            #[cfg(any(test, feature = "test-support"))]
-            let mut rng = StdRng::seed_from_u64(0);
-            #[cfg(not(any(test, feature = "test-support")))]
-            let mut rng = StdRng::from_os_rng();
-
-            let mut delay = INITIAL_RECONNECTION_DELAY;
-            loop {
-                match Self::run_cloud_connection(&this, cx).await {
-                    Ok(()) => {
-                        log::info!("cloud websocket disconnected, will reconnect");
-                        delay = INITIAL_RECONNECTION_DELAY;
-                    }
-                    Err(err) => {
-                        log::warn!(
-                            "cloud websocket connect failed: {err:#}; retrying in {delay:?}"
-                        );
-                    }
-                }
-
-                let jitter = Duration::from_millis(rng.random_range(0..delay.as_millis() as u64));
-                cx.background_executor().timer(delay + jitter).await;
-                delay = cmp::min(delay * 2, MAX_RECONNECTION_DELAY);
-            }
-        });
-        self.state.write()._cloud_connection_task = Some(task);
+    fn connect_to_cloud(self: &Arc<Self>, _cx: &AsyncApp) {
+        // B档第九刀：本地壳不维持 cloud websocket（原 cloud_api_client::connect 路径已 stub）。
+        log::debug!("cloud websocket disabled in local-only build");
     }
 
     /// Runs a single attempt of the cloud websocket connection, returning once the connection
@@ -1325,105 +1280,15 @@ impl Client {
 
     fn establish_websocket_connection(
         self: &Arc<Self>,
-        credentials: &Credentials,
+        _credentials: &Credentials,
         cx: &AsyncApp,
     ) -> Task<Result<Connection, EstablishConnectionError>> {
-        let release_channel = cx.update(|cx| ReleaseChannel::try_global(cx));
-        let app_version = cx.update(|cx| AppVersion::global(cx).to_string());
-
-        let http = self.http.clone();
-        let proxy = http.proxy().cloned();
-        let user_agent = http.user_agent().cloned();
-        let credentials = credentials.clone();
-        let rpc_url = self.rpc_url(http, release_channel);
-        let system_id = self.telemetry.system_id();
-        let metrics_id = self.telemetry.metrics_id();
-        cx.spawn(async move |cx| {
-            use HttpOrHttps::*;
-
-            #[derive(Debug)]
-            enum HttpOrHttps {
-                Http,
-                Https,
-            }
-
-            let mut rpc_url = rpc_url.await?;
-            let url_scheme = match rpc_url.scheme() {
-                "https" => Https,
-                "http" => Http,
-                _ => Err(anyhow!("invalid rpc url: {}", rpc_url))?,
-            };
-
-            let stream = gpui_tokio::Tokio::spawn_result(cx, {
-                let rpc_url = rpc_url.clone();
-                async move {
-                    let rpc_host = rpc_url
-                        .host_str()
-                        .zip(rpc_url.port_or_known_default())
-                        .context("missing host in rpc url")?;
-                    Ok(match proxy {
-                        Some(proxy) if !excluded_from_proxy(rpc_host.0) => {
-                            connect_proxy_stream(&proxy, rpc_host).await?
-                        }
-                        _ => Box::new(TcpStream::connect(rpc_host).await?),
-                    })
-                }
-            })
-            .await?;
-
-            log::info!("connected to rpc endpoint {}", rpc_url);
-
-            rpc_url
-                .set_scheme(match url_scheme {
-                    Https => "wss",
-                    Http => "ws",
-                })
-                .unwrap();
-
-            // We call `into_client_request` to let `tungstenite` construct the WebSocket request
-            // for us from the RPC URL.
-            //
-            // Among other things, it will generate and set a `Sec-WebSocket-Key` header for us.
-            let mut request = IntoClientRequest::into_client_request(rpc_url.as_str())?;
-
-            // We then modify the request to add our desired headers.
-            let request_headers = request.headers_mut();
-            request_headers.insert(
-                http::header::AUTHORIZATION,
-                HeaderValue::from_str(&credentials.authorization_header())?,
-            );
-            request_headers.insert(
-                "x-zed-protocol-version",
-                HeaderValue::from_str(&rpc::PROTOCOL_VERSION.to_string())?,
-            );
-            request_headers.insert("x-zed-app-version", HeaderValue::from_str(&app_version)?);
-            request_headers.insert(
-                "x-zed-release-channel",
-                HeaderValue::from_str(release_channel.map(|r| r.dev_name()).unwrap_or("unknown"))?,
-            );
-            if let Some(user_agent) = user_agent {
-                request_headers.insert(http::header::USER_AGENT, user_agent);
-            }
-            if let Some(system_id) = system_id {
-                request_headers.insert("x-zed-system-id", HeaderValue::from_str(&system_id)?);
-            }
-            if let Some(metrics_id) = metrics_id {
-                request_headers.insert("x-zed-metrics-id", HeaderValue::from_str(&metrics_id)?);
-            }
-
-            let (stream, _) = async_tungstenite::tokio::client_async_tls_with_connector_and_config(
-                request,
-                stream,
-                Some(Arc::new(http_client_tls::tls_config()).into()),
-                None,
-            )
-            .await?;
-
-            Ok(Connection::new(
-                stream
-                    .map_err(|error| anyhow!(error))
-                    .sink_map_err(|error| anyhow!(error)),
-            ))
+        // B档第九刀：去掉 async-tungstenite；协作 RPC WebSocket 在本地壳不可用（test-support 可 override_establish_connection）。
+        let _ = self;
+        cx.spawn(async |_| {
+            Err(EstablishConnectionError::Other(anyhow!(
+                "collaboration WebSocket is disabled in this local-only build"
+            )))
         })
     }
 
@@ -1431,127 +1296,23 @@ impl Client {
         let http = self.http.clone();
         let this = self.clone();
         cx.spawn(async move |cx| {
-            let background = cx.background_executor().clone();
-
-            let (open_url_tx, open_url_rx) = oneshot::channel::<String>();
-            cx.update(|cx| {
-                cx.spawn(async move |cx| {
-                    if let Ok(url) = open_url_rx.await {
-                        cx.update(|cx| cx.open_url(&url));
-                    }
-                })
-                .detach();
-            });
-
-            let credentials = background
-                .clone()
-                .spawn(async move {
-                    // Generate a pair of asymmetric encryption keys. The public key will be used by the
-                    // zed server to encrypt the user's access token, so that it can'be intercepted by
-                    // any other app running on the user's device.
-                    let (public_key, private_key) =
-                        rpc::auth::keypair().context("failed to generate keypair for auth")?;
-                    let public_key = String::try_from(public_key)
-                        .context("failed to serialize public key for auth")?;
-
-                    if let Some((login, token)) =
-                        IMPERSONATE_LOGIN.as_ref().zip(ADMIN_API_TOKEN.as_ref())
-                    {
-                        if !*USE_WEB_LOGIN {
-                            eprintln!("authenticate as admin {login}, {token}");
-
-                            return this
-                                .authenticate_as_admin(http, login.clone(), token.clone())
-                                .await;
-                        }
-                    }
-
-                    // Start an HTTP server to receive the redirect from Zed's sign-in page.
-                    let server = tiny_http::Server::http("127.0.0.1:0")
-                        .map_err(|e| anyhow!(e).context("failed to bind callback port"))?;
-                    let port = server
-                        .server_addr()
-                        .to_ip()
-                        .context("server not bound to a TCP address")?
-                        .port();
-
-                    #[derive(Serialize)]
-                    struct NativeAppSignInQueryParams {
-                        native_app_port: u16,
-                        native_app_public_key: String,
-                        system_id: Option<Arc<str>>,
-                    }
-
-                    // Open the Zed sign-in page in the user's browser, with query parameters that indicate
-                    // that the user is signing in from a Zed app running on the same device.
-                    let url = http.build_url(&format!(
-                        "/native_app_signin?{}",
-                        serde_urlencoded::to_string(&NativeAppSignInQueryParams {
-                            native_app_port: port,
-                            native_app_public_key: public_key,
-                            system_id: this.telemetry.system_id(),
-                        })?
-                    ));
-
-                    open_url_tx.send(url).log_err();
-
-                    #[derive(Deserialize)]
-                    struct CallbackParams {
-                        pub user_id: String,
-                        pub access_token: String,
-                    }
-
-                    // Receive the HTTP request from the user's browser. Retrieve the user id and encrypted
-                    // access token from the query params.
-                    //
-                    // TODO - Avoid ever starting more than one HTTP server. Maybe switch to using a
-                    // custom URL scheme instead of this local HTTP server.
-                    let (user_id, access_token) = background
-                        .spawn(async move {
-                            for _ in 0..100 {
-                                if let Some(req) = server.recv_timeout(Duration::from_secs(1))? {
-                                    let path = req.url();
-                                    let url = Url::parse(&format!("http://example.com{}", path))
-                                        .context("failed to parse login notification url")?;
-                                    let callback_params: CallbackParams =
-                                        serde_urlencoded::from_str(url.query().unwrap_or_default())
-                                            .context(
-                                                "failed to parse sign-in callback query parameters",
-                                            )?;
-
-                                    let post_auth_url =
-                                        http.build_url("/native_app_signin_succeeded");
-                                    req.respond(
-                                        tiny_http::Response::empty(302).with_header(
-                                            tiny_http::Header::from_bytes(
-                                                &b"Location"[..],
-                                                post_auth_url.as_bytes(),
-                                            )
-                                            .unwrap(),
-                                        ),
-                                    )
-                                    .context("failed to respond to login http request")?;
-                                    return Ok((
-                                        callback_params.user_id,
-                                        callback_params.access_token,
-                                    ));
-                                }
-                            }
-
-                            anyhow::bail!("didn't receive login redirect");
-                        })
-                        .await?;
-
-                    let access_token = private_key
-                        .decrypt_string(&access_token)
-                        .context("failed to decrypt access token")?;
-
-                    Ok(Credentials {
-                        user_id: user_id.parse()?,
-                        access_token,
-                    })
-                })
-                .await?;
+            let credentials = if let Some((login, token)) =
+                IMPERSONATE_LOGIN.as_ref().zip(ADMIN_API_TOKEN.as_ref())
+            {
+                if !*USE_WEB_LOGIN {
+                    eprintln!("authenticate as admin {login}, {token}");
+                    this.authenticate_as_admin(http, login.clone(), token.clone())
+                        .await?
+                } else {
+                    anyhow::bail!(
+                        "Browser sign-in is disabled in this local-only build (oauth callback server removed)"
+                    );
+                }
+            } else {
+                anyhow::bail!(
+                    "Browser sign-in is disabled in this local-only build (oauth callback server removed)"
+                );
+            };
 
             cx.update(|cx| cx.activate(true));
             Ok(credentials)

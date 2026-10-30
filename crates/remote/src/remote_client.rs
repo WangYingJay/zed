@@ -387,13 +387,24 @@ pub async fn connect(
     delegate: Arc<dyn RemoteClientDelegate>,
     cx: &mut AsyncApp,
 ) -> Result<Arc<dyn RemoteConnection>> {
-    cx.update(|cx| {
-        cx.update_default_global(|pool: &mut ConnectionPool, cx| {
-            pool.connect(connection_options.clone(), None, delegate.clone(), cx)
+    #[cfg(not(any(test, feature = "test-support")))]
+    {
+        let _ = (connection_options, delegate, cx);
+        return Err(anyhow!(
+            "Remote connections are disabled in this local-only build"
+        ));
+    }
+
+    #[cfg(any(test, feature = "test-support"))]
+    {
+        cx.update(|cx| {
+            cx.update_default_global(|pool: &mut ConnectionPool, cx| {
+                pool.connect(connection_options.clone(), None, delegate.clone(), cx)
+            })
         })
-    })
-    .await
-    .map_err(|e| e.cloned())
+        .await
+        .map_err(|e| e.cloned())
+    }
 }
 
 /// Returns `true` if the global [`ConnectionPool`] already has a live

@@ -63,11 +63,10 @@ impl RemoteServerProjects {
         }
     }
 
+    /// B档第九刀：Dev Container 模态与 `dev_container` crate 已移除，保留空壳供 action 挂载。
     pub fn new_dev_container(
         _fs: Arc<dyn Fs>,
-        _configs: Vec<dev_container::DevContainerConfig>,
         _app_state: Arc<AppState>,
-        _dev_container_context: Option<dev_container::DevContainerContext>,
         _window: &mut Window,
         _workspace: WeakEntity<Workspace>,
         cx: &mut Context<Self>,

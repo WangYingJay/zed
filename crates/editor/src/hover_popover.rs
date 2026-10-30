@@ -1853,7 +1853,7 @@ mod tests {
         },
     };
     use collections::{BTreeSet, HashMap, HashSet};
-    use dap::client::SessionId;
+    use project::SessionId;
     use futures::channel::oneshot;
     use futures::future::Shared;
     use futures::stream::StreamExt;

@@ -1,6 +1,6 @@
 use super::{Client, UserStore};
 use anyhow::anyhow;
-use cloud_api_client::LlmApiToken;
+use crate::cloud_api_stub::LlmApiToken;
 use cloud_api_types::websocket_protocol::MessageToClient;
 use futures::StreamExt;
 

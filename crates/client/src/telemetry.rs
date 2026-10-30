@@ -5,7 +5,9 @@ use anyhow::{Context as _, Result};
 use clock::SystemClock;
 use fs::Fs;
 use futures::channel::mpsc;
-use futures::{Future, StreamExt};
+use futures::Future;
+#[cfg(any(test, feature = "test-support"))]
+use futures::StreamExt;
 use gpui::{App, AppContext as _, BackgroundExecutor, Task};
 use http_client::{self, AsyncBody, HttpClient, HttpClientWithUrl, Method, Request};
 use parking_lot::Mutex;
@@ -240,22 +242,23 @@ impl Telemetry {
             state,
         });
 
-        let (tx, mut rx) = mpsc::unbounded();
-        ::telemetry::init(tx);
+        // B档第九刀：不连接 crates/telemetry 队列，避免启动后异步汇聚再 flush。
+        #[cfg(any(test, feature = "test-support"))]
+        {
+            let (tx, mut rx) = mpsc::unbounded();
+            ::telemetry::init(tx);
 
-        cx.background_spawn({
-            let this = Arc::downgrade(&this);
-            async move {
-                if cfg!(feature = "test-support") {
-                    return;
+            cx.background_spawn({
+                let this = Arc::downgrade(&this);
+                async move {
+                    while let Some(event) = rx.next().await {
+                        let Some(state) = this.upgrade() else { break };
+                        state.report_event(Event::Flexible(event))
+                    }
                 }
-                while let Some(event) = rx.next().await {
-                    let Some(state) = this.upgrade() else { break };
-                    state.report_event(Event::Flexible(event))
-                }
-            }
-        })
-        .detach();
+            })
+            .detach();
+        }
 
         // We should only ever have one instance of Telemetry, leak the subscription to keep it alive
         // rather than store in TelemetryState, complicating spawn as subscriptions are not Send
@@ -372,8 +375,9 @@ impl Telemetry {
         self.state.lock().settings.metrics
     }
 
+    /// B档第九刀：默认关闭崩溃诊断上传（minidump 等），设置项不再驱动远程上报。
     pub fn diagnostics_enabled(self: &Arc<Self>) -> bool {
-        self.state.lock().settings.diagnostics
+        false
     }
 
     pub fn set_authenticated_user_info(
@@ -564,9 +568,15 @@ impl Telemetry {
     }
 
     fn report_event(self: &Arc<Self>, mut event: Event) {
-        let mut state = self.state.lock();
         // RUST_LOG=telemetry=trace to debug telemetry events
         log::trace!(target: "telemetry", "{:?}", event);
+
+        // B档第九刀：默认不向远程 telemetry 入队或调度 flush。
+        if !cfg!(any(test, feature = "test-support")) {
+            return;
+        }
+
+        let mut state = self.state.lock();
 
         if !state.settings.metrics {
             return;
@@ -658,6 +668,15 @@ impl Telemetry {
     }
 
     pub async fn flush_events_inner(self: &Arc<Self>) -> Result<()> {
+        // B档第九刀：生产构建不向 `/telemetry/events` POST。
+        if !cfg!(any(test, feature = "test-support")) {
+            let mut state = self.state.lock();
+            state.events_queue.clear();
+            state.flush_events_task = None;
+            state.first_event_date_time = None;
+            return Ok(());
+        }
+
         let (json_bytes, request_body) = {
             let mut state = self.state.lock();
             state.first_event_date_time = None;

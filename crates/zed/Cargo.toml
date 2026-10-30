@@ -81,7 +81,7 @@ required-features = ["visual-tests"]
 # miniprofiler_ui / hang_telemetry / input_latency_ui / install_cli / sandbox /
 # gpui profiler+stacker ——
 # 卡点见 memory：settings_ui→agent；project_panel→markdown/svg；*→extension_host
-# 第八刀保留：crashes；不动 dap/client/remote/wasmtime/必留面板
+# 第九刀：卸 crashes/tasks_ui；dap stub 出图；client/remote 掏空/Local stub；勿硬删 wasmtime；必留面板
 
 action_log = { workspace = true, optional = true }
 activity_indicator.workspace = true
@@ -102,7 +102,6 @@ clock = { workspace = true, optional = true }
 collab_ui = { workspace = true, optional = true }
 collections.workspace = true
 command_palette.workspace = true
-crashes.workspace = true
 db.workspace = true
 editor.workspace = true
 encoding_selector.workspace = true
@@ -181,7 +180,6 @@ smol.workspace = true
 snippet_provider.workspace = true
 sysinfo.workspace = true
 tab_switcher.workspace = true
-tasks_ui.workspace = true
 telemetry.workspace = true
 telemetry_events.workspace = true
 terminal_view.workspace = true

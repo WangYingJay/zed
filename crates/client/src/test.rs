@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 
 use anyhow::{Context as _, Result, anyhow};
-use cloud_api_client::{
+use crate::cloud_api_stub::{
     AuthenticatedUser, CurrentUsage, GetAuthenticatedUserResponse, KnownOrUnknown, Plan, PlanInfo,
     UsageData, UsageLimit,
 };

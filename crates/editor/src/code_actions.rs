@@ -280,7 +280,8 @@ impl Editor {
                 let context = actions_menu.actions.context.into();
 
                 workspace.update(cx, |workspace, cx| {
-                    dap::send_telemetry(&scenario, TelemetrySpawnLocation::Gutter, cx);
+                    // B档第九刀：DAP 已从默认树切除，gutter 调试启动为空操作。
+                    let _ = &scenario;
                     workspace.start_debug_session(
                         scenario,
                         context,

@@ -12,12 +12,16 @@ workspace = true
 path = "src/extension.rs"
 doctest = false
 
+[features]
+default = []
+# B档第九刀：默认不编 WASM 构建器；extension_host/cli 显式开 wasm-builder
+wasm-builder = ["dep:wasm-encoder", "dep:wasmparser"]
+
 [dependencies]
 anyhow.workspace = true
 async-trait.workspace = true
 cloud_api_types.workspace = true
 collections.workspace = true
-dap.workspace = true
 fs.workspace = true
 futures.workspace = true
 gpui.workspace = true
@@ -36,8 +40,8 @@ toml = { workspace = true, features = ["display"] }
 tracing.workspace = true
 url.workspace = true
 util.workspace = true
-wasm-encoder.workspace = true
-wasmparser.workspace = true
+wasm-encoder = { workspace = true, optional = true }
+wasmparser = { workspace = true, optional = true }
 which.workspace = true
 ztracing.workspace = true
 
