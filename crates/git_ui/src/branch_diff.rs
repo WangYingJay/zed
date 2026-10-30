@@ -476,8 +476,8 @@ impl Item for BranchDiff {
 
     fn tab_content_text(&self, _detail: usize, cx: &App) -> SharedString {
         match self.diff_base(cx) {
-            DiffBase::Merge { base_ref } => format!("Changes since {}", base_ref).into(),
-            DiffBase::Head | DiffBase::Index | DiffBase::Staged => "Changes".into(),
+            DiffBase::Merge { base_ref } => format!("相对于 {base_ref} 的更改").into(),
+            DiffBase::Head | DiffBase::Index | DiffBase::Staged => "更改".into(),
         }
     }
 

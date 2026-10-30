@@ -599,25 +599,25 @@ impl TerminalView {
         let context_menu = ContextMenu::build(window, cx, |menu, _, _| {
             menu.context(self.focus_handle.clone())
                 .when(self.shows_workspace_actions(), |menu| {
-                    menu.action("New Terminal", Box::new(NewTerminal::default()))
+                    menu.action("新建终端", Box::new(NewTerminal::default()))
                         .action(
-                            "New Center Terminal",
+                            "在中间新建终端",
                             Box::new(NewCenterTerminal::default()),
                         )
                         .separator()
                 })
-                .action("Copy", Box::new(Copy))
+                .action("复制", Box::new(Copy))
                 .when(
                     !self.read_only && !matches!(self.mode, TerminalMode::Embedded { .. }),
                     |menu| {
-                        menu.action("Paste", Box::new(Paste))
-                            .action("Paste Text", Box::new(PasteText))
+                        menu.action("粘贴", Box::new(Paste))
+                            .action("粘贴文本", Box::new(PasteText))
                     },
                 )
-                .action("Select All", Box::new(SelectAll))
+                .action("全选", Box::new(SelectAll))
                 .when(
                     !self.read_only && !matches!(self.mode, TerminalMode::Embedded { .. }),
-                    |menu| menu.action("Clear", Box::new(Clear)),
+                    |menu| menu.action("清除", Box::new(Clear)),
                 )
                 .when(
                     assistant_enabled && !matches!(self.mode, TerminalMode::Embedded { .. }),

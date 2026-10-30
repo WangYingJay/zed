@@ -3101,8 +3101,8 @@ impl Terminal {
                             };
                             format!("{process_file} — {process_name}")
                         })
-                        .unwrap_or_else(|| "Terminal".to_string()),
-                    TerminalType::DisplayOnly => "Terminal".to_string(),
+                        .unwrap_or_else(|| "终端".to_string()),
+                    TerminalType::DisplayOnly => "终端".to_string(),
                 }),
         }
     }

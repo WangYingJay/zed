@@ -47,7 +47,8 @@ impl ProjectEmptyState {
 impl RenderOnce for ProjectEmptyState {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
         let id = format!("empty-state-{}", self.label);
-        let label = format!("Choose one of the options below to use the {}", self.label);
+        // 项目面板、Git 面板空态共用。文案直接写中文，不引入 i18n crate。
+        let label = format!("选择下方一项，即可使用{}", self.label);
 
         v_flex()
             .id(id)
@@ -68,7 +69,7 @@ impl RenderOnce for ProjectEmptyState {
                             .child(Label::new(label).size(LabelSize::Small).color(Color::Muted)),
                     )
                     .child(
-                        Button::new("open_project", "Open Project")
+                        Button::new("open_project", "打开项目")
                             .full_width()
                             .key_binding(self.open_project_key_binding)
                             .wrap_key_binding(true)
@@ -80,11 +81,11 @@ impl RenderOnce for ProjectEmptyState {
                         h_flex()
                             .gap_2()
                             .child(Divider::horizontal().color(DividerColor::Border))
-                            .child(Label::new("or").size(LabelSize::XSmall).color(Color::Muted))
+                            .child(Label::new("或").size(LabelSize::XSmall).color(Color::Muted))
                             .child(Divider::horizontal().color(DividerColor::Border)),
                     )
                     .child(
-                        Button::new("clone_repo", "Clone Repository")
+                        Button::new("clone_repo", "克隆仓库")
                             .full_width()
                             .when_some(self.on_clone_repo, |button, handler| {
                                 button.on_click(handler)

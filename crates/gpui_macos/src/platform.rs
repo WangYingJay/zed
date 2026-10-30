@@ -293,7 +293,9 @@ impl MacPlatform {
                 menu_item.setSubmenu(Some(&menu));
                 application_menu.addItem(&menu_item);
 
-                if menu_config.name == "Window" {
+                // 系统窗口菜单按标题识别。汉化后标题是「窗口」，仍要 setWindowsMenu，
+                // 否则最小化与窗口列表不会挂到这个菜单上。
+                if menu_config.name == "Window" || menu_config.name == "窗口" {
                     let app: *mut AnyObject = msg_send![APP_CLASS, sharedApplication];
                     let _: () = msg_send![app, setWindowsMenu: &*menu];
                 }

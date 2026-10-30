@@ -127,8 +127,11 @@ impl CommandPalette {
                     return None;
                 }
 
+                let name = localized_retained_command_name(action.name())
+                    .map(SharedString::from)
+                    .unwrap_or_else(|| SharedString::from(humanize_action_name(action.name())));
                 Some(Command {
-                    name: SharedString::from(humanize_action_name(action.name())),
+                    name,
                     action,
                     usage: None,
                 })
@@ -864,6 +867,18 @@ impl PickerDelegate for CommandPaletteDelegate {
     }
 }
 
+/// 命令面板默认把 action 标识人化成英文。保留面的面板开关与菜单用同一中文名，
+/// 其它命令仍走 [`humanize_action_name`]，避免把未保留功能整表翻掉。
+fn localized_retained_command_name(action_name: &str) -> Option<&'static str> {
+    match action_name {
+        "project_panel::ToggleFocus" => Some("项目面板"),
+        "outline_panel::ToggleFocus" => Some("大纲"),
+        "terminal_panel::Toggle" => Some("终端"),
+        "git_panel::ToggleFocus" => Some("Git"),
+        _ => None,
+    }
+}
+
 pub fn humanize_action_name(name: &str) -> String {
     let chars = name.chars().collect::<Vec<_>>();
     let capacity = name.len() + chars.iter().filter(|c| c.is_uppercase()).count();
@@ -951,6 +966,30 @@ mod tests {
     use project::Project;
     use settings::KeymapFile;
     use workspace::{AppState, MultiWorkspace, Workspace};
+
+    #[test]
+    fn test_localized_retained_command_name() {
+        assert_eq!(
+            localized_retained_command_name("project_panel::ToggleFocus"),
+            Some("项目面板")
+        );
+        assert_eq!(
+            localized_retained_command_name("outline_panel::ToggleFocus"),
+            Some("大纲")
+        );
+        assert_eq!(
+            localized_retained_command_name("terminal_panel::Toggle"),
+            Some("终端")
+        );
+        assert_eq!(
+            localized_retained_command_name("git_panel::ToggleFocus"),
+            Some("Git")
+        );
+        assert_eq!(
+            localized_retained_command_name("editor::GoToDefinition"),
+            None
+        );
+    }
 
     #[test]
     fn test_humanize_action_name() {

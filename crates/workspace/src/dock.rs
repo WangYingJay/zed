@@ -365,6 +365,15 @@ impl DockPosition {
         }
     }
 
+    /// 侧栏右键菜单里的位置。错误日志仍用 [`Self::label`] 的英文。
+    fn ui_side(&self) -> &'static str {
+        match self {
+            Self::Left => "左侧",
+            Self::Bottom => "底部",
+            Self::Right => "右侧",
+        }
+    }
+
     pub fn axis(&self) -> Axis {
         match self {
             Self::Left | Self::Right => Axis::Horizontal,
@@ -1432,7 +1441,7 @@ impl Render for PanelButtons {
                     let action = dock.toggle_action();
 
                     let tooltip: SharedString =
-                        format!("Close {} Dock", dock.position.label()).into();
+                        format!("关闭{}栏", dock.position.ui_side()).into();
 
                     (action, tooltip)
                 } else {
@@ -1461,7 +1470,7 @@ impl Render for PanelButtons {
                                         let is_current = position == dock_position;
                                         let panel = panel.clone();
                                         menu = menu.toggleable_entry(
-                                            format!("Dock {}", position.label()),
+                                            format!("停靠到{}", position.ui_side()),
                                             is_current,
                                             IconPosition::Start,
                                             None,
@@ -1482,7 +1491,7 @@ impl Render for PanelButtons {
                                     let dock_for_flex = dock_for_menu.clone();
                                     let workspace_for_flex = workspace_for_menu.clone();
                                     menu = menu.toggleable_entry(
-                                        "Flex Width",
+                                        "弹性宽度",
                                         currently_flexible,
                                         IconPosition::Start,
                                         None,
@@ -1505,7 +1514,7 @@ impl Render for PanelButtons {
                                     let dock_for_fixed = dock_for_menu.clone();
                                     let workspace_for_fixed = workspace_for_menu.clone();
                                     menu = menu.toggleable_entry(
-                                        "Fixed Width",
+                                        "固定宽度",
                                         !currently_flexible,
                                         IconPosition::Start,
                                         None,

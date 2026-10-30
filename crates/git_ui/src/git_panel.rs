@@ -751,11 +751,11 @@ impl GitHeaderEntry {
     }
     pub fn title(&self) -> &'static str {
         match self.header {
-            Section::Conflict => "Conflicts",
-            Section::Tracked => "Tracked",
-            Section::New => "Untracked",
-            Section::Staged => "Staged",
-            Section::Unstaged => "Unstaged",
+            Section::Conflict => "冲突",
+            Section::Tracked => "已跟踪",
+            Section::New => "未跟踪",
+            Section::Staged => "已暂存",
+            Section::Unstaged => "未暂存",
         }
     }
 }
@@ -4071,7 +4071,7 @@ impl GitPanel {
                 .collect::<Vec<_>>();
 
             if changed_files.is_empty() && !options.amend {
-                error_spawn("No changes to commit", window, cx);
+                error_spawn("没有可提交的更改", window, cx);
                 return;
             }
 
@@ -6429,7 +6429,7 @@ impl GitPanel {
         } else if self.has_unstaged_conflicts() {
             (false, "You must resolve conflicts before committing")
         } else if !self.has_staged_changes() && !self.has_tracked_changes() && !self.amend_pending {
-            (false, "No changes to commit")
+            (false, "没有可提交的更改")
         } else if self.pending_commit.is_some() {
             (false, "Commit in progress")
         } else if !self.has_commit_message(cx) {
@@ -7156,7 +7156,7 @@ impl GitPanel {
                 ElementId::Name("changes-tab".into()),
                 active_tab == GitPanelTab::Changes,
                 true,
-                "Changes".into(),
+                "更改".into(),
                 GitPanelTab::Changes,
                 ActivateChangesTab.boxed_clone(),
             ))
@@ -7169,7 +7169,7 @@ impl GitPanel {
                 ElementId::Name("history-tab".into()),
                 active_tab != GitPanelTab::Changes,
                 false,
-                "History".into(),
+                "历史".into(),
                 GitPanelTab::History,
                 ActivateHistoryTab.boxed_clone(),
             ))
@@ -7180,20 +7180,20 @@ impl GitPanel {
             let has_repo = self.active_repository.is_some();
             match &self.commit_history {
                 _ if !has_repo => {
-                    this.child(Self::render_history_placeholder("No repository found"))
+                    this.child(Self::render_history_placeholder("未找到仓库"))
                 }
                 CommitHistory::Error(_) => this.child(Self::render_history_placeholder(
-                    "Failed to load commit history",
+                    "无法加载提交历史",
                 )),
                 CommitHistory::Loading => {
-                    this.child(Self::render_history_placeholder("Loading Commit History…"))
+                    this.child(Self::render_history_placeholder("正在加载提交历史…"))
                 }
                 CommitHistory::Loaded(entries) if entries.is_empty() => {
-                    this.child(Self::render_history_placeholder("No commits yet"))
+                    this.child(Self::render_history_placeholder("还没有提交"))
                 }
                 CommitHistory::Loaded(_) => match self.render_commit_history(window, cx) {
                     Some(history) => this.child(history),
-                    None => this.child(Self::render_history_placeholder("Failed to load commits")),
+                    None => this.child(Self::render_history_placeholder("无法加载提交")),
                 },
             }
         })
@@ -7790,10 +7790,10 @@ impl GitPanel {
         v_flex()
             .gap_1()
             .items_center()
-            .child(Label::new("No changes to commit").color(Color::Muted))
+            .child(Label::new("没有可提交的更改").color(Color::Muted))
             .when(show_branch_diff, |this| {
                 this.child(
-                    Button::new("view_branch_diff", "View Branch Diff")
+                    Button::new("view_branch_diff", "查看分支差异")
                         .label_size(LabelSize::Small)
                         .style(ButtonStyle::Outlined)
                         .on_click(move |_, _, cx| {
@@ -7816,9 +7816,9 @@ impl GitPanel {
         });
 
         let message = format!(
-            "Detected dubious ownership in repository at {}. \
-            This happens when the .git/ directory is not owned by the current user. \
-            If you want to learn more about safe directories, visit git's documentation.",
+            "检测到仓库 {} 的所有权异常。\
+            当 .git/ 目录不属于当前用户时会出现这种情况。\
+            可在 Git 文档中了解 safe.directory。",
             directory.display()
         );
 
@@ -7831,7 +7831,7 @@ impl GitPanel {
                         .flex_wrap()
                         .gap_1()
                         .child(
-                            Button::new("trust_directory", "Trust Directory")
+                            Button::new("trust_directory", "信任此目录")
                             .label_size(LabelSize::Small)
                             .layer(ElevationIndex::ModalSurface)
                             .style(ButtonStyle::Filled)
@@ -7845,7 +7845,7 @@ impl GitPanel {
                             )
                     )
                     .child(
-                        Button::new("learn_more", "Learn More")
+                        Button::new("learn_more", "了解更多")
                             .label_size(LabelSize::Small)
                             .style(ButtonStyle::Outlined)
                             .end_icon(Icon::new(IconName::ArrowUpRight).size(IconSize::Small).color(Color::Muted))
@@ -7866,10 +7866,10 @@ impl GitPanel {
             v_flex()
                 .gap_1()
                 .items_center()
-                .child(Label::new("No Git Repositories").color(Color::Muted))
+                .child(Label::new("没有 Git 仓库").color(Color::Muted))
                 .when(has_directory_worktree, |this| {
                     this.child(
-                        Button::new("initialize_repository", "Initialize Repository")
+                        Button::new("initialize_repository", "初始化仓库")
                             .label_size(LabelSize::Small)
                             .style(ButtonStyle::Outlined)
                             .tooltip(Tooltip::for_action_title_in(
@@ -7888,7 +7888,7 @@ impl GitPanel {
         } else if worktree_count == 0 {
             let focus_handle = self.focus_handle.clone();
             ProjectEmptyState::new(
-                "Git Panel",
+                "Git 面板",
                 focus_handle.clone(),
                 KeyBinding::for_action_in(&workspace::Open::default(), &focus_handle, cx),
             )
@@ -8238,9 +8238,9 @@ impl GitPanel {
 
     fn render_empty_section(&self, section: Section) -> AnyElement {
         let message = match section {
-            Section::Staged => "No staged changes yet",
-            Section::Unstaged => "No unstaged changes",
-            _ => "No changes",
+            Section::Staged => "还没有已暂存的更改",
+            Section::Unstaged => "没有未暂存的更改",
+            _ => "没有更改",
         };
         h_flex()
             .h(self.list_item_height())
@@ -8338,8 +8338,8 @@ impl GitPanel {
                 .action(stage_title, ToggleStaged.boxed_clone())
                 .action(restore_title, RestoreFile::default().boxed_clone())
                 .separator()
-                .action("Unstaged Changes", ViewUnstagedChanges.boxed_clone())
-                .action("Staged Changes", ViewStagedChanges.boxed_clone())
+                .action("未暂存的更改", ViewUnstagedChanges.boxed_clone())
+                .action("已暂存的更改", ViewStagedChanges.boxed_clone())
                 .separator()
                 .action(copy_path_title, CopyPath.boxed_clone())
                 .action(copy_relative_path_title, CopyRelativePath.boxed_clone())
@@ -9433,6 +9433,7 @@ impl Panel for GitPanel {
         }
     }
 
+    // 工作区停靠状态按这个名字恢复，改成中文会让已保存的布局对不上面板。
     fn persistent_name() -> &'static str {
         "GitPanel"
     }
@@ -9466,7 +9467,7 @@ impl Panel for GitPanel {
     }
 
     fn icon_tooltip(&self, _window: &Window, _cx: &App) -> Option<&'static str> {
-        Some("Git Panel")
+        Some("Git")
     }
 
     fn icon_label(&self, _: &Window, cx: &App) -> Option<String> {

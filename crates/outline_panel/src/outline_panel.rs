@@ -1072,7 +1072,7 @@ impl OutlinePanel {
         cx.new(|cx| {
             let filter_editor = cx.new(|cx| {
                 let mut editor = Editor::single_line(window, cx);
-                editor.set_placeholder_text("Search buffer symbols…", window, cx);
+                editor.set_placeholder_text("搜索符号…", window, cx);
                 editor
             });
             let filter_update_subscription = cx.subscribe_in(
@@ -5263,9 +5263,9 @@ impl OutlinePanel {
     ) -> impl IntoElement {
         let contents = if self.cached_entries.is_empty() {
             let header = if query.is_some() {
-                "No matches for query"
+                "没有匹配结果"
             } else {
-                "No outlines available"
+                "没有可用的大纲"
             };
 
             v_flex()
@@ -5288,7 +5288,7 @@ impl OutlinePanel {
                     h_flex()
                         .gap_1()
                         .justify_center()
-                        .child(Label::new("Toggle Panel With").color(Color::Muted))
+                        .child(Label::new("切换面板").color(Color::Muted))
                         .child({
                             let key_binding = match self.position(window, cx) {
                                 DockPosition::Left => {
@@ -5461,18 +5461,18 @@ impl OutlinePanel {
 
     fn render_filter_footer(&mut self, pinned: bool, cx: &mut Context<Self>) -> Div {
         let (pin_button_id, icon, icon_tooltip) = if pinned {
-            ("unpin_button", IconName::Unpin, "Unpin Outline")
+            ("unpin_button", IconName::Unpin, "取消固定大纲")
         } else {
-            ("pin_button", IconName::Pin, "Pin Active Outline")
+            ("pin_button", IconName::Pin, "固定当前大纲")
         };
 
         let has_query = self.query(cx).is_some();
         let show_symbols_toggle = self.multi_buffer_active(cx);
         let hide_symbols = self.hide_symbols_active(cx);
         let (hide_symbols_icon, hide_symbols_tooltip) = if hide_symbols {
-            (IconName::FileCodeOff, "Show Symbols")
+            (IconName::FileCodeOff, "显示符号")
         } else {
-            (IconName::FileCode, "Hide Symbols")
+            (IconName::FileCode, "隐藏符号")
         };
 
         h_flex()
@@ -5498,7 +5498,7 @@ impl OutlinePanel {
                         this.child(
                             IconButton::new("clear_filter", IconName::Close)
                                 .shape(IconButtonShape::Square)
-                                .tooltip(Tooltip::text("Clear Filter"))
+                                .tooltip(Tooltip::text("清除筛选"))
                                 .on_click(cx.listener(|outline_panel, _, window, cx| {
                                     outline_panel.filter_editor.update(cx, |editor, cx| {
                                         editor.set_text("", window, cx);
@@ -5590,6 +5590,7 @@ impl Panel for OutlinePanel {
         self.filter_editor.focus_handle(cx)
     }
 
+    // 工作区停靠状态按这个名字恢复，改成中文会让已保存的布局对不上面板。
     fn persistent_name() -> &'static str {
         "Outline Panel"
     }
@@ -5630,7 +5631,7 @@ impl Panel for OutlinePanel {
     }
 
     fn icon_tooltip(&self, _window: &Window, _: &App) -> Option<&'static str> {
-        Some("Outline Panel")
+        Some("大纲")
     }
 
     fn toggle_action(&self) -> Box<dyn Action> {
@@ -5781,7 +5782,7 @@ impl Render for OutlinePanel {
                         .gap_0p5()
                         .border_b_1()
                         .border_color(cx.theme().colors().border_variant)
-                        .child(Label::new("Searching:").color(Color::Muted))
+                        .child(Label::new("正在搜索：").color(Color::Muted))
                         .child(Label::new(query_text)),
                 )
             })

@@ -8093,7 +8093,7 @@ impl Render for ProjectPanel {
                 .size_full()
                 .child(
                     ProjectEmptyState::new(
-                        "Project Panel",
+                        "项目面板",
                         focus_handle.clone(),
                         KeyBinding::for_action_in(&workspace::Open::default(), &focus_handle, cx),
                     )
@@ -8164,7 +8164,7 @@ impl Render for DraggedProjectEntryView {
                     .bg(cx.theme().colors().background)
                     .map(|this| {
                         if self.selections.len() > 1 && self.selections.contains(&self.selection) {
-                            this.child(Label::new(format!("{} entries", self.selections.len())))
+                            this.child(Label::new(format!("{} 项", self.selections.len())))
                         } else {
                             this.child(
                                 h_flex()
@@ -8220,13 +8220,14 @@ impl Panel for ProjectPanel {
     }
 
     fn icon_tooltip(&self, _window: &Window, _cx: &App) -> Option<&'static str> {
-        Some("Project Panel")
+        Some("项目面板")
     }
 
     fn toggle_action(&self) -> Box<dyn Action> {
         Box::new(ToggleFocus)
     }
 
+    // 工作区停靠状态按这个名字恢复，改成中文会让已保存的布局对不上面板。
     fn persistent_name() -> &'static str {
         "Project Panel"
     }
