@@ -3,9 +3,9 @@ use std::sync::Arc;
 
 use anyhow::{Context as _, Result, anyhow};
 use cloud_api_client::{
-    AuthenticatedUser, GetAuthenticatedUserResponse, KnownOrUnknown, Plan, PlanInfo,
+    AuthenticatedUser, CurrentUsage, GetAuthenticatedUserResponse, KnownOrUnknown, Plan, PlanInfo,
+    UsageData, UsageLimit,
 };
-use cloud_llm_client::{CurrentUsage, UsageData, UsageLimit};
 use futures::{StreamExt, stream::BoxStream};
 use gpui::{AppContext as _, TestAppContext};
 use http_client::{AsyncBody, Method, Request, http};

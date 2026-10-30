@@ -6,10 +6,11 @@ use cloud_api_client::{
     GetAuthenticatedUserResponse, KnownOrUnknown, Organization, OrganizationId, Plan, PlanInfo,
     UpdateSystemSettingsBody,
 };
-use cloud_api_types::OrganizationConfiguration;
-use cloud_llm_client::{
-    EDIT_PREDICTIONS_USAGE_AMOUNT_HEADER_NAME, EDIT_PREDICTIONS_USAGE_LIMIT_HEADER_NAME, UsageLimit,
-};
+use cloud_api_types::{OrganizationConfiguration, UsageLimit};
+
+// B档第五刀：原 cloud_llm_client 用量头内联
+const EDIT_PREDICTIONS_USAGE_LIMIT_HEADER_NAME: &str = "x-zed-edit-predictions-usage-limit";
+const EDIT_PREDICTIONS_USAGE_AMOUNT_HEADER_NAME: &str = "x-zed-edit-predictions-usage-amount";
 use collections::{HashMap, HashSet, hash_map::Entry};
 use derive_more::Deref;
 use feature_flags::FeatureFlagAppExt;

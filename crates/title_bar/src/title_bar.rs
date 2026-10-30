@@ -23,7 +23,6 @@ use crate::application_menu::{
     ActivateDirection, ActivateMenuLeft, ActivateMenuRight, OpenApplicationMenu,
 };
 
-use auto_update::AutoUpdateStatus;
 #[cfg(feature = "calls")]
 use call::ActiveCall;
 use client::{Client, UserStore, zed_urls};
@@ -1130,7 +1129,7 @@ impl TitleBar {
     fn render_connection_status(
         &self,
         status: &client::Status,
-        cx: &mut Context<Self>,
+        _cx: &mut Context<Self>,
     ) -> Option<AnyElement> {
         match status {
             client::Status::ConnectionError
@@ -1144,33 +1143,12 @@ impl TitleBar {
                     .tooltip(Tooltip::text("Disconnected"))
                     .into_any_element(),
             ),
-            client::Status::UpgradeRequired => {
-                let auto_updater = auto_update::AutoUpdater::get(cx);
-                let label = match auto_updater.map(|auto_update| auto_update.read(cx).status()) {
-                    Some(AutoUpdateStatus::Updated { .. }) => "Please restart Zed to Collaborate",
-                    Some(AutoUpdateStatus::Installing { .. })
-                    | Some(AutoUpdateStatus::Downloading { .. })
-                    | Some(AutoUpdateStatus::Checking) => "Updating...",
-                    Some(AutoUpdateStatus::Idle)
-                    | Some(AutoUpdateStatus::Errored { .. })
-                    | None => "Please update Zed to Collaborate",
-                };
-
-                Some(
-                    Button::new("connection-status", label)
-                        .label_size(LabelSize::Small)
-                        .on_click(|_, window, cx| {
-                            if let Some(auto_updater) = auto_update::AutoUpdater::get(cx)
-                                && auto_updater.read(cx).status().is_updated()
-                            {
-                                workspace::reload(cx);
-                                return;
-                            }
-                            auto_update::check(&Default::default(), window, cx);
-                        })
-                        .into_any_element(),
-                )
-            }
+            // B档第五刀：无 auto_update，升级提示仅静态文案
+            client::Status::UpgradeRequired => Some(
+                Button::new("connection-status", "Please update Zed to Collaborate")
+                    .label_size(LabelSize::Small)
+                    .into_any_element(),
+            ),
             _ => None,
         }
     }

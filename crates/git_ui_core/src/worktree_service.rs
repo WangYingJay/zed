@@ -1208,13 +1208,12 @@ async fn open_worktree_workspace(
                 path_list,
                 remote_connection_options,
                 None,
-                move |connection_options, window, cx| {
-                    remote_connection::connect_with_modal(
-                        &active_workspace,
-                        connection_options,
-                        window,
-                        cx,
-                    )
+                // B档第五刀：无 remote_connection UI；本地 host=None 不会走到此闭包
+                move |_connection_options, _window, _cx| {
+                    let _ = &active_workspace;
+                    gpui::Task::ready(Err(anyhow!(
+                        "Remote connections are disabled in this build"
+                    )))
                 },
                 init,
                 OpenMode::Add,
@@ -1226,7 +1225,7 @@ async fn open_worktree_workspace(
         })?;
 
     let result = workspace_task.await;
-    remote_connection::dismiss_connection_modal(&modal_workspace, cx);
+    let _ = &modal_workspace;
     let new_workspace = result?;
 
     let panels_task = new_workspace.update(cx, |workspace, _cx| workspace.take_panels_task());

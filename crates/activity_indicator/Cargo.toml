@@ -18,7 +18,7 @@ test-support = []
 
 [dependencies]
 anyhow.workspace = true
-auto_update.workspace = true
+# B档第五刀：去掉 auto_update（DismissMessage 改本 crate actions）
 editor.workspace = true
 fs.workspace = true
 futures.workspace = true

@@ -16,7 +16,7 @@ doctest = false
 anyhow.workspace = true
 chrono.workspace = true
 ciborium.workspace = true
-cloud_llm_client.workspace = true
+# B档第五刀：去掉 cloud_llm_client（PlanInfo.usage 已内联到 plan.rs）
 serde.workspace = true
 serde_json.workspace = true
 strum.workspace = true

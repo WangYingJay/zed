@@ -613,7 +613,7 @@ fn main() {
         AppState::set_global(app_state.clone(), cx);
 
         watcher_debug::init(app_state.clone(), cx);
-        auto_update::init(client.clone(), cx);
+        // B档第五刀：跳过 auto_update::init（本地编辑器不做检查/下载更新）
         reliability::init(client.clone(), app_state.workspace_store.clone(), cx);
 
         theme_settings::init(theme::LoadThemes::All(Box::new(Assets)), cx);

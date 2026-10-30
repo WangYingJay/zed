@@ -1,4 +1,3 @@
-use auto_update::DismissMessage;
 use editor::Editor;
 use futures::StreamExt;
 use gpui::{
@@ -31,7 +30,9 @@ actions!(
     activity_indicator,
     [
         /// Displays error messages from language servers in the status bar.
-        ShowErrorMessage
+        ShowErrorMessage,
+        /// Dismisses the current activity indicator message.
+        DismissMessage,
     ]
 );
 

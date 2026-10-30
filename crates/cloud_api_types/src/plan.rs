@@ -1,4 +1,6 @@
+use anyhow::Context as _;
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 use crate::{KnownOrUnknown, Timestamp};
 
@@ -14,13 +16,46 @@ pub enum Plan {
     ZedStudent,
 }
 
+/// B档第五刀：从 cloud_llm_client 内联用量类型，断开 cloud_api_types → cloud_llm_client。
+#[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum UsageLimit {
+    Limited(i32),
+    Unlimited,
+}
+
+impl FromStr for UsageLimit {
+    type Err = anyhow::Error;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        match value {
+            "unlimited" => Ok(Self::Unlimited),
+            limit => limit
+                .parse::<i32>()
+                .map(Self::Limited)
+                .context("failed to parse limit"),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub struct CurrentUsage {
+    pub edit_predictions: UsageData,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub struct UsageData {
+    pub used: u32,
+    pub limit: UsageLimit,
+}
+
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct PlanInfo {
     /// We've named this field `plan_v3` to avoid breaking older clients when we start returning new plan variants.
     #[serde(rename = "plan_v3")]
     pub plan: KnownOrUnknown<Plan, String>,
     pub subscription_period: Option<SubscriptionPeriod>,
-    pub usage: cloud_llm_client::CurrentUsage,
+    pub usage: CurrentUsage,
     pub trial_started_at: Option<Timestamp>,
     pub is_account_too_young: bool,
     pub has_overdue_invoices: bool,

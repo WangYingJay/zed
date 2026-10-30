@@ -15,7 +15,8 @@ doctest = false
 [features]
 default = []
 # 通话/屏幕共享 UI：依赖 call + livekit，由 zed 的 calls feature 打开
-calls = ["dep:call", "dep:livekit_client", "gpui/screen-capture"]
+# remote_connection 仅 collab 远程指示用，随 calls 打开
+calls = ["dep:call", "dep:livekit_client", "dep:remote_connection", "gpui/screen-capture"]
 
 test-support = [
     "calls",
@@ -33,7 +34,7 @@ test-support = [
 
 [dependencies]
 anyhow.workspace = true
-auto_update.workspace = true
+# B档第五刀：去掉 auto_update（更新条 stub）
 fs.workspace = true
 platform_title_bar.workspace = true
 call = { workspace = true, optional = true }
@@ -52,7 +53,7 @@ path.workspace = true
 project.workspace = true
 recent_projects.workspace = true
 remote.workspace = true
-remote_connection.workspace = true
+remote_connection = { workspace = true, optional = true }
 rpc.workspace = true
 semver.workspace = true
 schemars.workspace = true

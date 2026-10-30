@@ -19,7 +19,7 @@ test-support = ["remote/test-support"]
 [dependencies]
 anyhow.workspace = true
 askpass.workspace = true
-auto_update.workspace = true
+# B档第五刀：去掉 auto_update（远程 server 下载 stub）
 futures.workspace = true
 gpui.workspace = true
 log.workspace = true

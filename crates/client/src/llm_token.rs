@@ -2,8 +2,11 @@ use super::{Client, UserStore};
 use anyhow::anyhow;
 use cloud_api_client::LlmApiToken;
 use cloud_api_types::websocket_protocol::MessageToClient;
-use cloud_llm_client::{EXPIRED_LLM_TOKEN_HEADER_NAME, OUTDATED_LLM_TOKEN_HEADER_NAME};
 use futures::StreamExt;
+
+// B档第五刀：原 cloud_llm_client 头名内联，避免默认图硬链该 crate
+const EXPIRED_LLM_TOKEN_HEADER_NAME: &str = "x-zed-expired-token";
+const OUTDATED_LLM_TOKEN_HEADER_NAME: &str = "x-zed-outdated-token";
 use gpui::{
     App, AppContext as _, Context, Entity, EventEmitter, Global, ReadGlobal as _, Subscription,
     Task, TaskExt,

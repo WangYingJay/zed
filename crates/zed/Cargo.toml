@@ -87,7 +87,7 @@ anyhow.workspace = true
 askpass.workspace = true
 assets.workspace = true
 audio = { workspace = true, optional = true }
-auto_update.workspace = true
+# B档第五刀：去掉 auto_update 默认路径
 breadcrumbs.workspace = true
 call = { workspace = true, optional = true }
 channel.workspace = true

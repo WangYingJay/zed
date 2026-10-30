@@ -14,7 +14,7 @@ path = "src/git_ui.rs"
 doctest = false
 
 [features]
-test-support = ["multi_buffer/test-support", "remote_connection/test-support"]
+test-support = ["multi_buffer/test-support"]
 call = ["dep:call"]
 
 [dependencies]
@@ -46,7 +46,7 @@ picker.workspace = true
 project.workspace = true
 rand.workspace = true
 release_channel.workspace = true
-remote_connection.workspace = true
+# B档第五刀：去掉未使用的 remote_connection
 schemars.workspace = true
 serde.workspace = true
 serde_json.workspace = true
@@ -83,7 +83,6 @@ language = { workspace = true, features = ["test-support"] }
 pretty_assertions.workspace = true
 project = { workspace = true, features = ["test-support"] }
 rand.workspace = true
-remote_connection = { workspace = true, features = ["test-support"] }
 search.workspace = true
 settings = { workspace = true, features = ["test-support"] }
 task.workspace = true
@@ -93,4 +92,4 @@ workspace = { workspace = true, features = ["test-support"] }
 zlog.workspace = true
 
 [package.metadata.cargo-shear]
-ignored = ["component", "remote_connection", "tracing"]
+ignored = ["component", "tracing"]

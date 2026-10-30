@@ -186,7 +186,6 @@ name = "activity_indicator"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "auto_update",
  "editor",
  "fs",
  "futures 0.3.34",
@@ -3052,7 +3051,6 @@ dependencies = [
  "clock",
  "cloud_api_client",
  "cloud_api_types",
- "cloud_llm_client",
  "collections",
  "credentials_provider",
  "derive_more",
@@ -3134,7 +3132,6 @@ dependencies = [
  "anyhow",
  "chrono",
  "ciborium",
- "cloud_llm_client",
  "pretty_assertions",
  "serde",
  "serde_json",
@@ -7063,7 +7060,6 @@ dependencies = [
  "project",
  "rand 0.9.4",
  "release_channel",
- "remote_connection",
  "schemars 1.0.4",
  "search",
  "serde",
@@ -7116,7 +7112,6 @@ dependencies = [
  "proto",
  "rand 0.9.4",
  "remote",
- "remote_connection",
  "serde",
  "serde_json",
  "settings",
@@ -14912,7 +14907,6 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "askpass",
- "auto_update",
  "editor",
  "futures 0.3.34",
  "gpui",
@@ -18280,7 +18274,6 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "arrayvec",
- "auto_update",
  "call",
  "channel",
  "chrono",
@@ -22339,7 +22332,6 @@ dependencies = [
  "askpass",
  "assets",
  "audio",
- "auto_update",
  "breadcrumbs",
  "call",
  "channel",
