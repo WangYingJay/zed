@@ -16,6 +16,7 @@ use crate::{
     python::{BasedPyrightLspAdapter, PyreflyLspAdapter, RuffLspAdapter},
 };
 
+mod github_lsp_stub;
 mod bash;
 mod c;
 mod cpp;

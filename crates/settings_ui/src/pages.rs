@@ -1,9 +1,9 @@
-// 音频设备页依赖 cpal/rodio/audio（进而 libwebrtc），随 settings_ui/audio feature 编译
+// 音频设备页依赖 cpal/rodio/audio（进而 libwebrtc），随 settings_ui/audio feature 编译。
+// B档第十刀：开发者/功能开关页已硬删；feature_flags 子页不再挂载。
 #[cfg(feature = "audio")]
 mod audio_input_output_setup;
 #[cfg(feature = "audio")]
 mod audio_test_window;
-mod feature_flags;
 
 #[cfg(feature = "audio")]
 pub(crate) use audio_input_output_setup::{
@@ -11,4 +11,3 @@ pub(crate) use audio_input_output_setup::{
 };
 #[cfg(feature = "audio")]
 pub(crate) use audio_test_window::open_audio_test_window;
-pub(crate) use feature_flags::render_feature_flags_page;

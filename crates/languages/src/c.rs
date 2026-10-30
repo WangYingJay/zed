@@ -1,7 +1,7 @@
 use anyhow::{Context as _, Result, bail};
 use async_trait::async_trait;
 use futures::StreamExt;
-use github_releases::{
+use crate::github_lsp_stub::{
     AssetKind, GitHubLspBinaryVersion, GithubBinaryMetadata, download_server_binary,
     latest_github_release,
 };

@@ -2,7 +2,7 @@ use anyhow::{Context as _, Result};
 use async_trait::async_trait;
 use collections::HashMap;
 use futures::StreamExt;
-use github_releases::latest_github_release;
+use crate::github_lsp_stub::latest_github_release;
 use gpui::{App, AsyncApp, Entity, Task};
 pub use language::*;
 use language::{

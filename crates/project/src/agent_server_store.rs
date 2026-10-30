@@ -9,7 +9,6 @@ use anyhow::{Context as _, Result, bail};
 use collections::HashMap;
 use fs::{Fs, RemoveOptions};
 use futures::StreamExt;
-use github_releases::AssetKind;
 use gpui::{
     AppContext as _, AsyncApp, Context, Entity, EventEmitter, SharedString, Subscription, Task,
     TaskExt,
@@ -299,7 +298,7 @@ impl AgentServerStore {
             project_environment,
             downstream_client,
             settings: old_settings,
-            http_client,
+            http_client: _,
             ..
         } = &mut self.state
         else {
@@ -398,7 +397,6 @@ impl AgentServerStore {
                                 ExternalAgentEntry::new(
                                     Box::new(LocalRegistryArchiveAgent {
                                         fs: fs.clone(),
-                                        http_client: http_client.clone(),
                                         node_runtime: node_runtime.clone(),
                                         project_environment: project_environment.clone(),
                                         installation_dir: paths::external_agents_dir()
@@ -894,9 +892,19 @@ impl ExternalAgentServer for RemoteExternalAgentServer {
     }
 }
 
+/// 与 ACP registry URL 后缀解析一致；B 档默认构建不再从 GitHub/HTTP 拉取归档。
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+enum RegistryArchiveAssetKind {
+    TarGz,
+    TarBz2,
+    Zip,
+}
+
+const B_TIER_NO_GITHUB_AGENT_DOWNLOAD: &str = "B档：默认不从 GitHub 下载 Agent/LSP 归档";
+
 #[derive(Debug, PartialEq, Eq)]
 enum RegistryArchiveKind {
-    Archive(AssetKind),
+    Archive(RegistryArchiveAssetKind),
     /// The archive URL points directly at an executable, per the ACP registry
     /// schema: "URL to download archive (.zip, .tar.gz, .tgz, .tar.bz2, .tbz2,
     /// or raw binary)".
@@ -932,11 +940,11 @@ fn registry_archive_kind_for_url(archive_url: &str) -> Result<RegistryArchiveKin
     let lowercase_path = archive_path.to_lowercase();
 
     if lowercase_path.ends_with(".zip") {
-        Ok(RegistryArchiveKind::Archive(AssetKind::Zip))
+        Ok(RegistryArchiveKind::Archive(RegistryArchiveAssetKind::Zip))
     } else if lowercase_path.ends_with(".tar.gz") || lowercase_path.ends_with(".tgz") {
-        Ok(RegistryArchiveKind::Archive(AssetKind::TarGz))
+        Ok(RegistryArchiveKind::Archive(RegistryArchiveAssetKind::TarGz))
     } else if lowercase_path.ends_with(".tar.bz2") || lowercase_path.ends_with(".tbz2") {
-        Ok(RegistryArchiveKind::Archive(AssetKind::TarBz2))
+        Ok(RegistryArchiveKind::Archive(RegistryArchiveAssetKind::TarBz2))
     } else if let Some(suffix) = UNSUPPORTED_SUFFIXES
         .iter()
         .find(|suffix| lowercase_path.ends_with(*suffix))
@@ -968,41 +976,6 @@ fn raw_binary_file_name(archive_path: &str) -> Result<String> {
         "invalid binary file name: {file_name}"
     );
     Ok(file_name)
-}
-
-struct GithubReleaseArchive {
-    repo_name_with_owner: String,
-    tag: String,
-    asset_name: String,
-}
-
-fn github_release_archive_from_url(archive_url: &str) -> Option<GithubReleaseArchive> {
-    fn decode_path_segment(segment: &str) -> Option<String> {
-        percent_decode_str(segment)
-            .decode_utf8()
-            .ok()
-            .map(|segment| segment.into_owned())
-    }
-
-    let url = Url::parse(archive_url).ok()?;
-    if url.scheme() != "https" || url.host_str()? != "github.com" {
-        return None;
-    }
-
-    let segments = url.path_segments()?.collect::<Vec<_>>();
-    if segments.len() < 6 || segments[2] != "releases" || segments[3] != "download" {
-        return None;
-    }
-
-    Some(GithubReleaseArchive {
-        repo_name_with_owner: format!("{}/{}", segments[0], segments[1]),
-        tag: decode_path_segment(segments[4])?,
-        asset_name: segments[5..]
-            .iter()
-            .map(|segment| decode_path_segment(segment))
-            .collect::<Option<Vec<_>>>()?
-            .join("/"),
-    })
 }
 
 fn sanitize_path_component(input: &str) -> String {
@@ -1117,7 +1090,6 @@ async fn remove_stale_versioned_archive_cache_dirs(
 
 struct LocalRegistryArchiveAgent {
     fs: Arc<dyn Fs>,
-    http_client: Arc<dyn HttpClient>,
     node_runtime: NodeRuntime,
     project_environment: Entity<ProjectEnvironment>,
     installation_dir: PathBuf,
@@ -1156,15 +1128,12 @@ impl ExternalAgentServer for LocalRegistryArchiveAgent {
         cx: &mut AsyncApp,
     ) -> Task<Result<AgentServerCommand>> {
         let fs = self.fs.clone();
-        let http_client = self.http_client.clone();
         let node_runtime = self.node_runtime.clone();
         let project_environment = self.project_environment.downgrade();
         let installation_dir = self.installation_dir.clone();
         let targets = self.targets.clone();
         let settings_env = self.env.clone();
         let version = self.version.clone();
-        let loading_status_tx = self.loading_status_tx.take();
-
         cx.spawn(async move |cx| {
             let mut env = project_environment
                 .update(cx, |project_environment, cx| {
@@ -1220,67 +1189,9 @@ impl ExternalAgentServer for LocalRegistryArchiveAgent {
             );
 
             if !fs.is_dir(&version_dir).await {
-                let mut loading_status_tx = loading_status_tx;
-                if let Some(tx) = loading_status_tx.as_mut() {
-                    tx.send(Some(format!("Installing {}…", version.as_ref())))
-                        .ok();
-                }
-
-                let sha256 = if let Some(provided_sha) = &target_config.sha256 {
-                    Some(provided_sha.clone())
-                } else if let Some(github_archive) = github_release_archive_from_url(archive_url) {
-                    if let Ok(release) = github_releases::get_release_by_tag_name(
-                        &github_archive.repo_name_with_owner,
-                        &github_archive.tag,
-                        http_client.clone(),
-                    )
-                    .await
-                    {
-                        if let Some(asset) = release
-                            .assets
-                            .iter()
-                            .find(|a| a.name == github_archive.asset_name)
-                        {
-                            asset.digest.as_ref().and_then(|d| {
-                                d.strip_prefix("sha256:")
-                                    .map(|s| s.to_string())
-                                    .or_else(|| Some(d.clone()))
-                            })
-                        } else {
-                            None
-                        }
-                    } else {
-                        None
-                    }
-                } else {
-                    None
-                };
-
-                let executor = cx.background_executor();
-                match registry_archive_kind_for_url(archive_url)? {
-                    RegistryArchiveKind::Archive(asset_kind) => {
-                        github_releases::download_server_binary(
-                            executor,
-                            http_client.clone(),
-                            archive_url,
-                            sha256.as_deref(),
-                            &version_dir,
-                            asset_kind,
-                        )
-                        .await?;
-                    }
-                    RegistryArchiveKind::RawBinary { file_name } => {
-                        github_releases::download_server_raw_binary(
-                            executor,
-                            http_client.clone(),
-                            archive_url,
-                            sha256.as_deref(),
-                            &version_dir,
-                            &file_name,
-                        )
-                        .await?;
-                    }
-                }
+                // 仅使用本地已缓存的 registry 归档；缺失时不再走 GitHub/HTTP 下载。
+                let _ = registry_archive_kind_for_url(archive_url)?;
+                bail!(B_TIER_NO_GITHUB_AGENT_DOWNLOAD);
             }
 
             let cmd = &target_config.cmd;
@@ -1780,8 +1691,6 @@ mod tests {
     };
     use crate::worktree_store::{WorktreeIdCounter, WorktreeStore};
     use gpui::TestAppContext;
-    #[cfg(feature = "test-support")]
-    use http_client::{AsyncBody, FakeHttpClient, Response};
     use node_runtime::NodeRuntime;
     use settings::Settings as _;
 
@@ -1789,22 +1698,9 @@ mod tests {
     const TEST_ARCHIVE_URL: &str = "https://example.test/agent";
 
     #[cfg(feature = "test-support")]
-    fn static_http_client(body: Vec<u8>) -> Arc<dyn HttpClient> {
-        FakeHttpClient::create(move |_| {
-            let body = body.clone();
-            async move {
-                Ok(Response::builder()
-                    .status(200)
-                    .body(AsyncBody::from(body))?)
-            }
-        })
-    }
-
-    #[cfg(feature = "test-support")]
     fn make_registry_archive_agent(
         cx: &mut TestAppContext,
         installation_dir: PathBuf,
-        http_client: Arc<dyn HttpClient>,
         sha256: Option<String>,
     ) -> LocalRegistryArchiveAgent {
         let fs: Arc<dyn Fs> = fs::RealFs::new(None, cx.executor());
@@ -1836,7 +1732,6 @@ mod tests {
 
             LocalRegistryArchiveAgent {
                 fs,
-                http_client,
                 node_runtime: NodeRuntime::unavailable(),
                 project_environment,
                 installation_dir,
@@ -1956,47 +1851,47 @@ mod tests {
     fn detects_supported_archive_suffixes() {
         assert!(matches!(
             registry_archive_kind_for_url("https://example.com/agent.zip"),
-            Ok(RegistryArchiveKind::Archive(AssetKind::Zip))
+            Ok(RegistryArchiveKind::Archive(RegistryArchiveAssetKind::Zip))
         ));
         assert!(matches!(
             registry_archive_kind_for_url("https://example.com/agent.zip?download=1"),
-            Ok(RegistryArchiveKind::Archive(AssetKind::Zip))
+            Ok(RegistryArchiveKind::Archive(RegistryArchiveAssetKind::Zip))
         ));
         assert!(matches!(
             registry_archive_kind_for_url("https://example.com/agent.tar.gz"),
-            Ok(RegistryArchiveKind::Archive(AssetKind::TarGz))
+            Ok(RegistryArchiveKind::Archive(RegistryArchiveAssetKind::TarGz))
         ));
         assert!(matches!(
             registry_archive_kind_for_url("https://example.com/agent.tar.gz?download=1#latest"),
-            Ok(RegistryArchiveKind::Archive(AssetKind::TarGz))
+            Ok(RegistryArchiveKind::Archive(RegistryArchiveAssetKind::TarGz))
         ));
         assert!(matches!(
             registry_archive_kind_for_url("https://example.com/agent.tgz"),
-            Ok(RegistryArchiveKind::Archive(AssetKind::TarGz))
+            Ok(RegistryArchiveKind::Archive(RegistryArchiveAssetKind::TarGz))
         ));
         assert!(matches!(
             registry_archive_kind_for_url("https://example.com/agent.tgz#download"),
-            Ok(RegistryArchiveKind::Archive(AssetKind::TarGz))
+            Ok(RegistryArchiveKind::Archive(RegistryArchiveAssetKind::TarGz))
         ));
         assert!(matches!(
             registry_archive_kind_for_url("https://example.com/agent.tar.bz2"),
-            Ok(RegistryArchiveKind::Archive(AssetKind::TarBz2))
+            Ok(RegistryArchiveKind::Archive(RegistryArchiveAssetKind::TarBz2))
         ));
         assert!(matches!(
             registry_archive_kind_for_url("https://example.com/agent.tar.bz2?download=1"),
-            Ok(RegistryArchiveKind::Archive(AssetKind::TarBz2))
+            Ok(RegistryArchiveKind::Archive(RegistryArchiveAssetKind::TarBz2))
         ));
         assert!(matches!(
             registry_archive_kind_for_url("https://example.com/agent.tbz2"),
-            Ok(RegistryArchiveKind::Archive(AssetKind::TarBz2))
+            Ok(RegistryArchiveKind::Archive(RegistryArchiveAssetKind::TarBz2))
         ));
         assert!(matches!(
             registry_archive_kind_for_url("https://example.com/agent.tbz2#download"),
-            Ok(RegistryArchiveKind::Archive(AssetKind::TarBz2))
+            Ok(RegistryArchiveKind::Archive(RegistryArchiveAssetKind::TarBz2))
         ));
         assert!(matches!(
             registry_archive_kind_for_url("https://example.com/agent.ZIP"),
-            Ok(RegistryArchiveKind::Archive(AssetKind::Zip))
+            Ok(RegistryArchiveKind::Archive(RegistryArchiveAssetKind::Zip))
         ));
     }
 
@@ -2033,18 +1928,6 @@ mod tests {
         // Percent-decoding must not allow path traversal in the file name.
         assert!(registry_archive_kind_for_url("https://example.com/a%2F..%2Fevil").is_err());
         assert!(registry_archive_kind_for_url("https://example.com/%2E%2E").is_err());
-    }
-
-    #[test]
-    fn parses_github_release_archive_urls() {
-        let github_archive = github_release_archive_from_url(
-            "https://github.com/owner/repo/releases/download/release%2F2.3.5/agent.tar.bz2?download=1",
-        )
-        .unwrap();
-
-        assert_eq!(github_archive.repo_name_with_owner, "owner/repo");
-        assert_eq!(github_archive.tag, "release/2.3.5");
-        assert_eq!(github_archive.asset_name, "agent.tar.bz2");
     }
 
     #[test]
@@ -2124,43 +2007,23 @@ mod tests {
 
     #[cfg(feature = "test-support")]
     #[gpui::test]
-    async fn registry_raw_binary_checksum_invalidates_unverified_cache_and_blocks_mismatch(
-        cx: &mut TestAppContext,
-    ) {
+    async fn registry_archive_missing_cache_refuses_github_download(cx: &mut TestAppContext) {
         init_test_settings(cx);
         cx.executor().allow_parking();
         let temp_dir = tempfile::tempdir().unwrap();
         let installation_dir = temp_dir.path().join("agent");
-        let old_version_dir =
-            versioned_archive_cache_dir(&installation_dir, Some("1.0.0"), TEST_ARCHIVE_URL, None);
-        std::fs::create_dir_all(&old_version_dir).unwrap();
-        std::fs::write(old_version_dir.join("agent"), b"unverified agent").unwrap();
-
-        let expected_sha256 = "0000000000000000000000000000000000000000000000000000000000000000";
-        let http_client = static_http_client(b"unexpected agent".to_vec());
         let mut agent = make_registry_archive_agent(
             cx,
-            installation_dir.clone(),
-            http_client,
-            Some(expected_sha256.to_string()),
+            installation_dir,
+            Some("0000000000000000000000000000000000000000000000000000000000000000".to_string()),
         );
         let get_command =
             cx.update(|cx| agent.get_command(Vec::new(), HashMap::default(), &mut cx.to_async()));
 
         let error = get_command.await.unwrap_err();
         assert!(
-            error.to_string().contains("SHA-256 mismatch"),
+            error.to_string().contains(B_TIER_NO_GITHUB_AGENT_DOWNLOAD),
             "unexpected error: {error:#}"
-        );
-        assert!(old_version_dir.exists());
-        assert!(
-            !versioned_archive_cache_dir(
-                &installation_dir,
-                Some("1.0.0"),
-                TEST_ARCHIVE_URL,
-                Some(expected_sha256),
-            )
-            .exists()
         );
     }
 
@@ -2173,11 +2036,17 @@ mod tests {
         let installation_dir = temp_dir.path().join("agent");
         let contents = b"verified agent";
         let expected_sha256 = format!("{:X}", Sha256::digest(contents));
-        let http_client = static_http_client(contents.to_vec());
+        let version_dir = versioned_archive_cache_dir(
+            &installation_dir,
+            Some("1.0.0"),
+            TEST_ARCHIVE_URL,
+            Some(&expected_sha256),
+        );
+        std::fs::create_dir_all(&version_dir).unwrap();
+        std::fs::write(version_dir.join("agent"), contents).unwrap();
         let mut agent = make_registry_archive_agent(
             cx,
             installation_dir.clone(),
-            http_client,
             Some(expected_sha256.clone()),
         );
         let get_command =
@@ -2206,9 +2075,15 @@ mod tests {
         let temp_dir = tempfile::tempdir().unwrap();
         let installation_dir = temp_dir.path().join("agent");
         let contents = b"unchecked agent";
-        let http_client = static_http_client(contents.to_vec());
-        let mut agent =
-            make_registry_archive_agent(cx, installation_dir.clone(), http_client, None);
+        let version_dir = versioned_archive_cache_dir(
+            &installation_dir,
+            Some("1.0.0"),
+            TEST_ARCHIVE_URL,
+            None,
+        );
+        std::fs::create_dir_all(&version_dir).unwrap();
+        std::fs::write(version_dir.join("agent"), contents).unwrap();
+        let mut agent = make_registry_archive_agent(cx, installation_dir.clone(), None);
         let get_command =
             cx.update(|cx| agent.get_command(Vec::new(), HashMap::default(), &mut cx.to_async()));
 

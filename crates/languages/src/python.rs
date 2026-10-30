@@ -4,8 +4,8 @@ use async_trait::async_trait;
 use collections::HashMap;
 use futures::future::BoxFuture;
 use futures::lock::OwnedMutexGuard;
-use futures::{AsyncBufReadExt, StreamExt as _};
-use github_releases::{
+use futures::StreamExt as _;
+use crate::github_lsp_stub::{
     AssetKind, GitHubLspBinaryVersion, GithubBinaryMetadata, download_server_binary,
     latest_github_release,
 };
@@ -20,10 +20,6 @@ use language::{Toolchain, ToolchainList, ToolchainLister, ToolchainMetadata};
 use lsp::{CompletionItemKind, LanguageServerBinary, Uri};
 use lsp::{LanguageServerBinaryOptions, LanguageServerName};
 use node_runtime::{NodeRuntime, VersionStrategy};
-use pet_core::Configuration;
-use pet_core::os_environment::Environment;
-use pet_core::python_environment::{PythonEnvironment, PythonEnvironmentKind};
-use pet_virtualenv::is_virtualenv_dir;
 use project::Fs;
 use project::lsp_store::language_server_settings;
 use semver::Version;
@@ -33,7 +29,6 @@ use settings::{SemanticTokenRules, Settings};
 use terminal::terminal_settings::TerminalSettings;
 
 use smol::lock::OnceCell;
-use std::cmp::{Ordering, Reverse};
 use std::env::consts;
 use util::command::Stdio;
 
@@ -42,7 +37,6 @@ use util::fs::{make_file_executable, remove_matching};
 use util::paths::PathStyle;
 use util::rel_path::RelPath;
 
-use parking_lot::Mutex;
 use std::str::FromStr;
 use std::{
     borrow::Cow,
@@ -60,6 +54,186 @@ pub(crate) fn semantic_token_rules() -> SemanticTokenRules {
     let json = std::str::from_utf8(&content.data).expect("invalid utf-8 in semantic_token_rules");
     settings::parse_json_with_comments::<SemanticTokenRules>(json)
         .expect("failed to parse python semantic_token_rules.json")
+}
+
+/// 与 pet-core 序列化格式兼容，供已保存的工具链 JSON 反序列化。
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug, Hash)]
+pub(crate) enum PythonEnvironmentKind {
+    Conda,
+    Pixi,
+    Homebrew,
+    Pyenv,
+    GlobalPaths,
+    PyenvVirtualEnv,
+    Pipenv,
+    Poetry,
+    Hatch,
+    MacPythonOrg,
+    MacCommandLineTools,
+    LinuxGlobal,
+    MacXCode,
+    Uv,
+    UvWorkspace,
+    Venv,
+    VirtualEnv,
+    VirtualEnvWrapper,
+    WinPython,
+    WindowsStore,
+    WindowsRegistry,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug, Hash)]
+pub(crate) enum EnvManagerType {
+    Conda,
+    Mamba,
+    Pipenv,
+    Poetry,
+    Pyenv,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct EnvManager {
+    pub executable: PathBuf,
+    pub version: Option<String>,
+    pub tool: EnvManagerType,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug)]
+#[serde(rename_all = "camelCase")]
+pub(crate) enum Architecture {
+    X64,
+    X86,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug, Default)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct PythonEnvironment {
+    pub display_name: Option<String>,
+    pub name: Option<String>,
+    pub executable: Option<PathBuf>,
+    pub kind: Option<PythonEnvironmentKind>,
+    pub version: Option<String>,
+    pub prefix: Option<PathBuf>,
+    pub manager: Option<EnvManager>,
+    pub project: Option<PathBuf>,
+    pub arch: Option<Architecture>,
+    pub symlinks: Option<Vec<PathBuf>>,
+    pub error: Option<String>,
+}
+
+impl Ord for PythonEnvironment {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        format!(
+            "{:?}=>{:?}",
+            self.executable.clone().unwrap_or_default(),
+            self.prefix.clone().unwrap_or_default()
+        )
+        .cmp(&format!(
+            "{:?}=>{:?}",
+            other.executable.clone().unwrap_or_default(),
+            other.prefix.clone().unwrap_or_default()
+        ))
+    }
+}
+
+impl PartialOrd for PythonEnvironment {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+/// 判断目录是否为常见 virtualenv/venv 布局（不依赖 pet-virtualenv）。
+fn is_virtualenv_dir(path: &Path) -> bool {
+    if cfg!(windows) {
+        is_virtualenv_dir_impl(path, "Scripts") || is_virtualenv_dir_impl(path, "bin")
+    } else {
+        is_virtualenv_dir_impl(path, "bin")
+    }
+}
+
+fn is_virtualenv_dir_impl(path: &Path, bin: &str) -> bool {
+    let mut path = path.to_path_buf();
+    if !path.ends_with("bin") && !path.ends_with("Scripts") {
+        path = path.join(bin);
+    }
+
+    if [
+        PathBuf::from(r"/bin"),
+        PathBuf::from(r"/usr/bin"),
+        PathBuf::from(r"/usr/local/bin"),
+    ]
+    .contains(&path)
+    {
+        return false;
+    }
+
+    if path.join("activate").exists() || path.join("activate.bat").exists() {
+        return true;
+    }
+
+    if let Ok(files) = std::fs::read_dir(&path) {
+        for file in files.filter_map(Result::ok).map(|entry| entry.path()) {
+            if file
+                .file_name()
+                .and_then(|name| name.to_str())
+                .is_some_and(|name| name.starts_with("activate."))
+            {
+                return true;
+            }
+        }
+    }
+
+    false
+}
+
+fn python_executable_file_names() -> &'static [&'static str] {
+    if cfg!(windows) {
+        &["python.exe", "python3.exe"]
+    } else {
+        &["python3", "python"]
+    }
+}
+
+async fn find_python_in_venv(venv_dir: &Path, fs: &dyn Fs) -> Option<PathBuf> {
+    let bin_dir = if cfg!(windows) {
+        venv_dir.join("Scripts")
+    } else {
+        venv_dir.join("bin")
+    };
+    for name in python_executable_file_names() {
+        let candidate = bin_dir.join(name);
+        if fs.is_file(&candidate).await {
+            return Some(candidate);
+        }
+    }
+    None
+}
+
+async fn python_environment_from_venv_dir(
+    venv_dir: PathBuf,
+    fs: &dyn Fs,
+) -> Option<PythonEnvironment> {
+    if !fs.is_dir(&venv_dir).await || !is_virtualenv_dir(&venv_dir) {
+        return None;
+    }
+    let executable = find_python_in_venv(&venv_dir, fs).await?;
+    Some(PythonEnvironment {
+        name: venv_dir
+            .file_name()
+            .and_then(|name| name.to_str())
+            .map(str::to_owned),
+        executable: Some(executable),
+        kind: Some(PythonEnvironmentKind::Venv),
+        prefix: Some(venv_dir),
+        ..Default::default()
+    })
+}
+
+fn is_python_executable_file_name(name: &str) -> bool {
+    python_executable_file_names()
+        .iter()
+        .any(|candidate| name.eq_ignore_ascii_case(candidate))
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -1153,21 +1327,6 @@ fn python_module_name_from_relative_path(relative_path: &str) -> Option<String> 
     )
 }
 
-fn is_python_env_global(k: &PythonEnvironmentKind) -> bool {
-    matches!(
-        k,
-        PythonEnvironmentKind::Homebrew
-            | PythonEnvironmentKind::Pyenv
-            | PythonEnvironmentKind::GlobalPaths
-            | PythonEnvironmentKind::MacPythonOrg
-            | PythonEnvironmentKind::MacCommandLineTools
-            | PythonEnvironmentKind::LinuxGlobal
-            | PythonEnvironmentKind::MacXCode
-            | PythonEnvironmentKind::WindowsStore
-            | PythonEnvironmentKind::WindowsRegistry
-    )
-}
-
 fn python_env_kind_display(k: &PythonEnvironmentKind) -> &'static str {
     match k {
         PythonEnvironmentKind::Conda => "Conda",
@@ -1204,100 +1363,6 @@ impl PythonToolchainProvider {
     }
 }
 
-static ENV_PRIORITY_LIST: &[PythonEnvironmentKind] = &[
-    // Prioritize non-Conda environments.
-    PythonEnvironmentKind::UvWorkspace,
-    PythonEnvironmentKind::Uv,
-    PythonEnvironmentKind::Poetry,
-    PythonEnvironmentKind::Pipenv,
-    PythonEnvironmentKind::VirtualEnvWrapper,
-    PythonEnvironmentKind::Venv,
-    PythonEnvironmentKind::VirtualEnv,
-    PythonEnvironmentKind::PyenvVirtualEnv,
-    PythonEnvironmentKind::Pixi,
-    PythonEnvironmentKind::Conda,
-    PythonEnvironmentKind::Pyenv,
-    PythonEnvironmentKind::GlobalPaths,
-    PythonEnvironmentKind::Homebrew,
-];
-
-fn env_priority(kind: Option<PythonEnvironmentKind>) -> usize {
-    if let Some(kind) = kind {
-        ENV_PRIORITY_LIST
-            .iter()
-            .position(|blessed_env| blessed_env == &kind)
-            .unwrap_or(ENV_PRIORITY_LIST.len())
-    } else {
-        // Unknown toolchains are less useful than non-blessed ones.
-        ENV_PRIORITY_LIST.len() + 1
-    }
-}
-
-/// Return the name of environment declared in <worktree-root/.venv.
-///
-/// https://virtualfish.readthedocs.io/en/latest/plugins.html#auto-activation-auto-activation
-async fn get_worktree_venv_declaration(worktree_root: &Path) -> Option<String> {
-    let file = async_fs::File::open(worktree_root.join(".venv"))
-        .await
-        .ok()?;
-    let mut venv_name = String::new();
-    smol::io::BufReader::new(file)
-        .read_line(&mut venv_name)
-        .await
-        .ok()?;
-    Some(venv_name.trim().to_string())
-}
-
-fn get_venv_parent_dir(env: &PythonEnvironment) -> Option<PathBuf> {
-    // If global, we aren't a virtual environment
-    if let Some(kind) = env.kind
-        && is_python_env_global(&kind)
-    {
-        return None;
-    }
-
-    // Check to be sure we are a virtual environment using pet's most generic
-    // virtual environment type, VirtualEnv
-    let venv = env
-        .executable
-        .as_ref()
-        .and_then(|p| p.parent())
-        .and_then(|p| p.parent())
-        .filter(|p| is_virtualenv_dir(p))?;
-
-    venv.parent().map(|parent| parent.to_path_buf())
-}
-
-// How far is this venv from the root of our current project?
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
-enum SubprojectDistance {
-    WithinSubproject(Reverse<usize>),
-    WithinWorktree(Reverse<usize>),
-    NotInWorktree,
-}
-
-fn wr_distance(
-    wr: &PathBuf,
-    subroot_relative_path: &RelPath,
-    venv: Option<&PathBuf>,
-) -> SubprojectDistance {
-    if let Some(venv) = venv
-        && let Ok(p) = venv.strip_prefix(wr)
-    {
-        if subroot_relative_path.components().next().is_some()
-            && let Ok(distance) = p
-                .strip_prefix(subroot_relative_path.as_std_path())
-                .map(|p| p.components().count())
-        {
-            SubprojectDistance::WithinSubproject(Reverse(distance))
-        } else {
-            SubprojectDistance::WithinWorktree(Reverse(p.components().count()))
-        }
-    } else {
-        SubprojectDistance::NotInWorktree
-    }
-}
-
 fn micromamba_shell_name(kind: ShellKind) -> &'static str {
     match kind {
         ShellKind::Csh => "csh",
@@ -1316,114 +1381,30 @@ impl ToolchainLister for PythonToolchainProvider {
         &self,
         worktree_root: PathBuf,
         subroot_relative_path: Arc<RelPath>,
-        project_env: Option<HashMap<String, String>>,
+        _project_env: Option<HashMap<String, String>>,
     ) -> ToolchainList {
         let fs = &*self.fs;
-        let env = project_env.unwrap_or_default();
-        let environment = EnvironmentApi::from_env(&env);
-        let locators = pet::locators::create_locators(
-            Arc::new(pet_conda::Conda::from(&environment)),
-            Arc::new(pet_poetry::Poetry::from(&environment)),
-            &environment,
-        );
-        let mut config = Configuration::default();
+        let mut environments = Vec::new();
+        let mut seen_venv_dirs = collections::HashSet::default();
 
-        // `.ancestors()` will yield at least one path, so in case of empty `subroot_relative_path`, we'll just use
-        // worktree root as the workspace directory.
-        config.workspace_directories = Some(
-            subroot_relative_path
-                .ancestors()
-                .map(|ancestor| {
-                    // remove trailing separator as it alters the environment name hash used by Poetry.
-                    let path = worktree_root.join(ancestor.as_std_path());
-                    let path_str = path.to_string_lossy();
-                    if path_str.ends_with(std::path::MAIN_SEPARATOR) && path_str.len() > 1 {
-                        PathBuf::from(path_str.trim_end_matches(std::path::MAIN_SEPARATOR))
-                    } else {
-                        path
-                    }
-                })
-                .collect(),
-        );
-        for locator in locators.iter() {
-            locator.configure(&config);
+        for ancestor in subroot_relative_path.ancestors() {
+            let workspace_dir = worktree_root.join(ancestor.as_std_path());
+            for venv_name in [".venv", "venv"] {
+                let venv_dir = workspace_dir.join(venv_name);
+                if !seen_venv_dirs.insert(venv_dir.clone()) {
+                    continue;
+                }
+                if let Some(environment) = python_environment_from_venv_dir(venv_dir, fs).await {
+                    environments.push(environment);
+                }
+            }
         }
 
-        let reporter = pet_reporter::collect::create_reporter();
-        pet::find::find_and_report_envs(&reporter, config, &locators, &environment, None, None);
-
-        let mut toolchains = reporter
-            .environments
-            .lock()
-            .map_or(Vec::new(), |mut guard| std::mem::take(&mut guard));
-
-        let wr = worktree_root;
-        let wr_venv = get_worktree_venv_declaration(&wr).await;
-        // Sort detected environments by:
-        //     environment name matching activation file (<workdir>/.venv)
-        //     environment project dir matching worktree_root
-        //     general env priority
-        //     environment path matching the CONDA_PREFIX env var
-        //     executable path
-        toolchains.sort_by(|lhs, rhs| {
-            // Compare venv names against worktree .venv file
-            let venv_ordering =
-                wr_venv
-                    .as_ref()
-                    .map_or(Ordering::Equal, |venv| match (&lhs.name, &rhs.name) {
-                        (Some(l), Some(r)) => (r == venv).cmp(&(l == venv)),
-                        (Some(l), None) if l == venv => Ordering::Less,
-                        (None, Some(r)) if r == venv => Ordering::Greater,
-                        _ => Ordering::Equal,
-                    });
-
-            // Compare project paths against worktree root
-            let proj_ordering =
-                || {
-                    let lhs_project = lhs.project.clone().or_else(|| get_venv_parent_dir(lhs));
-                    let rhs_project = rhs.project.clone().or_else(|| get_venv_parent_dir(rhs));
-                    wr_distance(&wr, &subroot_relative_path, lhs_project.as_ref()).cmp(
-                        &wr_distance(&wr, &subroot_relative_path, rhs_project.as_ref()),
-                    )
-                };
-
-            // Compare environment priorities
-            let priority_ordering = || env_priority(lhs.kind).cmp(&env_priority(rhs.kind));
-
-            // Compare conda prefixes
-            let conda_ordering = || {
-                if lhs.kind == Some(PythonEnvironmentKind::Conda) {
-                    environment
-                        .get_env_var("CONDA_PREFIX".to_string())
-                        .map(|conda_prefix| {
-                            let is_match = |exe: &Option<PathBuf>| {
-                                exe.as_ref().is_some_and(|e| e.starts_with(&conda_prefix))
-                            };
-                            match (is_match(&lhs.executable), is_match(&rhs.executable)) {
-                                (true, false) => Ordering::Less,
-                                (false, true) => Ordering::Greater,
-                                _ => Ordering::Equal,
-                            }
-                        })
-                        .unwrap_or(Ordering::Equal)
-                } else {
-                    Ordering::Equal
-                }
-            };
-
-            // Compare Python executables
-            let exe_ordering = || lhs.executable.cmp(&rhs.executable);
-
-            venv_ordering
-                .then_with(proj_ordering)
-                .then_with(priority_ordering)
-                .then_with(conda_ordering)
-                .then_with(exe_ordering)
-        });
+        environments.sort_by(|lhs, rhs| lhs.executable.cmp(&rhs.executable));
 
         let mut out_toolchains = Vec::new();
-        for toolchain in toolchains {
-            let Some(toolchain) = venv_to_toolchain(toolchain, fs).await else {
+        for environment in environments {
+            let Some(toolchain) = venv_to_toolchain(environment, fs).await else {
                 continue;
             };
             out_toolchains.push(toolchain);
@@ -1448,22 +1429,45 @@ impl ToolchainLister for PythonToolchainProvider {
     async fn resolve(
         &self,
         path: PathBuf,
-        env: Option<HashMap<String, String>>,
+        _env: Option<HashMap<String, String>>,
     ) -> anyhow::Result<Toolchain> {
         let fs = &*self.fs;
-        let env = env.unwrap_or_default();
-        let environment = EnvironmentApi::from_env(&env);
-        let locators = pet::locators::create_locators(
-            Arc::new(pet_conda::Conda::from(&environment)),
-            Arc::new(pet_poetry::Poetry::from(&environment)),
-            &environment,
-        );
-        let toolchain = pet::resolve::resolve_environment(&path, &locators, &environment)
-            .context("Could not find a virtual environment in provided path")?;
-        let venv = toolchain.resolved.unwrap_or(toolchain.discovered);
-        venv_to_toolchain(venv, fs)
-            .await
-            .context("Could not convert a venv into a toolchain")
+
+        if fs.is_dir(&path).await {
+            if let Some(environment) = python_environment_from_venv_dir(path.clone(), fs).await {
+                return venv_to_toolchain(environment, fs)
+                    .await
+                    .context("Could not convert a venv into a toolchain");
+            }
+        }
+
+        if fs.is_file(&path).await {
+            let file_name = path
+                .file_name()
+                .and_then(|name| name.to_str())
+                .unwrap_or_default();
+            if is_python_executable_file_name(file_name) {
+                let prefix = path
+                    .parent()
+                    .and_then(|bin_dir| bin_dir.parent())
+                    .filter(|candidate| is_virtualenv_dir(candidate))
+                    .map(Path::to_path_buf);
+                let kind = prefix
+                    .as_ref()
+                    .map(|_| PythonEnvironmentKind::Venv);
+                let environment = PythonEnvironment {
+                    executable: Some(path),
+                    prefix,
+                    kind,
+                    ..Default::default()
+                };
+                return venv_to_toolchain(environment, fs)
+                    .await
+                    .context("Could not convert a venv into a toolchain");
+            }
+        }
+
+        anyhow::bail!("Could not find a virtual environment in provided path")
     }
 
     fn activation_script(
@@ -1665,79 +1669,6 @@ async fn resolve_venv_activation_scripts(
                 activation_scripts.insert(*shell_kind, path);
             }
         }
-    }
-}
-
-pub struct EnvironmentApi<'a> {
-    global_search_locations: Arc<Mutex<Vec<PathBuf>>>,
-    project_env: &'a HashMap<String, String>,
-    pet_env: pet_core::os_environment::EnvironmentApi,
-}
-
-impl<'a> EnvironmentApi<'a> {
-    pub fn from_env(project_env: &'a HashMap<String, String>) -> Self {
-        let paths = project_env
-            .get("PATH")
-            .map(|p| std::env::split_paths(p).collect())
-            .unwrap_or_default();
-
-        EnvironmentApi {
-            global_search_locations: Arc::new(Mutex::new(paths)),
-            project_env,
-            pet_env: pet_core::os_environment::EnvironmentApi::new(),
-        }
-    }
-
-    fn user_home(&self) -> Option<PathBuf> {
-        self.project_env
-            .get("HOME")
-            .or_else(|| self.project_env.get("USERPROFILE"))
-            .map(|home| pet_fs::path::norm_case(PathBuf::from(home)))
-            .or_else(|| self.pet_env.get_user_home())
-    }
-}
-
-impl pet_core::os_environment::Environment for EnvironmentApi<'_> {
-    fn get_user_home(&self) -> Option<PathBuf> {
-        self.user_home()
-    }
-
-    fn get_root(&self) -> Option<PathBuf> {
-        None
-    }
-
-    fn get_env_var(&self, key: String) -> Option<String> {
-        self.project_env
-            .get(&key)
-            .cloned()
-            .or_else(|| self.pet_env.get_env_var(key))
-    }
-
-    fn get_know_global_search_locations(&self) -> Vec<PathBuf> {
-        if self.global_search_locations.lock().is_empty() {
-            let mut paths = std::env::split_paths(
-                &self
-                    .get_env_var("PATH".to_string())
-                    .or_else(|| self.get_env_var("Path".to_string()))
-                    .unwrap_or_default(),
-            )
-            .collect::<Vec<PathBuf>>();
-
-            log::trace!("Env PATH: {:?}", paths);
-            for p in self.pet_env.get_know_global_search_locations() {
-                if !paths.contains(&p) {
-                    paths.push(p);
-                }
-            }
-
-            let mut paths = paths
-                .into_iter()
-                .filter(|p| p.exists())
-                .collect::<Vec<PathBuf>>();
-
-            self.global_search_locations.lock().append(&mut paths);
-        }
-        self.global_search_locations.lock().clone()
     }
 }
 
@@ -2191,10 +2122,7 @@ impl LspAdapter for BasedPyrightLspAdapter {
             };
             if let Some(toolchain) = toolchain
                 && should_insert_toolchain()
-                && serde_json::from_value::<pet_core::python_environment::PythonEnvironment>(
-                    toolchain.as_json.clone(),
-                )
-                .is_ok()
+                && serde_json::from_value::<PythonToolchainData>(toolchain.as_json.clone()).is_ok()
             {
                 let interpreter_path = toolchain.path.to_string();
 

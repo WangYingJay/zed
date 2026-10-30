@@ -38,6 +38,9 @@ tree-sitter-typescript = { workspace = true, optional = true }
 tree-sitter-yaml = { workspace = true, optional = true }
 
 [features]
+# B档第十刀语法白名单（默认只编进这些原生 tree-sitter；勿卸 wasmtime）。
+# 核心：bash/c/cpp/css/diff/gitcommit/go/json/markdown/python/regex/rust/typescript/yaml
+# 伴随：gomod/gowork（Go）、jsdoc（TS/JS 注释）、json 兼作 jsonc。
 load-grammars = [
     "tree-sitter",
     "tree-sitter-bash",

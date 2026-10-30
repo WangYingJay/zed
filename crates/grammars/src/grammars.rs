@@ -12,7 +12,7 @@ util::fs_embed! {
     exclude = ["*.rs"],
 }
 
-/// Register all built-in native tree-sitter grammars with the provided registration function.
+/// Register built-in native tree-sitter grammars (B档白名单；见 `Cargo.toml` `load-grammars`).
 ///
 /// Each grammar is registered as a `(&str, tree_sitter_language::LanguageFn)` pair.
 /// This must be called before loading language configs/queries.

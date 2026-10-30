@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# B档第十刀：release 构建后 strip，并可选打出精简 .app / .dmg。
+# 用法：
+#   ./script/slim-package-mac           # 假定已有 target/release/zed，仅 strip + 打包
+#   ./script/slim-package-mac --build   # 先 cargo build -p zed --release 再 strip/打包
+#   ./script/slim-package-mac --no-dmg  # 只出 .app，不打 dmg
+set -euo pipefail
+
+root="$(cd "$(dirname "$0")/.." && pwd)"
+bin="$root/target/release/zed"
+out_dir="${SLIM_OUT_DIR:-$root/../zedBuildTools/dist}"
+do_build=0
+make_dmg=1
+
+for arg in "$@"; do
+  case "$arg" in
+    --build) do_build=1 ;;
+    --no-dmg) make_dmg=0 ;;
+    -h|--help)
+      sed -n '2,8p' "$0"
+      exit 0
+      ;;
+  esac
+done
+
+export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}"
+export PATH="${HOME}/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:${PATH}"
+
+if [[ "$do_build" -eq 1 ]]; then
+  echo "==> cargo build -p zed --release"
+  (cd "$root" && cargo build -p zed --release)
+fi
+
+if [[ ! -f "$bin" ]]; then
+  echo "找不到 $bin；请先编译或加 --build" >&2
+  exit 1
+fi
+
+before=$(stat -f%z "$bin")
+echo "==> strip 前：$(ls -lh "$bin" | awk '{print $5}') ($before bytes)"
+strip -x "$bin" || true
+strip -S "$bin" 2>/dev/null || true
+after=$(stat -f%z "$bin")
+echo "==> strip 后：$(ls -lh "$bin" | awk '{print $5}') ($after bytes)"
+
+mkdir -p "$out_dir"
+app="$out_dir/Zed-Slim.app"
+rm -rf "$app"
+mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
+cp -f "$bin" "$app/Contents/MacOS/zed"
+chmod +x "$app/Contents/MacOS/zed"
+cat > "$app/Contents/Info.plist" <<'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key><string>Zed Slim</string>
+  <key>CFBundleDisplayName</key><string>Zed Slim</string>
+  <key>CFBundleIdentifier</key><string>local.zed.slim</string>
+  <key>CFBundleVersion</key><string>1</string>
+  <key>CFBundleShortVersionString</key><string>1.0</string>
+  <key>CFBundleExecutable</key><string>zed</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>LSMinimumSystemVersion</key><string>12.0</string>
+  <key>NSHighResolutionCapable</key><true/>
+</dict>
+</plist>
+PLIST
+echo "==> .app：$(du -sh "$app" | awk '{print $1}') ($app)"
+
+if [[ "$make_dmg" -eq 1 ]]; then
+  dmg="$out_dir/Zed-Slim.dmg"
+  stage="$out_dir/_dmg_stage"
+  rm -rf "$stage" "$dmg"
+  mkdir -p "$stage"
+  cp -R "$app" "$stage/Zed-Slim.app"
+  hdiutil create -volname "Zed Slim" -srcfolder "$stage" -ov -format UDZO "$dmg"
+  rm -rf "$stage"
+  echo "==> .dmg：$(ls -lh "$dmg" | awk '{print $5}') ($dmg)"
+fi
+
+echo "完成：strip $before → $after bytes"

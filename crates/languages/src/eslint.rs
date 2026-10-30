@@ -1,6 +1,8 @@
 use anyhow::{Context as _, Result};
 use async_trait::async_trait;
-use github_releases::{AssetKind, GitHubLspBinaryVersion, build_asset_url, download_server_binary};
+use crate::github_lsp_stub::{
+    AssetKind, GitHubLspBinaryVersion, build_asset_url, download_server_binary,
+};
 use gpui::AsyncApp;
 use language::{LspAdapter, LspAdapterDelegate, LspInstaller, Toolchain};
 use lsp::{CodeActionKind, LanguageServerBinary, LanguageServerName, Uri};

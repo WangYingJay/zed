@@ -1773,16 +1773,7 @@ impl SettingsWindow {
         })
         .detach();
 
-        use feature_flags::FeatureFlagAppExt as _;
-        let mut last_is_staff = cx.is_staff();
-        cx.observe_global_in::<feature_flags::FeatureFlagStore>(window, move |this, window, cx| {
-            let is_staff = cx.is_staff();
-            if is_staff != last_is_staff {
-                last_is_staff = is_staff;
-                this.rebuild_pages(window, cx);
-            }
-        })
-        .detach();
+        // B档第十刀：开发者/功能开关设置页已删，不再因 staff 标记重建导航。
 
         cx.on_window_closed(|cx, _window_id| {
             if let Some(existing_window) = cx
