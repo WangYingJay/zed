@@ -94,9 +94,9 @@ fn developer_page(cx: &App) -> SettingsPage {
 
     // Feature flag overrides are a staff-only affordance, so only surface the section when the overrides are enabled.
     if cx.feature_flag_overrides_enabled() {
-        items.push(SettingsPageItem::SectionHeader("Feature Flags"));
+        items.push(SettingsPageItem::SectionHeader("功能开关"));
         items.push(SettingsPageItem::SubPageLink(SubPageLink {
-            title: "Feature Flags".into(),
+            title: "功能开关".into(),
             r#type: Default::default(),
             description: None,
             search_aliases: &[],
@@ -107,9 +107,9 @@ fn developer_page(cx: &App) -> SettingsPage {
         }));
     }
 
-    items.push(SettingsPageItem::SectionHeader("Instrumentation"));
+    items.push(SettingsPageItem::SectionHeader("性能分析"));
     items.push(SettingsPageItem::SettingItem(SettingItem {
-        title: "Performance Profiler",
+        title: "性能分析器",
         description: "Collect timing data for foreground and background executor tasks so they can be inspected via `zed: open performance profiler`. May lead to increased memory usage.",
         field: Box::new(SettingField {
             organization_override: None,
@@ -135,7 +135,7 @@ fn developer_page(cx: &App) -> SettingsPage {
     }));
 
     SettingsPage {
-        title: "Developer",
+        title: "开发者",
         items: items.into_boxed_slice(),
     }
 }
@@ -143,9 +143,9 @@ fn developer_page(cx: &App) -> SettingsPage {
 fn general_page(cx: &App) -> SettingsPage {
     fn general_settings_section(_cx: &App) -> Vec<SettingsPageItem> {
         vec![
-            SettingsPageItem::SectionHeader("General Settings"),
+            SettingsPageItem::SectionHeader("常规设置"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Accessible Mode",
+                title: "无障碍模式",
                 description: "Optimize Zed's interface for assistive technology such as screen readers. When enabled, otherwise-collapsed controls stay expanded and keyboard-reachable.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -159,7 +159,7 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "When Closing With No Tabs",
+                title: "无标签时关闭",
                 description: "What to do when using the 'close active item' action with no tabs.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -178,7 +178,7 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "On New Window",
+                title: "新建窗口时",
                 description: "What to show when opening a new window; Readme opens a project's README when no items are open, leaving the pane empty if none is found.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -192,7 +192,7 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "On Last Window Closed",
+                title: "关闭最后一个窗口时",
                 description: "What to do when the last window is closed.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -208,7 +208,7 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use System Path Prompts",
+                title: "使用系统路径提示",
                 description: "Use native OS dialogs for 'Open' and 'Save As'.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -224,7 +224,7 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use System Prompts",
+                title: "使用系统提示",
                 description: "Use native OS dialogs for confirmations.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -238,7 +238,7 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Redact Private Values",
+                title: "遮盖私密值",
                 description: "Hide the values of variables in private files.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -252,7 +252,7 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Private Files",
+                title: "私密文件",
                 description: "Globs to match against file paths to determine if a file is private.",
                 field: Box::new(
                     SettingField {
@@ -271,7 +271,7 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "CLI Default Open Behavior",
+                title: "CLI 默认打开行为",
                 description: "How `zed <path>` opens directories when no flag is specified.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -293,7 +293,7 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Reveal If Open",
+                title: "已打开时显示",
                 description: "when enabled, zed will prefer already-open buffers.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -307,7 +307,7 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Default Open Behavior",
+                title: "默认打开行为",
                 description: "How projects open from the UI by default.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -329,9 +329,9 @@ fn general_page(cx: &App) -> SettingsPage {
     }
     fn security_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Security"),
+            SettingsPageItem::SectionHeader("安全"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Trust All Projects By Default",
+                title: "默认信任所有项目",
                 description: "When opening Zed, avoid Restricted Mode by auto-trusting all projects, enabling use of all features without having to give permission to each new project.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -357,9 +357,9 @@ fn general_page(cx: &App) -> SettingsPage {
 
     fn workspace_restoration_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Workspace Restoration"),
+            SettingsPageItem::SectionHeader("工作区恢复"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Restore Unsaved Buffers",
+                title: "恢复未保存缓冲区",
                 description: "Whether or not to restore unsaved buffers on restart.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -381,7 +381,7 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Restore On Startup",
+                title: "启动时恢复",
                 description: "What to restore from the previous session when opening Zed.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -399,10 +399,10 @@ fn general_page(cx: &App) -> SettingsPage {
 
     fn scoped_settings_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Scoped Settings"),
+            SettingsPageItem::SectionHeader("作用域设置"),
             SettingsPageItem::SettingItem(SettingItem {
                 files: USER,
-                title: "Preview Channel",
+                title: "预览通道",
                 description: "Which settings should be activated only in Preview build of Zed.",
                 field: Box::new(
                     SettingField {
@@ -417,7 +417,7 @@ fn general_page(cx: &App) -> SettingsPage {
             }),
             SettingsPageItem::SettingItem(SettingItem {
                 files: USER,
-                title: "Settings Profiles",
+                title: "设置配置文件",
                 description: "Any number of settings profiles that are temporarily applied on top of your existing user settings.",
                 field: Box::new(
                     SettingField {
@@ -435,9 +435,9 @@ fn general_page(cx: &App) -> SettingsPage {
 
     fn privacy_section() -> [SettingsPageItem; 4] {
         [
-            SettingsPageItem::SectionHeader("Privacy"),
+            SettingsPageItem::SectionHeader("隐私"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Telemetry Diagnostics",
+                title: "遥测诊断",
                 description: "Send debug information like crash reports.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -459,7 +459,7 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Telemetry Metrics",
+                title: "遥测指标",
                 description: "Send anonymized usage data like what languages you're using Zed with.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -478,7 +478,7 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Anthropic Data Retention",
+                title: "Anthropic 数据保留",
                 description: "Allow sending requests to Anthropic models that cannot be offered with Zero Data Retention.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -504,9 +504,9 @@ fn general_page(cx: &App) -> SettingsPage {
 
     fn auto_update_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Auto Update"),
+            SettingsPageItem::SectionHeader("自动更新"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Update",
+                title: "自动更新",
                 description: "Whether or not to automatically check for updates.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -524,9 +524,9 @@ fn general_page(cx: &App) -> SettingsPage {
 
     fn extensions_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Extensions"),
+            SettingsPageItem::SectionHeader("扩展"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Suggest Extensions",
+                title: "建议扩展",
                 description: "Whether to suggest installing extensions based on the files you open.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -543,7 +543,7 @@ fn general_page(cx: &App) -> SettingsPage {
     }
 
     SettingsPage {
-        title: "General",
+        title: "常规",
         items: concat_sections!(
             @vec,
             general_settings_section(cx),
@@ -561,11 +561,11 @@ fn general_page(cx: &App) -> SettingsPage {
 fn appearance_page() -> SettingsPage {
     fn theme_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Theme"),
+            SettingsPageItem::SectionHeader("主题"),
             SettingsPageItem::DynamicItem(DynamicItem {
                 discriminant: SettingItem {
                     files: USER,
-                    title: "Theme Mode",
+                    title: "主题模式",
                     description: "Choose a static, fixed theme or dynamically select themes based on appearance and light/dark modes.",
                     field: Box::new(SettingField {
                         organization_override: None,
@@ -629,7 +629,7 @@ fn appearance_page() -> SettingsPage {
                         settings::ThemeSelectionDiscriminants::Static => vec![
                             SettingItem {
                                 files: USER,
-                                title: "Theme Name",
+                                title: "主题名称",
                                 description: "The name of your selected theme.",
                                 field: Box::new(SettingField {
                                     organization_override: None,
@@ -658,7 +658,7 @@ fn appearance_page() -> SettingsPage {
                         settings::ThemeSelectionDiscriminants::Dynamic => vec![
                             SettingItem {
                                 files: USER,
-                                title: "Mode",
+                                title: "模式",
                                 description: "Choose whether to use the selected light or dark theme or to follow your OS appearance configuration.",
                                 field: Box::new(SettingField {
                                     organization_override: None,
@@ -685,7 +685,7 @@ fn appearance_page() -> SettingsPage {
                             },
                             SettingItem {
                                 files: USER,
-                                title: "Light Theme",
+                                title: "浅色主题",
                                 description: "The theme to use when mode is set to light, or when mode is set to system and it is in light mode.",
                                 field: Box::new(SettingField {
                                     organization_override: None,
@@ -712,7 +712,7 @@ fn appearance_page() -> SettingsPage {
                             },
                             SettingItem {
                                 files: USER,
-                                title: "Dark Theme",
+                                title: "深色主题",
                                 description: "The theme to use when mode is set to dark, or when mode is set to system and it is in dark mode.",
                                 field: Box::new(SettingField {
                                     organization_override: None,
@@ -744,7 +744,7 @@ fn appearance_page() -> SettingsPage {
             SettingsPageItem::DynamicItem(DynamicItem {
                 discriminant: SettingItem {
                     files: USER,
-                    title: "Icon Theme",
+                    title: "图标主题",
                     description: "The custom set of icons Zed will associate with files and directories.",
                     field: Box::new(SettingField {
                         organization_override: None,
@@ -810,7 +810,7 @@ fn appearance_page() -> SettingsPage {
                         settings::IconThemeSelectionDiscriminants::Static => vec![
                             SettingItem {
                                 files: USER,
-                                title: "Icon Theme Name",
+                                title: "图标主题名称",
                                 description: "The name of your selected icon theme.",
                                 field: Box::new(SettingField {
                                     organization_override: None,
@@ -839,7 +839,7 @@ fn appearance_page() -> SettingsPage {
                         settings::IconThemeSelectionDiscriminants::Dynamic => vec![
                             SettingItem {
                                 files: USER,
-                                title: "Mode",
+                                title: "模式",
                                 description: "Choose whether to use the selected light or dark icon theme or to follow your OS appearance configuration.",
                                 field: Box::new(SettingField {
                                     organization_override: None,
@@ -866,7 +866,7 @@ fn appearance_page() -> SettingsPage {
                             },
                             SettingItem {
                                 files: USER,
-                                title: "Light Icon Theme",
+                                title: "浅色图标主题",
                                 description: "The icon theme to use when mode is set to light, or when mode is set to system and it is in light mode.",
                                 field: Box::new(SettingField {
                                     organization_override: None,
@@ -893,7 +893,7 @@ fn appearance_page() -> SettingsPage {
                             },
                             SettingItem {
                                 files: USER,
-                                title: "Dark Icon Theme",
+                                title: "深色图标主题",
                                 description: "The icon theme to use when mode is set to dark, or when mode is set to system and it is in dark mode.",
                                 field: Box::new(SettingField {
                                     organization_override: None,
@@ -927,9 +927,9 @@ fn appearance_page() -> SettingsPage {
 
     fn buffer_font_section() -> [SettingsPageItem; 7] {
         [
-            SettingsPageItem::SectionHeader("Buffer Font"),
+            SettingsPageItem::SectionHeader("编辑器字体"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Family",
+                title: "字体系列",
                 description: "Font family for editor text.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -943,7 +943,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Size",
+                title: "字号",
                 description: "Font size for editor text.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -957,7 +957,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Weight",
+                title: "字重",
                 description: "Font weight for editor text (100-900).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -973,7 +973,7 @@ fn appearance_page() -> SettingsPage {
             SettingsPageItem::DynamicItem(DynamicItem {
                 discriminant: SettingItem {
                     files: USER,
-                    title: "Line Height",
+                    title: "行高",
                     description: "Line height for editor text.",
                     field: Box::new(SettingField {
                         organization_override: None,
@@ -1033,7 +1033,7 @@ fn appearance_page() -> SettingsPage {
                         settings::BufferLineHeightDiscriminants::Standard => vec![],
                         settings::BufferLineHeightDiscriminants::Custom => vec![SettingItem {
                             files: USER,
-                            title: "Custom Line Height",
+                            title: "自定义行高",
                             description: "Custom line height value (must be at least 1.0).",
                             field: Box::new(SettingField {
                                 organization_override: None,
@@ -1065,7 +1065,7 @@ fn appearance_page() -> SettingsPage {
             }),
             SettingsPageItem::SettingItem(SettingItem {
                 files: USER,
-                title: "Font Features",
+                title: "字体特性",
                 description: "The OpenType features to enable for rendering in text buffers.",
                 field: Box::new(
                     SettingField {
@@ -1084,7 +1084,7 @@ fn appearance_page() -> SettingsPage {
             }),
             SettingsPageItem::SettingItem(SettingItem {
                 files: USER,
-                title: "Font Fallbacks",
+                title: "回退字体",
                 description: "The font fallbacks to use for rendering in text buffers.",
                 field: Box::new(
                     SettingField {
@@ -1106,9 +1106,9 @@ fn appearance_page() -> SettingsPage {
 
     fn ui_font_section() -> [SettingsPageItem; 6] {
         [
-            SettingsPageItem::SectionHeader("UI Font"),
+            SettingsPageItem::SectionHeader("界面字体"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Family",
+                title: "字体系列",
                 description: "Font family for UI elements.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1122,7 +1122,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Size",
+                title: "字号",
                 description: "Font size for UI elements.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1136,7 +1136,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Weight",
+                title: "字重",
                 description: "Font weight for UI elements (100-900).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1151,7 +1151,7 @@ fn appearance_page() -> SettingsPage {
             }),
             SettingsPageItem::SettingItem(SettingItem {
                 files: USER,
-                title: "Font Features",
+                title: "字体特性",
                 description: "The OpenType features to enable for rendering in UI elements.",
                 field: Box::new(
                     SettingField {
@@ -1168,7 +1168,7 @@ fn appearance_page() -> SettingsPage {
             }),
             SettingsPageItem::SettingItem(SettingItem {
                 files: USER,
-                title: "Font Fallbacks",
+                title: "回退字体",
                 description: "The font fallbacks to use for rendering in the UI.",
                 field: Box::new(
                     SettingField {
@@ -1188,9 +1188,9 @@ fn appearance_page() -> SettingsPage {
 
     fn agent_panel_font_section() -> [SettingsPageItem; 5] {
         [
-            SettingsPageItem::SectionHeader("Agent Panel Font"),
+            SettingsPageItem::SectionHeader("Agent 面板字体"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "UI Font Family",
+                title: "界面字体系列",
                 description: "Font family for agent response text in the agent panel. Falls back to the regular UI font family.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1210,7 +1210,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "UI Font Size",
+                title: "界面字号",
                 description: "Font size for agent response text in the agent panel. Falls back to the regular UI font size.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1230,7 +1230,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Buffer Font Family",
+                title: "编辑器字体系列",
                 description: "Font family for user messages in the agent panel. Falls back to the regular buffer font family.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1250,7 +1250,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Buffer Font Size",
+                title: "编辑器字号",
                 description: "Font size for user messages text in the agent panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1274,9 +1274,9 @@ fn appearance_page() -> SettingsPage {
 
     fn markdown_preview_font_section() -> [SettingsPageItem; 5] {
         [
-            SettingsPageItem::SectionHeader("Markdown Preview Font"),
+            SettingsPageItem::SectionHeader("Markdown 预览字体"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Family",
+                title: "字体系列",
                 description: "Font family for the markdown preview. Falls back to the UI font family.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1300,7 +1300,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Code Font Family",
+                title: "代码字体系列",
                 description: "Font family for code blocks in the markdown preview. Falls back to the editor font family.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1324,7 +1324,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Size",
+                title: "字号",
                 description: "Font size for the markdown preview. Falls back to the editor font size.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1347,7 +1347,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Heading Font Weight",
+                title: "标题字重",
                 description: "Font weight for headings in the markdown preview, in CSS units from 100 to 900.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1374,9 +1374,9 @@ fn appearance_page() -> SettingsPage {
 
     fn mermaid_font_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Mermaid Font"),
+            SettingsPageItem::SectionHeader("Mermaid 字体"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Family",
+                title: "字体系列",
                 description: "Font family for Mermaid diagrams in the agent panel and markdown preview. Falls back to the UI font family.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1400,9 +1400,9 @@ fn appearance_page() -> SettingsPage {
 
     fn text_rendering_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Text Rendering"),
+            SettingsPageItem::SectionHeader("文本渲染"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Text Rendering Mode",
+                title: "文本渲染模式",
                 description: "The text rendering mode to use.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1436,9 +1436,9 @@ fn appearance_page() -> SettingsPage {
 
     fn cursor_section() -> [SettingsPageItem; 7] {
         [
-            SettingsPageItem::SectionHeader("Cursor"),
+            SettingsPageItem::SectionHeader("光标"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Multi Cursor Modifier",
+                title: "多光标修饰键",
                 description: "Modifier key for adding multiple cursors.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1452,7 +1452,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cursor Blink",
+                title: "光标闪烁",
                 description: "Whether the cursor blinks in the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1466,7 +1466,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cursor Animation",
+                title: "光标动画",
                 description: "Whether the cursor smoothly animates when moving around the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1491,7 +1491,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cursor Shape",
+                title: "光标形状",
                 description: "Cursor shape for the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1505,7 +1505,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Hide Mouse",
+                title: "隐藏鼠标",
                 description: "When to hide the mouse cursor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1519,7 +1519,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Reduce Motion",
+                title: "减少动效",
                 description: "Whether to reduce non-essential motion, such as loading spinners, by rendering them in a static state.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1537,9 +1537,9 @@ fn appearance_page() -> SettingsPage {
 
     fn highlighting_section() -> [SettingsPageItem; 6] {
         [
-            SettingsPageItem::SectionHeader("Highlighting"),
+            SettingsPageItem::SectionHeader("高亮"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Unnecessary Code Fade",
+                title: "无用代码淡化",
                 description: "How much to fade out unused code (0.0 - 0.9).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1553,7 +1553,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Current Line Highlight",
+                title: "当前行高亮",
                 description: "How to highlight the current line.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1569,7 +1569,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Selection Highlight",
+                title: "选区高亮",
                 description: "Highlight all occurrences of selected text.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1583,7 +1583,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Rounded Selection",
+                title: "圆角选区",
                 description: "Whether the text selection should have rounded corners.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1597,7 +1597,7 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Minimum Contrast For Highlights",
+                title: "高亮最小对比度",
                 description: "The minimum APCA perceptual contrast to maintain when rendering text over highlight backgrounds.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1620,9 +1620,9 @@ fn appearance_page() -> SettingsPage {
 
     fn guides_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Guides"),
+            SettingsPageItem::SectionHeader("参考线"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Wrap Guides",
+                title: "显示换行参考线",
                 description: "Show wrap guides (vertical rulers).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1648,7 +1648,7 @@ fn appearance_page() -> SettingsPage {
             }),
             // todo(settings_ui): This needs a custom component
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Wrap Guides",
+                title: "换行参考线",
                 description: "Character counts at which to show wrap guides.",
                 field: Box::new(
                     SettingField {
@@ -1688,7 +1688,7 @@ fn appearance_page() -> SettingsPage {
     );
 
     SettingsPage {
-        title: "Appearance",
+        title: "外观",
         items,
     }
 }
@@ -1696,11 +1696,11 @@ fn appearance_page() -> SettingsPage {
 fn keymap_page() -> SettingsPage {
     fn keybindings_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Keybindings"),
+            SettingsPageItem::SectionHeader("快捷键"),
             SettingsPageItem::ActionLink(ActionLink {
-                title: "Edit Keybindings".into(),
+                title: "编辑快捷键".into(),
                 description: Some("Customize keybindings in the keymap editor.".into()),
-                button_text: "Open Keymap".into(),
+                button_text: "打开快捷键".into(),
                 on_click: Arc::new(|settings_window, window, cx| {
                     let Some(original_window) = settings_window.original_window else {
                         return;
@@ -1721,9 +1721,9 @@ fn keymap_page() -> SettingsPage {
 
     fn base_keymap_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Base Keymap"),
+            SettingsPageItem::SectionHeader("基础键位"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Base Keymap",
+                title: "基础键位",
                 description: "The name of a base set of key bindings to use.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1744,9 +1744,9 @@ fn keymap_page() -> SettingsPage {
 
     fn modal_editing_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Modal Editing"),
+            SettingsPageItem::SectionHeader("模态编辑"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Vim Mode",
+                title: "Vim 模式",
                 description: "Enable Vim mode and key bindings.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1758,7 +1758,7 @@ fn keymap_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Helix Mode",
+                title: "Helix 模式",
                 description: "Enable Helix mode and key bindings.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1779,7 +1779,7 @@ fn keymap_page() -> SettingsPage {
     );
 
     SettingsPage {
-        title: "Keymap",
+        title: "快捷键",
         items,
     }
 }
@@ -1787,11 +1787,11 @@ fn keymap_page() -> SettingsPage {
 fn editor_page() -> SettingsPage {
     fn auto_save_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Auto Save"),
+            SettingsPageItem::SectionHeader("自动保存"),
             SettingsPageItem::DynamicItem(DynamicItem {
                 discriminant: SettingItem {
                     files: USER,
-                    title: "Auto Save Mode",
+                    title: "自动保存模式",
                     description: "When to auto save buffer changes.",
                     field: Box::new(SettingField {
                         organization_override: None,
@@ -1848,7 +1848,7 @@ fn editor_page() -> SettingsPage {
                         settings::AutosaveSettingDiscriminants::Off => vec![],
                         settings::AutosaveSettingDiscriminants::AfterDelay => vec![SettingItem {
                             files: USER,
-                            title: "Delay (milliseconds)",
+                            title: "延迟（毫秒）",
                             description: "Save after inactivity period (in milliseconds).",
                             field: Box::new(SettingField {
                                 organization_override: None,
@@ -1888,9 +1888,9 @@ fn editor_page() -> SettingsPage {
 
     fn which_key_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Which-key Menu"),
+            SettingsPageItem::SectionHeader("Which-key 菜单"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Which-key Menu",
+                title: "显示 Which-key 菜单",
                 description: "Display the which-key menu with matching bindings while a multi-stroke binding is pending. The pending keystrokes indicator remains visible, but its binding preview popover is disabled.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1909,7 +1909,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Menu Delay",
+                title: "菜单延迟",
                 description: "Delay in milliseconds before the which-key menu appears.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1932,9 +1932,9 @@ fn editor_page() -> SettingsPage {
 
     fn multibuffer_section() -> [SettingsPageItem; 7] {
         [
-            SettingsPageItem::SectionHeader("Multibuffer"),
+            SettingsPageItem::SectionHeader("多缓冲区"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Double Click In Multibuffer",
+                title: "多缓冲区中双击",
                 description: "What to do when multibuffer is double-clicked in some of its excerpts.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1950,7 +1950,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Expand Excerpt Lines",
+                title: "展开摘录行数",
                 description: "How many lines to expand the multibuffer excerpts by default.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1964,7 +1964,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Excerpt Context Lines",
+                title: "摘录上下文行数",
                 description: "How many lines of context to provide in multibuffer excerpts by default.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -1978,7 +1978,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Expand Outlines With Depth",
+                title: "按深度展开大纲",
                 description: "Default depth to expand outline items in the current file.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2002,7 +2002,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Diff View Style",
+                title: "差异视图样式",
                 description: "How to display diffs in the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2016,7 +2016,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Minimum Split Diff Width",
+                title: "最小拆分差异宽度",
                 description: "The minimum width (in columns) at which the split diff view is used. When the editor is narrower, the diff view automatically switches to unified mode. Set to 0 to disable.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2036,9 +2036,9 @@ fn editor_page() -> SettingsPage {
 
     fn scrolling_section() -> [SettingsPageItem; 9] {
         [
-            SettingsPageItem::SectionHeader("Scrolling"),
+            SettingsPageItem::SectionHeader("滚动"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Scroll Beyond Last Line",
+                title: "滚动越过最后一行",
                 description: "Whether the editor will scroll beyond the last line.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2054,7 +2054,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Vertical Scroll Margin",
+                title: "垂直滚动边距",
                 description: "The number of lines to keep above/below the cursor when auto-scrolling.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2070,7 +2070,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Horizontal Scroll Margin",
+                title: "水平滚动边距",
                 description: "The number of characters to keep on either side when scrolling with the mouse.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2086,7 +2086,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Scroll Sensitivity",
+                title: "滚动灵敏度",
                 description: "Scroll sensitivity multiplier for both horizontal and vertical scrolling.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2100,7 +2100,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Mouse Wheel Zoom",
+                title: "鼠标滚轮缩放",
                 description: "Whether to zoom the editor font size with the mouse wheel while holding the primary modifier key.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2114,7 +2114,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Fast Scroll Sensitivity",
+                title: "快速滚动灵敏度",
                 description: "Fast scroll sensitivity multiplier for both horizontal and vertical scrolling.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2130,7 +2130,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Autoscroll On Clicks",
+                title: "点击时自动滚动",
                 description: "Whether to scroll when clicking near the edge of the visible text area.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2144,7 +2144,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Sticky Scroll",
+                title: "粘性滚动",
                 description: "Whether to stick scopes to the top of the editor",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2172,9 +2172,9 @@ fn editor_page() -> SettingsPage {
 
     fn signature_help_section() -> [SettingsPageItem; 4] {
         [
-            SettingsPageItem::SectionHeader("Signature Help"),
+            SettingsPageItem::SectionHeader("签名帮助"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Signature Help",
+                title: "自动签名帮助",
                 description: "Automatically show a signature help pop-up.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2188,7 +2188,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Signature Help After Edits",
+                title: "编辑后显示签名帮助",
                 description: "Show the signature help pop-up after completions or bracket pairs are inserted.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2207,7 +2207,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Snippet Sort Order",
+                title: "代码片段排序",
                 description: "Determines how snippets are sorted relative to other completion items.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2225,9 +2225,9 @@ fn editor_page() -> SettingsPage {
 
     fn hover_popover_section() -> [SettingsPageItem; 5] {
         [
-            SettingsPageItem::SectionHeader("Hover Popover"),
+            SettingsPageItem::SectionHeader("悬停弹出层"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
+                title: "启用",
                 description: "Show the informational hover box when moving the mouse over symbols in the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2242,7 +2242,7 @@ fn editor_page() -> SettingsPage {
             }),
             // todo(settings ui): add units to this number input
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Delay",
+                title: "延迟",
                 description: "Time to wait in milliseconds before showing the informational hover box.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2256,7 +2256,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Sticky",
+                title: "粘性",
                 description: "Whether the hover popover sticks when the mouse moves toward it, allowing interaction with its contents.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2271,7 +2271,7 @@ fn editor_page() -> SettingsPage {
             }),
             // todo(settings ui): add units to this number input
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Hiding Delay",
+                title: "隐藏延迟",
                 description: "Time to wait in milliseconds before hiding the hover popover after the mouse moves away.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2291,9 +2291,9 @@ fn editor_page() -> SettingsPage {
 
     fn drag_and_drop_selection_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Drag And Drop Selection"),
+            SettingsPageItem::SectionHeader("拖放选区"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
+                title: "启用",
                 description: "Enable drag and drop selection.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2317,7 +2317,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Delay",
+                title: "延迟",
                 description: "Delay in milliseconds before drag and drop selection starts.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2345,9 +2345,9 @@ fn editor_page() -> SettingsPage {
 
     fn gutter_section() -> [SettingsPageItem; 10] {
         [
-            SettingsPageItem::SectionHeader("Gutter"),
+            SettingsPageItem::SectionHeader("行号边栏"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Line Numbers",
+                title: "显示行号",
                 description: "Show line numbers in the gutter.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2371,7 +2371,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Relative Line Numbers",
+                title: "相对行号",
                 description: "Controls line number display in the editor's gutter. \"disabled\" shows absolute line numbers, \"enabled\" shows relative line numbers for each absolute line, and \"wrapped\" shows relative line numbers for every line, absolute or wrapped.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2385,7 +2385,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Runnables",
+                title: "显示可运行项",
                 description: "Show runnable buttons in the gutter.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2409,7 +2409,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Breakpoints",
+                title: "显示断点",
                 description: "Show breakpoints in the gutter.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2433,7 +2433,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Bookmarks",
+                title: "显示书签",
                 description: "Show bookmarks in the gutter.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2457,7 +2457,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Folds",
+                title: "显示折叠",
                 description: "Show code folding controls in the gutter.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2477,7 +2477,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Min Line Number Digits",
+                title: "行号最小位数",
                 description: "Minimum number of characters to reserve space for in the gutter.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2502,7 +2502,7 @@ fn editor_page() -> SettingsPage {
             }),
             SettingsPageItem::DynamicItem(DynamicItem {
                 discriminant: SettingItem {
-                    title: "Git Gutter Width",
+                    title: "Git 边栏宽度",
                     description: "Width of the git diff indicators in the gutter. Default scales with the buffer font size.",
                     field: Box::new(SettingField {
                         organization_override: None,
@@ -2557,7 +2557,7 @@ fn editor_page() -> SettingsPage {
                         settings::GitGutterWidthDiscriminants::Default => vec![],
                         settings::GitGutterWidthDiscriminants::Custom => vec![SettingItem {
                             files: USER,
-                            title: "Custom Width",
+                            title: "自定义宽度",
                             description: "Width in pixels of the git diff indicators.",
                             field: Box::new(SettingField {
                                 organization_override: None,
@@ -2592,7 +2592,7 @@ fn editor_page() -> SettingsPage {
                     .collect(),
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Inline Code Actions",
+                title: "行内代码操作",
                 description: "Show code action button at start of buffer line.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2610,9 +2610,9 @@ fn editor_page() -> SettingsPage {
 
     fn scrollbar_section() -> [SettingsPageItem; 10] {
         [
-            SettingsPageItem::SectionHeader("Scrollbar"),
+            SettingsPageItem::SectionHeader("滚动条"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show",
+                title: "显示",
                 description: "When to show the scrollbar in the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2632,7 +2632,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cursors",
+                title: "光标",
                 description: "Show cursor positions in the scrollbar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2652,7 +2652,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Git Diff",
+                title: "Git 差异",
                 description: "Show Git diff indicators in the scrollbar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2677,7 +2677,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Search Results",
+                title: "搜索结果",
                 description: "Show buffer search result indicators in the scrollbar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2702,7 +2702,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Selected Text",
+                title: "选中文本",
                 description: "Show selected text occurrences in the scrollbar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2727,7 +2727,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Selected Symbol",
+                title: "选中符号",
                 description: "Show selected symbol occurrences in the scrollbar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2752,7 +2752,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Diagnostics",
+                title: "诊断",
                 description: "Which diagnostic indicators to show in the scrollbar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2777,7 +2777,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Horizontal Scrollbar",
+                title: "水平滚动条",
                 description: "When false, forcefully disables the horizontal scrollbar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2806,7 +2806,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Vertical Scrollbar",
+                title: "垂直滚动条",
                 description: "When false, forcefully disables the vertical scrollbar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2839,9 +2839,9 @@ fn editor_page() -> SettingsPage {
 
     fn minimap_section() -> [SettingsPageItem; 7] {
         [
-            SettingsPageItem::SectionHeader("Minimap"),
+            SettingsPageItem::SectionHeader("缩略图"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show",
+                title: "显示",
                 description: "When to show the minimap in the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2857,7 +2857,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Display In",
+                title: "显示位置",
                 description: "Where to show the minimap in the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2882,7 +2882,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Thumb",
+                title: "滑块",
                 description: "When to show the minimap thumb.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2902,7 +2902,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Thumb Border",
+                title: "滑块边框",
                 description: "Border style for the minimap's scrollbar thumb.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2927,7 +2927,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Current Line Highlight",
+                title: "当前行高亮",
                 description: "How to highlight the current line in the minimap.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2952,7 +2952,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Max Width Columns",
+                title: "最大宽度列数",
                 description: "Maximum number of columns to display in the minimap.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -2981,9 +2981,9 @@ fn editor_page() -> SettingsPage {
 
     fn toolbar_section() -> [SettingsPageItem; 6] {
         [
-            SettingsPageItem::SectionHeader("Toolbar"),
+            SettingsPageItem::SectionHeader("工具栏"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Breadcrumbs",
+                title: "面包屑",
                 description: "Show breadcrumbs.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3008,7 +3008,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Quick Actions",
+                title: "快捷操作",
                 description: "Show quick action buttons (e.g., search, selection, editor controls, etc.).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3033,7 +3033,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Selections Menu",
+                title: "选区菜单",
                 description: "Show the selections menu in the editor toolbar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3058,7 +3058,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Agent Review",
+                title: "Agent 审阅",
                 description: "Show agent review buttons in the editor toolbar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3083,7 +3083,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Code Actions",
+                title: "代码操作",
                 description: "Show code action buttons in the editor toolbar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3114,7 +3114,7 @@ fn editor_page() -> SettingsPage {
         [
             SettingsPageItem::SectionHeader("Vim"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Default Mode",
+                title: "默认模式",
                 description: "The default mode when Vim starts.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3128,7 +3128,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Toggle Relative Line Numbers",
+                title: "切换相对行号",
                 description: "Toggle relative line numbers in Vim mode.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3151,7 +3151,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use System Clipboard",
+                title: "使用系统剪贴板",
                 description: "Controls when to use system clipboard in Vim mode.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3170,7 +3170,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use Smartcase Find",
+                title: "使用智能大小写查找",
                 description: "Enable smartcase searching in Vim mode.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3189,7 +3189,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Global Substitution Default",
+                title: "全局替换默认值",
                 description: "When enabled, the :substitute command replaces all matches in a line by default. The 'g' flag then toggles this behavior.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3203,7 +3203,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Highlight on Yank Duration",
+                title: "Yank 高亮时长",
                 description: "Duration in milliseconds to highlight yanked text in Vim mode.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3226,7 +3226,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Regex Search",
+                title: "正则搜索",
                 description: "Use regex search by default in Vim search.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3245,7 +3245,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Edit Predictions in Normal Mode",
+                title: "普通模式显示编辑预测",
                 description: "Whether edit predictions are shown in normal mode. By default, edit predictions are only shown in insert and replace modes.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3268,7 +3268,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cursor Shape - Normal Mode",
+                title: "光标形状 - 普通模式",
                 description: "Cursor shape for normal mode.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3295,7 +3295,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cursor Shape - Insert Mode",
+                title: "光标形状 - 插入模式",
                 description: "Cursor shape for insert mode. Inherit uses the editor's cursor shape.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3322,7 +3322,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cursor Shape - Replace Mode",
+                title: "光标形状 - 替换模式",
                 description: "Cursor shape for replace mode.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3349,7 +3349,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cursor Shape - Visual Mode",
+                title: "光标形状 - 可视模式",
                 description: "Cursor shape for visual mode.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3376,7 +3376,7 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Custom Digraphs",
+                title: "自定义 Digraph",
                 description: "Custom digraph mappings for Vim mode.",
                 field: Box::new(
                     SettingField {
@@ -3414,7 +3414,7 @@ fn editor_page() -> SettingsPage {
     );
 
     SettingsPage {
-        title: "Editor",
+        title: "编辑器",
         items: items,
     }
 }
@@ -3422,9 +3422,9 @@ fn editor_page() -> SettingsPage {
 fn languages_and_tools_page(cx: &App) -> SettingsPage {
     fn file_types_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("File Types"),
+            SettingsPageItem::SectionHeader("文件类型"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "File Type Associations",
+                title: "文件类型关联",
                 description: "A mapping from languages to files and file extensions that should be treated as that language.",
                 field: Box::new(
                     SettingField {
@@ -3447,9 +3447,9 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
 
     fn diagnostics_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Diagnostics"),
+            SettingsPageItem::SectionHeader("诊断"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Max Severity",
+                title: "最大严重级别",
                 description: "Which level to use to filter out diagnostics displayed in the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3465,7 +3465,7 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Include Warnings",
+                title: "包含警告",
                 description: "Whether to show warnings or not by default.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3492,9 +3492,9 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
 
     fn inline_diagnostics_section() -> [SettingsPageItem; 5] {
         [
-            SettingsPageItem::SectionHeader("Inline Diagnostics"),
+            SettingsPageItem::SectionHeader("行内诊断"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
+                title: "启用",
                 description: "Whether to show diagnostics inline or not.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3521,7 +3521,7 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Update Debounce",
+                title: "更新防抖",
                 description: "The delay in milliseconds to show inline diagnostics after the last diagnostic update.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3548,7 +3548,7 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Padding",
+                title: "内边距",
                 description: "The amount of padding between the end of the source line and the start of the inline diagnostic.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3575,7 +3575,7 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Minimum Column",
+                title: "最小列",
                 description: "The minimum column at which to display inline diagnostics.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3606,9 +3606,9 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
 
     fn lsp_pull_diagnostics_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("LSP Pull Diagnostics"),
+            SettingsPageItem::SectionHeader("LSP 拉取诊断"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
+                title: "启用",
                 description: "Whether to pull for language server-powered diagnostics or not.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3636,7 +3636,7 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
             }),
             // todo(settings_ui): Needs unit
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Debounce",
+                title: "防抖",
                 description: "Minimum time to wait before pulling diagnostics from the language server(s).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3667,9 +3667,9 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
 
     fn lsp_highlights_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("LSP Highlights"),
+            SettingsPageItem::SectionHeader("LSP 高亮"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Debounce",
+                title: "防抖",
                 description: "The debounce delay before querying highlights from the language.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3690,7 +3690,7 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
     fn languages_list_section(cx: &App) -> Box<[SettingsPageItem]> {
         // todo(settings_ui): Refresh on extension (un)/installed
         // Note that `crates/json_schema_store` solves the same problem, there is probably a way to unify the two
-        std::iter::once(SettingsPageItem::SectionHeader("Languages"))
+        std::iter::once(SettingsPageItem::SectionHeader("语言"))
             .chain(all_language_names(cx).into_iter().map(|language_name| {
                 let link = format!("languages.{language_name}");
                 SettingsPageItem::SubPageLink(SubPageLink {
@@ -3721,7 +3721,7 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
     }
 
     SettingsPage {
-        title: "Languages & Tools",
+        title: "语言与工具",
         items: {
             concat_sections!(
                 non_editor_language_settings_data(),
@@ -3739,9 +3739,9 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
 fn search_and_files_page() -> SettingsPage {
     fn search_section() -> [SettingsPageItem; 10] {
         [
-            SettingsPageItem::SectionHeader("Search"),
+            SettingsPageItem::SectionHeader("搜索"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Whole Word",
+                title: "全词匹配",
                 description: "Search for whole words by default.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3761,7 +3761,7 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Case Sensitive",
+                title: "区分大小写",
                 description: "Search case-sensitively by default.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3786,7 +3786,7 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use Smartcase Search",
+                title: "使用智能大小写搜索",
                 description: "Whether to automatically enable case-sensitive search based on the search query.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3800,7 +3800,7 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Include Ignored",
+                title: "包含已忽略",
                 description: "Include ignored files in search results by default.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3825,7 +3825,7 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Regex",
+                title: "正则表达式",
                 description: "Use regex search by default.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3841,7 +3841,7 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Search Wrap",
+                title: "搜索循环",
                 description: "Whether the editor search results will loop.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3855,7 +3855,7 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Center on Match",
+                title: "匹配时居中",
                 description: "Whether to center the current match in the editor",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3879,7 +3879,7 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Search on Type",
+                title: "输入时搜索",
                 description: "Start searching as you type in project search, without pressing Enter.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3903,7 +3903,7 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Seed Search Query From Cursor",
+                title: "从光标生成搜索查询",
                 description: "When to populate a new search's query based on the text under the cursor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3926,9 +3926,9 @@ fn search_and_files_page() -> SettingsPage {
 
     fn command_palette_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Command Palette"),
+            SettingsPageItem::SectionHeader("命令面板"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use Command History",
+                title: "使用命令历史",
                 description: "Whether to use command history ranking for sorting in the command palette.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3955,10 +3955,10 @@ fn search_and_files_page() -> SettingsPage {
 
     fn file_finder_section() -> [SettingsPageItem; 5] {
         [
-            SettingsPageItem::SectionHeader("File Finder"),
+            SettingsPageItem::SectionHeader("文件查找"),
             // todo: null by default
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Include Ignored in Search",
+                title: "搜索中包含已忽略",
                 description: "Use gitignored files when searching.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -3981,7 +3981,7 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "File Icons",
+                title: "文件图标",
                 description: "Show file icons in the file finder.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4000,7 +4000,7 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Skip Focus For Active In Search",
+                title: "搜索中跳过活动项焦点",
                 description: "Whether the file finder should skip focus for the active file in search results.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4023,7 +4023,7 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Prefill Query From Selection",
+                title: "用选区预填查询",
                 description: "Whether to pre-fill the file finder's query with the text selected in the focused item (e.g. an editor or a terminal).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4050,9 +4050,9 @@ fn search_and_files_page() -> SettingsPage {
 
     fn file_scan_section() -> [SettingsPageItem; 7] {
         [
-            SettingsPageItem::SectionHeader("File Scan"),
+            SettingsPageItem::SectionHeader("文件扫描"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "File Scan Exclusions",
+                title: "文件扫描排除",
                 description: "Files or globs of files that will be excluded by Zed entirely. They will be skipped during file scans, file searches, and not be displayed in the project file tree. Takes precedence over \"File Scan Inclusions\"",
                 field: Box::new(
                     SettingField {
@@ -4075,7 +4075,7 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "File Scan Inclusions",
+                title: "文件扫描包含",
                 description: "Files or globs of files that will be included by Zed, even when ignored by git. This is useful for files that are not tracked by git, but are still important to your project. Note that globs that are overly broad can slow down Zed's file scanning. \"File Scan Exclusions\" takes precedence over these inclusions",
                 field: Box::new(
                     SettingField {
@@ -4098,7 +4098,7 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "File Scan Depth",
+                title: "文件扫描深度",
                 description: "Maximum directory depth to eagerly index outside of git repositories; contents of directories at this depth or deeper are indexed on demand. Repositories rooted shallower than this depth are always indexed fully. In projects that are not rooted at a git repository, repositories directly inside a root folder activate their git features immediately; deeper ones activate on first use. 0 means no limit and activates all git repositories immediately",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4114,7 +4114,7 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Scan Symbolic Links",
+                title: "扫描符号链接",
                 description: "When to scan content of linked directories",
                 field: Box::new(SettingField {
                     json_path: Some("scan_symlinks"),
@@ -4130,7 +4130,7 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Restore File State",
+                title: "恢复文件状态",
                 description: "Restore previous file state when reopening.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4146,7 +4146,7 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Close on File Delete",
+                title: "文件删除时关闭",
                 description: "Automatically close files that have been deleted.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4165,7 +4165,7 @@ fn search_and_files_page() -> SettingsPage {
     }
 
     SettingsPage {
-        title: "Search & Files",
+        title: "搜索与文件",
         items: concat_sections![
             search_section(),
             command_palette_section(),
@@ -4178,9 +4178,9 @@ fn search_and_files_page() -> SettingsPage {
 fn window_and_layout_page() -> SettingsPage {
     fn status_bar_section() -> [SettingsPageItem; 12] {
         [
-            SettingsPageItem::SectionHeader("Status Bar"),
+            SettingsPageItem::SectionHeader("状态栏"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Project Panel Button",
+                title: "项目面板按钮",
                 description: "Show the project panel button in the status bar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4199,7 +4199,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Active Language Button",
+                title: "活动语言按钮",
                 description: "Show the active language button in the status bar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4222,7 +4222,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Active Encoding Button",
+                title: "活动编码按钮",
                 description: "Control when to show the active encoding in the status bar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4245,7 +4245,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cursor Position Button",
+                title: "光标位置按钮",
                 description: "Show the cursor position button in the status bar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4268,7 +4268,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Line Endings Button",
+                title: "换行符按钮",
                 description: "Show the active line endings button in the status bar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4291,7 +4291,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Pending Keystrokes Indicator",
+                title: "待处理按键指示器",
                 description: "Show an indicator while a multi-stroke key binding is pending. If the input has a timeout, a countdown is shown and hovering pauses it. Its binding preview popover is disabled when the which-key menu is enabled.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4314,7 +4314,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Terminal Button",
+                title: "终端按钮",
                 description: "Show the terminal button in the status bar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4328,7 +4328,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Diagnostics Button",
+                title: "诊断按钮",
                 description: "Show the project diagnostics button in the status bar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4342,7 +4342,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Project Search Button",
+                title: "项目搜索按钮",
                 description: "Show the project search button in the status bar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4362,7 +4362,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Debugger Button",
+                title: "调试器按钮",
                 description: "Show the debugger button in the status bar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4376,7 +4376,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Active File Name",
+                title: "活动文件名",
                 description: "Show the name of the active file in the status bar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4403,9 +4403,9 @@ fn window_and_layout_page() -> SettingsPage {
 
     fn title_bar_section() -> [SettingsPageItem; 12] {
         [
-            SettingsPageItem::SectionHeader("Title Bar"),
+            SettingsPageItem::SectionHeader("标题栏"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Branch Status Icon",
+                title: "显示分支状态图标",
                 description: "Show git status indicators on the branch icon in the titlebar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4428,7 +4428,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Branch Name",
+                title: "显示分支名",
                 description: "Show the branch name button in the titlebar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4451,7 +4451,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Worktree Name",
+                title: "显示工作树名称",
                 description: "Show the worktree name button in the titlebar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4474,7 +4474,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Project Items",
+                title: "显示项目项",
                 description: "Show the project host and name in the titlebar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4497,7 +4497,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Onboarding Banner",
+                title: "显示引导横幅",
                 description: "Show banners announcing new features in the titlebar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4520,7 +4520,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Sign In",
+                title: "显示登录",
                 description: "Show the sign in button in the titlebar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4539,7 +4539,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show User Menu",
+                title: "显示用户菜单",
                 description: "Show the user menu button in the titlebar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4558,7 +4558,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show User Picture",
+                title: "显示用户头像",
                 description: "Show user picture in the titlebar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4581,7 +4581,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Menus",
+                title: "显示菜单",
                 description: "Show the menus in the titlebar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4602,7 +4602,7 @@ fn window_and_layout_page() -> SettingsPage {
             SettingsPageItem::DynamicItem(DynamicItem {
                 discriminant: SettingItem {
                     files: USER,
-                    title: "Button Layout",
+                    title: "按钮布局",
                     description:
                         "(Linux only) choose how window control buttons are laid out in the titlebar.",
                     field: Box::new(SettingField {
@@ -4683,7 +4683,7 @@ fn window_and_layout_page() -> SettingsPage {
                         settings::WindowButtonLayoutContentDiscriminants::Custom => vec![
                             SettingItem {
                                 files: USER,
-                                title: "Custom Button Layout",
+                                title: "自定义按钮布局",
                                 description:
                                     "GNOME-style layout string such as \"close:minimize,maximize\".",
                                 field: Box::new(SettingField {
@@ -4718,7 +4718,7 @@ fn window_and_layout_page() -> SettingsPage {
                     .collect(),
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Open Menus on Hover",
+                title: "悬停时打开菜单",
                 description: "Automatically open menus in the titlebar on hover.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4741,9 +4741,9 @@ fn window_and_layout_page() -> SettingsPage {
 
     fn tab_bar_section() -> [SettingsPageItem; 9] {
         [
-            SettingsPageItem::SectionHeader("Tab Bar"),
+            SettingsPageItem::SectionHeader("标签栏"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Tab Bar",
+                title: "显示标签栏",
                 description: "Show the tab bar in the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4757,7 +4757,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Git Status In Tabs",
+                title: "标签中显示 Git 状态",
                 description: "Show the Git file status on a tab item.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4771,7 +4771,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show File Icons In Tabs",
+                title: "标签中显示文件图标",
                 description: "Show the file icon for a tab.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4785,7 +4785,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Tab Close Position",
+                title: "标签关闭按钮位置",
                 description: "Position of the close button in a tab.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4802,7 +4802,7 @@ fn window_and_layout_page() -> SettingsPage {
             }),
             SettingsPageItem::SettingItem(SettingItem {
                 files: USER,
-                title: "Maximum Tabs",
+                title: "最大标签数",
                 description: "Maximum open tabs in a pane. Will not close an unsaved tab.",
                 // todo(settings_ui): The default for this value is null and it's use in code
                 // is complex, so I'm going to come back to this later
@@ -4820,7 +4820,7 @@ fn window_and_layout_page() -> SettingsPage {
                 metadata: None,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Navigation History Buttons",
+                title: "显示导航历史按钮",
                 description: "Show the navigation history buttons in the tab bar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4843,7 +4843,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Tab Bar Buttons",
+                title: "显示标签栏按钮",
                 description: "Show the tab bar buttons (New, Split Pane, Zoom).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4866,7 +4866,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Pinned Tabs Layout",
+                title: "固定标签布局",
                 description: "Show pinned tabs in a separate row above unpinned tabs.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4893,9 +4893,9 @@ fn window_and_layout_page() -> SettingsPage {
 
     fn tab_settings_section() -> [SettingsPageItem; 4] {
         [
-            SettingsPageItem::SectionHeader("Tab Settings"),
+            SettingsPageItem::SectionHeader("标签设置"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Activate On Close",
+                title: "关闭时激活",
                 description: "What to do after closing the current tab.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4914,7 +4914,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Tab Show Diagnostics",
+                title: "标签显示诊断",
                 description: "Which files containing diagnostic errors/warnings to mark in the tabs.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4933,7 +4933,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Close Button",
+                title: "显示关闭按钮",
                 description: "Controls the appearance behavior of the tab's close button.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4956,9 +4956,9 @@ fn window_and_layout_page() -> SettingsPage {
 
     fn preview_tabs_section() -> [SettingsPageItem; 8] {
         [
-            SettingsPageItem::SectionHeader("Preview Tabs"),
+            SettingsPageItem::SectionHeader("预览标签"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Preview Tabs Enabled",
+                title: "启用预览标签",
                 description: "Show opened editors as preview tabs.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -4977,7 +4977,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enable Preview From Project Panel",
+                title: "从项目面板预览",
                 description: "Whether to open tabs in preview mode when opened from the project panel with a single click or the Open action.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5000,7 +5000,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enable Preview From File Finder",
+                title: "从文件查找预览",
                 description: "Whether to open tabs in preview mode when selected from the file finder.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5023,7 +5023,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enable Preview From Multibuffer",
+                title: "从多缓冲区预览",
                 description: "Whether to open tabs in preview mode when opened from a multibuffer.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5046,7 +5046,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enable Preview Multibuffer From Code Navigation",
+                title: "从代码导航预览多缓冲区",
                 description: "Whether to open tabs in preview mode when code navigation is used to open a multibuffer.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5069,7 +5069,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enable Preview File From Code Navigation",
+                title: "从代码导航预览文件",
                 description: "Whether to open tabs in preview mode when code navigation is used to open a single file.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5092,7 +5092,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enable Keep Preview On Code Navigation",
+                title: "代码导航时保持预览",
                 description: "Whether to keep tabs in preview mode when code navigation is used to navigate away from them. If `enable_preview_file_from_code_navigation` or `enable_preview_multibuffer_from_code_navigation` is also true, the new tab may replace the existing one.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5119,9 +5119,9 @@ fn window_and_layout_page() -> SettingsPage {
 
     fn layout_section() -> [SettingsPageItem; 6] {
         [
-            SettingsPageItem::SectionHeader("Layout"),
+            SettingsPageItem::SectionHeader("布局"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Bottom Dock Layout",
+                title: "底部栏布局",
                 description: "Layout mode for the bottom dock.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5136,7 +5136,7 @@ fn window_and_layout_page() -> SettingsPage {
             }),
             SettingsPageItem::SettingItem(SettingItem {
                 files: USER,
-                title: "Centered Layout Left Padding",
+                title: "居中布局左侧边距",
                 description: "Left padding for centered layout.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5161,7 +5161,7 @@ fn window_and_layout_page() -> SettingsPage {
             }),
             SettingsPageItem::SettingItem(SettingItem {
                 files: USER,
-                title: "Centered Layout Right Padding",
+                title: "居中布局右侧边距",
                 description: "Right padding for centered layout.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5185,7 +5185,7 @@ fn window_and_layout_page() -> SettingsPage {
                 metadata: None,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Focus Follows Mouse",
+                title: "焦点跟随鼠标",
                 description: "Whether to change focus to a pane when the mouse hovers over it.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5209,7 +5209,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Focus Follows Mouse Debounce ms",
+                title: "焦点跟随鼠标防抖（毫秒）",
                 description: "Amount of time to wait before changing focus.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5237,9 +5237,9 @@ fn window_and_layout_page() -> SettingsPage {
 
     fn window_section() -> [SettingsPageItem; 6] {
         [
-            SettingsPageItem::SectionHeader("Window"),
+            SettingsPageItem::SectionHeader("窗口"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Title Format",
+                title: "标题格式",
                 description: "Window title template. Available variables are `${projectName}`, `${fileName}`, `${filePath}`, `${relativePath}`, `${fileStem}`, `${remoteName}`, `${remoteHost}`, `${appName}`, `${branch}`, and `${separator}`. `${separator}` is omitted when adjacent variables are empty, but literal text is preserved. The collaboration indicator, when present, is appended after the rendered template. If the template renders to nothing, the default template is used instead.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5259,7 +5259,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Title Separator",
+                title: "标题分隔符",
                 description: "String substituted for `${separator}` in the window title format. Include any surrounding whitespace in the value.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5279,7 +5279,7 @@ fn window_and_layout_page() -> SettingsPage {
             }),
             // todo(settings_ui): Should we filter by platform.as_ref()?
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use System Window Tabs",
+                title: "使用系统窗口标签",
                 description: "(macOS only) whether to allow Windows to tab together.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5295,7 +5295,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Fullscreen Mode",
+                title: "全屏模式",
                 description: "(macOS only) which fullscreen mode the toggle fullscreen action enters.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5309,7 +5309,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Window Decorations",
+                title: "窗口装饰",
                 description: "(Linux only) whether Zed or your compositor should draw window decorations.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5327,9 +5327,9 @@ fn window_and_layout_page() -> SettingsPage {
 
     fn pane_modifiers_section() -> [SettingsPageItem; 5] {
         [
-            SettingsPageItem::SectionHeader("Pane Modifiers"),
+            SettingsPageItem::SectionHeader("窗格修饰键"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Inactive Opacity",
+                title: "非活动不透明度",
                 description: "Opacity of inactive panels (0.0 - 1.0).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5354,7 +5354,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Border Size",
+                title: "边框大小",
                 description: "Size of the border surrounding the active pane.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5379,7 +5379,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Zoomed Padding",
+                title: "缩放边距",
                 description: "Show padding for zoomed panes.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5393,7 +5393,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Close Panel on Toggle",
+                title: "切换时关闭面板",
                 description: "Whether invoking a panel's ToggleFocus action while it's already focused closes the panel, instead of just moving focus back to the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5413,9 +5413,9 @@ fn window_and_layout_page() -> SettingsPage {
 
     fn pane_split_direction_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Pane Split Direction"),
+            SettingsPageItem::SectionHeader("窗格拆分方向"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Vertical Split Direction",
+                title: "垂直拆分方向",
                 description: "Direction to split vertically.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5434,7 +5434,7 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Horizontal Split Direction",
+                title: "水平拆分方向",
                 description: "Direction to split horizontally.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5456,7 +5456,7 @@ fn window_and_layout_page() -> SettingsPage {
     }
 
     SettingsPage {
-        title: "Window & Layout",
+        title: "窗口与布局",
         items: concat_sections![
             status_bar_section(),
             title_bar_section(),
@@ -5474,9 +5474,9 @@ fn window_and_layout_page() -> SettingsPage {
 fn panels_page() -> SettingsPage {
     fn project_panel_section() -> [SettingsPageItem; 30] {
         [
-            SettingsPageItem::SectionHeader("Project Panel"),
+            SettingsPageItem::SectionHeader("项目面板"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Project Panel Dock",
+                title: "项目面板停靠位置",
                 description: "Where to dock the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5490,7 +5490,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Project Panel Default Width",
+                title: "项目面板默认宽度",
                 description: "Default width of the project panel in pixels.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5514,7 +5514,7 @@ fn panels_page() -> SettingsPage {
             }),
             SettingsPageItem::DynamicItem(DynamicItem {
                 discriminant: SettingItem {
-                    title: "Project Panel Title Tooltips Delay",
+                    title: "项目面板标题提示延迟",
                     description: "Delay in milliseconds before tooltips appear for project panel titles.",
                     field: Box::new(SettingField {
                         organization_override: None,
@@ -5574,7 +5574,7 @@ fn panels_page() -> SettingsPage {
                         settings::ProjectPanelTitleTooltipDelayDiscriminants::Custom => {
                             vec![SettingItem {
                                 files: USER,
-                                title: "Custom Delay",
+                                title: "自定义延迟",
                                 description: "Delay in milliseconds of the project panel title tooltips.",
                                 field: Box::new(SettingField {
                                     organization_override: None,
@@ -5612,7 +5612,7 @@ fn panels_page() -> SettingsPage {
                     .collect(),
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Hide .gitignore",
+                title: "隐藏 .gitignore",
                 description: "Whether to hide the gitignore entries in the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5635,7 +5635,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Entry Spacing",
+                title: "条目间距",
                 description: "Spacing between worktree entries in the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5658,7 +5658,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "File Icons",
+                title: "文件图标",
                 description: "Show file icons in the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5677,7 +5677,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Folder Indicator",
+                title: "文件夹指示器",
                 description: "What to show for directories in the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5700,7 +5700,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Git Status",
+                title: "Git 状态",
                 description: "Show the Git status in the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5719,7 +5719,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Indent Size",
+                title: "缩进大小",
                 description: "Amount of indentation for nested items.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5742,7 +5742,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Reveal Entries",
+                title: "自动显示条目",
                 description: "Whether to reveal entries in the project panel automatically when a corresponding project entry becomes active.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5765,7 +5765,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Starts Open",
+                title: "启动时打开",
                 description: "Whether the project panel should open on startup.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5788,7 +5788,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Fold Directories",
+                title: "自动折叠目录",
                 description: "Whether to fold directories automatically and show compact folders when a directory has only one subdirectory inside.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5811,7 +5811,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Bold Folder Labels",
+                title: "加粗文件夹标签",
                 description: "Whether to show folder names with bold text in the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5834,7 +5834,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Scrollbar",
+                title: "显示滚动条",
                 description: "Show the scrollbar in the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5863,7 +5863,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Horizontal Scroll",
+                title: "水平滚动",
                 description: "Whether to allow horizontal scrolling in the project panel. When disabled, the view is always locked to the leftmost position and long file names are clipped.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5890,7 +5890,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Diagnostics",
+                title: "显示诊断",
                 description: "Which files containing diagnostic errors/warnings to mark in the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5913,7 +5913,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Diagnostic Badges",
+                title: "诊断徽章",
                 description: "Show error and warning count badges next to file names in the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5936,7 +5936,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Git Status Indicator",
+                title: "Git 状态指示器",
                 description: "Show a git status indicator next to file names in the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5959,7 +5959,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Sticky Scroll",
+                title: "粘性滚动",
                 description: "Whether to stick parent directories at top of the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -5983,7 +5983,7 @@ fn panels_page() -> SettingsPage {
             }),
             SettingsPageItem::SettingItem(SettingItem {
                 files: USER,
-                title: "Show Indent Guides",
+                title: "显示缩进参考线",
                 description: "Show indent guides in the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6009,7 +6009,7 @@ fn panels_page() -> SettingsPage {
                 metadata: None,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Drag and Drop",
+                title: "拖放",
                 description: "Whether to enable drag-and-drop operations in the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6032,7 +6032,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Hide Root",
+                title: "隐藏根目录",
                 description: "Whether to hide the root entry when only one folder is open in the window.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6051,7 +6051,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Hide Hidden",
+                title: "隐藏隐藏文件",
                 description: "Whether to hide the hidden entries in the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6074,7 +6074,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Sort Mode",
+                title: "排序模式",
                 description: "Sort order for entries in the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6093,7 +6093,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Sort Order",
+                title: "排序顺序",
                 description: "Whether to sort file and folder names case-sensitively in the project panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6112,7 +6112,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Open Files On Create",
+                title: "创建时自动打开文件",
                 description: "Whether to automatically open newly created files in the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6139,7 +6139,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Open Files On Paste",
+                title: "粘贴时自动打开文件",
                 description: "Whether to automatically open files after pasting or duplicating them.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6166,7 +6166,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Open Files On Drop",
+                title: "拖放时自动打开文件",
                 description: "Whether to automatically open files dropped from external sources.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6193,7 +6193,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Hidden Files",
+                title: "隐藏文件",
                 description: "Globs to match files that will be considered \"hidden\" and can be hidden from the project panel.",
                 field: Box::new(
                     SettingField {
@@ -6216,9 +6216,9 @@ fn panels_page() -> SettingsPage {
 
     fn terminal_panel_section() -> [SettingsPageItem; 5] {
         [
-            SettingsPageItem::SectionHeader("Terminal Panel"),
+            SettingsPageItem::SectionHeader("终端面板"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Terminal Dock",
+                title: "终端停靠位置",
                 description: "Where to dock the terminal panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6232,7 +6232,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Starts Open",
+                title: "启动时打开",
                 description: "Whether the terminal panel should open on startup.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6251,7 +6251,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Terminal Panel Flexible Sizing",
+                title: "终端面板弹性尺寸",
                 description: "Whether the terminal panel should use flexible (proportional) sizing when docked to the left or right.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6265,7 +6265,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Count Badge",
+                title: "显示计数徽章",
                 description: "Show a badge on the terminal panel icon with the count of open terminals.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6292,9 +6292,9 @@ fn panels_page() -> SettingsPage {
 
     fn outline_panel_section() -> [SettingsPageItem; 12] {
         [
-            SettingsPageItem::SectionHeader("Outline Panel"),
+            SettingsPageItem::SectionHeader("大纲"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Outline Panel Button",
+                title: "大纲按钮",
                 description: "Show the outline panel button in the status bar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6313,7 +6313,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Outline Panel Dock",
+                title: "大纲停靠位置",
                 description: "Where to dock the outline panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6327,7 +6327,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Outline Panel Default Width",
+                title: "大纲默认宽度",
                 description: "Default width of the outline panel in pixels.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6350,7 +6350,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "File Icons",
+                title: "文件图标",
                 description: "Show file icons in the outline panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6369,7 +6369,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Folder Indicator",
+                title: "文件夹指示器",
                 description: "What to show for directories in the outline panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6392,7 +6392,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Git Status",
+                title: "Git 状态",
                 description: "Show the Git status in the outline panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6411,7 +6411,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Indent Size",
+                title: "缩进大小",
                 description: "Amount of indentation for nested items.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6434,7 +6434,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Reveal Entries",
+                title: "自动显示条目",
                 description: "Whether to reveal when a corresponding outline entry becomes active.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6457,7 +6457,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Fold Directories",
+                title: "自动折叠目录",
                 description: "Whether to fold directories automatically when a directory contains only one subdirectory.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6481,7 +6481,7 @@ fn panels_page() -> SettingsPage {
             }),
             SettingsPageItem::SettingItem(SettingItem {
                 files: USER,
-                title: "Show Indent Guides",
+                title: "显示缩进参考线",
                 description: "When to show indent guides in the outline panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6507,7 +6507,7 @@ fn panels_page() -> SettingsPage {
                 metadata: None,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Hide Symbols in Multi-Buffers",
+                title: "在多缓冲区中隐藏符号",
                 description: "Whether to hide symbols, excerpts and search matches in the outline panel when a multi-buffer view is active.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6534,9 +6534,9 @@ fn panels_page() -> SettingsPage {
 
     fn git_panel_section() -> [SettingsPageItem; 19] {
         [
-            SettingsPageItem::SectionHeader("Git Panel"),
+            SettingsPageItem::SectionHeader("Git 面板"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Git Panel Button",
+                title: "Git 面板按钮",
                 description: "Show the Git panel button in the status bar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6550,7 +6550,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Git Panel Dock",
+                title: "Git 面板停靠位置",
                 description: "Where to dock the Git panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6564,7 +6564,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Starts Open",
+                title: "启动时打开",
                 description: "Whether the git panel should open on startup.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6583,7 +6583,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Git Panel Default Width",
+                title: "Git 面板默认宽度",
                 description: "Default width of the Git panel in pixels.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6602,7 +6602,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Git Panel Status Style",
+                title: "Git 面板状态样式",
                 description: "How entry statuses are displayed.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6621,7 +6621,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Fallback Branch Name",
+                title: "备用分支名",
                 description: "Default branch name will be when init.defaultbranch is not set in Git.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6644,7 +6644,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Sort By",
+                title: "排序依据",
                 description: "How to sort entries in the git panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6658,7 +6658,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Group By",
+                title: "分组方式",
                 description: "How to group entries in the git panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6672,7 +6672,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Collapse Untracked Diff",
+                title: "折叠未跟踪差异",
                 description: "Whether to collapse untracked files in the diff panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6695,7 +6695,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Tree View",
+                title: "树形视图",
                 description: "Enable to show entries in tree view list, disable to show in flat view list.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6711,7 +6711,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "File Icons",
+                title: "文件图标",
                 description: "Show file icons next to the Git status icon.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6730,7 +6730,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Folder Indicator",
+                title: "文件夹指示器",
                 description: "What to show for directories in the git panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6753,7 +6753,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Diff Stats",
+                title: "差异统计",
                 description: "Whether to show the addition/deletion change count next to each file in the Git panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6772,7 +6772,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Primary Click Behavior",
+                title: "主点击行为",
                 description: "Default action when clicking a changed file in the Git panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6795,7 +6795,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Commit Editor",
+                title: "提交编辑器",
                 description: "Whether the commit message editor is shown in the Git panel by default.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6814,7 +6814,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Count Badge",
+                title: "显示计数徽章",
                 description: "Whether to show a badge on the git panel icon with the count of uncommitted changes.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6837,7 +6837,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Commit Title Max Length",
+                title: "提交标题最大长度",
                 description: "Maximum length of the commit message title before a warning is shown. Set to 0 to disable.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6860,7 +6860,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Scroll Bar",
+                title: "滚动条",
                 description: "How and when the scrollbar should be displayed.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6893,9 +6893,9 @@ fn panels_page() -> SettingsPage {
 
     fn debugger_panel_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Debugger Panel"),
+            SettingsPageItem::SectionHeader("调试器面板"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Debugger Panel Dock",
+                title: "调试器面板停靠位置",
                 description: "The dock position of the debug panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6913,9 +6913,9 @@ fn panels_page() -> SettingsPage {
 
     fn collaboration_panel_section() -> [SettingsPageItem; 4] {
         [
-            SettingsPageItem::SectionHeader("Collaboration Panel"),
+            SettingsPageItem::SectionHeader("协作面板"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Collaboration Panel Button",
+                title: "协作面板按钮",
                 description: "Show the collaboration panel button in the status bar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6938,7 +6938,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Collaboration Panel Dock",
+                title: "协作面板停靠位置",
                 description: "Where to dock the collaboration panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6957,7 +6957,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Collaboration Panel Default Width",
+                title: "协作面板默认宽度",
                 description: "Default width of the collaboration panel in pixels.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -6984,9 +6984,9 @@ fn panels_page() -> SettingsPage {
 
     fn agent_panel_section() -> [SettingsPageItem; 7] {
         [
-            SettingsPageItem::SectionHeader("Agent Panel"),
+            SettingsPageItem::SectionHeader("Agent 面板"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Agent Panel Button",
+                title: "Agent 面板按钮",
                 description: "Whether to show the agent panel button in the status bar.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7000,7 +7000,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Agent Panel Dock",
+                title: "Agent 面板停靠位置",
                 description: "Where to dock the agent panel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7014,7 +7014,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Agent Panel Flexible Sizing",
+                title: "Agent 面板弹性尺寸",
                 description: "Whether the agent panel should use flexible (proportional) sizing when docked to the left or right. When enabled, the default width does not control the panel width, and resetting the panel restores the default proportion.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7028,7 +7028,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Agent Panel Default Width",
+                title: "Agent 面板默认宽度",
                 description: "Default fixed width when the agent panel is docked to the left or right and flexible sizing is disabled.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7044,7 +7044,7 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Agent Panel Default Height",
+                title: "Agent 面板默认高度",
                 description: "Default height when the agent panel is docked to the bottom.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7065,7 +7065,7 @@ fn panels_page() -> SettingsPage {
             SettingsPageItem::DynamicItem(DynamicItem {
                 discriminant: SettingItem {
                     files: USER,
-                    title: "Limit Content Width",
+                    title: "限制内容宽度",
                     description: "Whether to constrain the agent panel content to a maximum width, centering it when the panel is wider, for optimal readability.",
                     field: Box::new(SettingField::<bool> {
                         organization_override: None,
@@ -7098,7 +7098,7 @@ fn panels_page() -> SettingsPage {
                     vec![],
                     vec![SettingItem {
                         files: USER,
-                        title: "Max Content Width",
+                        title: "最大内容宽度",
                         description: "Maximum content width in pixels. Content will be centered when the panel is wider than this value.",
                         field: Box::new(SettingField {
                             organization_override: None,
@@ -7121,7 +7121,7 @@ fn panels_page() -> SettingsPage {
     }
 
     SettingsPage {
-        title: "Panels",
+        title: "面板",
         items: concat_sections![
             project_panel_section(),
             terminal_panel_section(),
@@ -7137,9 +7137,9 @@ fn panels_page() -> SettingsPage {
 fn debugger_page() -> SettingsPage {
     fn general_section() -> [SettingsPageItem; 6] {
         [
-            SettingsPageItem::SectionHeader("General"),
+            SettingsPageItem::SectionHeader("常规"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Stepping Granularity",
+                title: "步进粒度",
                 description: "Determines the stepping granularity for debug operations.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7162,7 +7162,7 @@ fn debugger_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Save Breakpoints",
+                title: "保存断点",
                 description: "Whether breakpoints should be reused across Zed sessions.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7185,7 +7185,7 @@ fn debugger_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Timeout",
+                title: "超时",
                 description: "Time in milliseconds until timeout error when connecting to a TCP debug adapter.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7199,7 +7199,7 @@ fn debugger_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Log DAP Communications",
+                title: "记录 DAP 通信",
                 description: "Whether to log messages between active debug adapters and Zed.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7222,7 +7222,7 @@ fn debugger_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Format DAP Log Messages",
+                title: "格式化 DAP 日志消息",
                 description: "Whether to format DAP messages when adding them to debug adapter logger.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7248,7 +7248,7 @@ fn debugger_page() -> SettingsPage {
     }
 
     SettingsPage {
-        title: "Debugger",
+        title: "调试器",
         items: concat_sections![general_section()],
     }
 }
@@ -7256,7 +7256,7 @@ fn debugger_page() -> SettingsPage {
 fn terminal_page() -> SettingsPage {
     fn environment_section() -> [SettingsPageItem; 5] {
         [
-                SettingsPageItem::SectionHeader("Environment"),
+                SettingsPageItem::SectionHeader("环境"),
                 SettingsPageItem::DynamicItem(DynamicItem {
                     discriminant: SettingItem {
                         files: USER | PROJECT,
@@ -7342,7 +7342,7 @@ fn terminal_page() -> SettingsPage {
                             settings::ShellDiscriminants::System => vec![],
                             settings::ShellDiscriminants::Program => vec![SettingItem {
                                 files: USER | PROJECT,
-                                title: "Program",
+                                title: "程序",
                                 description: "The shell program to use.",
                                 field: Box::new(SettingField {
                                     organization_override: None,
@@ -7373,7 +7373,7 @@ fn terminal_page() -> SettingsPage {
                             settings::ShellDiscriminants::WithArguments => vec![
                                 SettingItem {
                                     files: USER | PROJECT,
-                                    title: "Program",
+                                    title: "程序",
                                     description: "The shell program to run.",
                                     field: Box::new(SettingField {
                                         organization_override: None,
@@ -7406,7 +7406,7 @@ fn terminal_page() -> SettingsPage {
                                 },
                                 SettingItem {
                                     files: USER | PROJECT,
-                                    title: "Arguments",
+                                    title: "参数",
                                     description: "The arguments to pass to the shell program.",
                                     field: Box::new(
                                         SettingField {
@@ -7440,7 +7440,7 @@ fn terminal_page() -> SettingsPage {
                                 },
                                 SettingItem {
                                     files: USER | PROJECT,
-                                    title: "Title Override",
+                                    title: "标题覆盖",
                                     description: "An optional string to override the title of the terminal tab.",
                                     field: Box::new(SettingField {
                                         organization_override: None,
@@ -7477,7 +7477,7 @@ fn terminal_page() -> SettingsPage {
                 SettingsPageItem::DynamicItem(DynamicItem {
                     discriminant: SettingItem {
                         files: USER | PROJECT,
-                        title: "Working Directory",
+                        title: "工作目录",
                         description: "What working directory to use when launching the terminal.",
                         field: Box::new(SettingField {
                             organization_override: None,
@@ -7551,7 +7551,7 @@ fn terminal_page() -> SettingsPage {
                             settings::WorkingDirectoryDiscriminants::AlwaysHome => vec![],
                             settings::WorkingDirectoryDiscriminants::Always => vec![SettingItem {
                                 files: USER | PROJECT,
-                                title: "Directory",
+                                title: "目录",
                                 description: "The directory path to use (will be shell expanded).",
                                 field: Box::new(SettingField {
                                     organization_override: None,
@@ -7582,7 +7582,7 @@ fn terminal_page() -> SettingsPage {
                         .collect(),
                 }),
                 SettingsPageItem::SettingItem(SettingItem {
-                    title: "Environment Variables",
+                    title: "环境变量",
                     description: "Key-value pairs to add to the terminal's environment.",
                     field: Box::new(
                         SettingField {
@@ -7599,7 +7599,7 @@ fn terminal_page() -> SettingsPage {
                     files: USER | PROJECT,
                 }),
                 SettingsPageItem::SettingItem(SettingItem {
-                    title: "Detect Virtual Environment",
+                    title: "检测虚拟环境",
                     description: "Activates the Python virtual environment, if one is found, in the terminal's working directory.",
                     field: Box::new(
                         SettingField {
@@ -7624,9 +7624,9 @@ fn terminal_page() -> SettingsPage {
 
     fn font_section() -> [SettingsPageItem; 6] {
         [
-            SettingsPageItem::SectionHeader("Font"),
+            SettingsPageItem::SectionHeader("字体"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Size",
+                title: "字号",
                 description: "Font size for terminal text. If not set, defaults to buffer font size.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7646,7 +7646,7 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Family",
+                title: "字体系列",
                 description: "Font family for terminal text. If not set, defaults to buffer font family.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7669,7 +7669,7 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Fallbacks",
+                title: "回退字体",
                 description: "Font fallbacks for terminal text. If not set, defaults to buffer font fallbacks.",
                 field: Box::new(
                     SettingField {
@@ -7695,7 +7695,7 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Weight",
+                title: "字重",
                 description: "Font weight for terminal text in CSS weight units (100-900).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7714,7 +7714,7 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Features",
+                title: "字体特性",
                 description: "Font features for terminal text.",
                 field: Box::new(
                     SettingField {
@@ -7744,9 +7744,9 @@ fn terminal_page() -> SettingsPage {
 
     fn display_settings_section() -> [SettingsPageItem; 6] {
         [
-            SettingsPageItem::SectionHeader("Display Settings"),
+            SettingsPageItem::SectionHeader("显示设置"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Line Height",
+                title: "行高",
                 description: "Line height for terminal text.",
                 field: Box::new(
                     SettingField {
@@ -7768,7 +7768,7 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cursor Shape",
+                title: "光标形状",
                 description: "Default cursor shape for the terminal (bar, block, underline, or hollow).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7787,7 +7787,7 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cursor Blinking",
+                title: "光标闪烁",
                 description: "Sets the cursor blinking behavior in the terminal.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7801,7 +7801,7 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Alternate Scroll",
+                title: "交替滚动",
                 description: "Whether alternate scroll mode is active by default (converts mouse scroll to arrow keys in apps like Vim).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7824,7 +7824,7 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Minimum Contrast",
+                title: "最小对比度",
                 description: "The minimum APCA perceptual contrast between foreground and background colors (0-106).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7851,9 +7851,9 @@ fn terminal_page() -> SettingsPage {
 
     fn behavior_settings_section() -> [SettingsPageItem; 6] {
         [
-            SettingsPageItem::SectionHeader("Behavior Settings"),
+            SettingsPageItem::SectionHeader("行为设置"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Option As Meta",
+                title: "Option 作为 Meta",
                 description: "Whether the option key behaves as the meta key.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7872,7 +7872,7 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Copy On Select",
+                title: "选中即复制",
                 description: "Whether selecting text in the terminal automatically copies to the system clipboard.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7891,7 +7891,7 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Keep Selection On Copy",
+                title: "复制时保留选区",
                 description: "Whether to keep the text selection after copying it to the clipboard.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7914,7 +7914,7 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Open Links In Mouse Mode",
+                title: "鼠标模式下打开链接",
                 description: "Whether cmd-click (ctrl-click on Linux and Windows) opens hyperlinks even when the terminal application has enabled mouse reporting. When disabled, these clicks are forwarded to the application; links can still be opened with shift-cmd-click.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7937,7 +7937,7 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Audible Bell",
+                title: "声音提示",
                 description: "Whether to play a sound when the BEL character (`\\a`, `0x07`) is printed",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7955,9 +7955,9 @@ fn terminal_page() -> SettingsPage {
 
     fn layout_settings_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Layout Settings"),
+            SettingsPageItem::SectionHeader("布局设置"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Default Width",
+                title: "默认宽度",
                 description: "Default width when the terminal is docked to the left or right (in pixels).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7976,7 +7976,7 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Default Height",
+                title: "默认高度",
                 description: "Default height when the terminal is docked to the bottom (in pixels).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -7999,9 +7999,9 @@ fn terminal_page() -> SettingsPage {
 
     fn advanced_settings_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Advanced Settings"),
+            SettingsPageItem::SectionHeader("高级设置"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Max Scroll History Lines",
+                title: "最大滚动历史行数",
                 description: "Maximum number of lines to keep in scrollback history (max: 100,000; 0 disables scrolling).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8024,7 +8024,7 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Scroll Multiplier",
+                title: "滚动倍率",
                 description: "The multiplier for scrolling in the terminal with the mouse wheel",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8051,9 +8051,9 @@ fn terminal_page() -> SettingsPage {
 
     fn toolbar_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Toolbar"),
+            SettingsPageItem::SectionHeader("工具栏"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Breadcrumbs",
+                title: "面包屑",
                 description: "Display the terminal title in breadcrumbs inside the terminal pane.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8084,9 +8084,9 @@ fn terminal_page() -> SettingsPage {
 
     fn scrollbar_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Scrollbar"),
+            SettingsPageItem::SectionHeader("滚动条"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Scrollbar",
+                title: "显示滚动条",
                 description: "When to show the scrollbar in the terminal.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8118,7 +8118,7 @@ fn terminal_page() -> SettingsPage {
     }
 
     SettingsPage {
-        title: "Terminal",
+        title: "终端",
         items: concat_sections![
             environment_section(),
             font_section(),
@@ -8135,11 +8135,11 @@ fn terminal_page() -> SettingsPage {
 fn version_control_page() -> SettingsPage {
     fn git_integration_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Git Integration"),
+            SettingsPageItem::SectionHeader("Git 集成"),
             SettingsPageItem::DynamicItem(DynamicItem {
                 discriminant: SettingItem {
                     files: USER,
-                    title: "Disable Git Integration",
+                    title: "禁用 Git 集成",
                     description: "Disable all Git integration features in Zed.",
                     field: Box::new(SettingField::<bool> {
                         organization_override: None,
@@ -8179,7 +8179,7 @@ fn version_control_page() -> SettingsPage {
                     vec![
                         SettingItem {
                             files: USER,
-                            title: "Enable Git Status",
+                            title: "启用 Git 状态",
                             description: "Show Git status information in the editor.",
                             field: Box::new(SettingField::<bool> {
                                 organization_override: None,
@@ -8206,7 +8206,7 @@ fn version_control_page() -> SettingsPage {
                         },
                         SettingItem {
                             files: USER,
-                            title: "Enable Git Diff",
+                            title: "启用 Git 差异",
                             description: "Show Git diff information in the editor.",
                             field: Box::new(SettingField::<bool> {
                                 organization_override: None,
@@ -8239,9 +8239,9 @@ fn version_control_page() -> SettingsPage {
 
     fn git_gutter_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Git Gutter"),
+            SettingsPageItem::SectionHeader("Git 边栏"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Visibility",
+                title: "可见性",
                 description: "Control whether Git status is shown in the editor's gutter.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8256,7 +8256,7 @@ fn version_control_page() -> SettingsPage {
             }),
             // todo(settings_ui): Figure out the right default for this value in default.json
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Debounce",
+                title: "防抖",
                 description: "Debounce threshold in milliseconds after which changes are reflected in the Git gutter.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8276,10 +8276,10 @@ fn version_control_page() -> SettingsPage {
 
     fn inline_git_blame_section() -> [SettingsPageItem; 6] {
         [
-            SettingsPageItem::SectionHeader("Inline Git Blame"),
+            SettingsPageItem::SectionHeader("行内 Git Blame"),
             SettingsPageItem::DynamicItem(DynamicItem {
                 discriminant: SettingItem {
-                    title: "Enabled",
+                    title: "启用",
                     description: "Whether or not to show Git blame data for the currently focused line.",
                     field: Box::new(SettingField {
                         organization_override: None,
@@ -8319,7 +8319,7 @@ fn version_control_page() -> SettingsPage {
                 fields: vec![
                     vec![],
                     vec![SettingItem {
-                        title: "Location",
+                        title: "位置",
                         description: "Where to render Git blame when it is enabled.",
                         field: Box::new(SettingField {
                             organization_override: None,
@@ -8348,7 +8348,7 @@ fn version_control_page() -> SettingsPage {
                 ],
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Delay",
+                title: "延迟",
                 description: "The delay after which the inline blame information is shown.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8375,7 +8375,7 @@ fn version_control_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Padding",
+                title: "内边距",
                 description: "Padding between the end of the source line and the start of the inline blame in columns.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8402,7 +8402,7 @@ fn version_control_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Minimum Column",
+                title: "最小列",
                 description: "The minimum column number at which to show the inline blame information.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8429,7 +8429,7 @@ fn version_control_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Commit Summary",
+                title: "显示提交摘要",
                 description: "Show commit summary as part of the inline blame.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8460,9 +8460,9 @@ fn version_control_page() -> SettingsPage {
 
     fn git_blame_view_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Git Blame View"),
+            SettingsPageItem::SectionHeader("Git Blame 视图"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Avatar",
+                title: "显示头像",
                 description: "Show the avatar of the author of the commit.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8493,9 +8493,9 @@ fn version_control_page() -> SettingsPage {
 
     fn branch_picker_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Branch Picker"),
+            SettingsPageItem::SectionHeader("分支选择器"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Author Name",
+                title: "显示作者名",
                 description: "Show author name as part of the commit information in branch picker.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8526,9 +8526,9 @@ fn version_control_page() -> SettingsPage {
 
     fn git_hunks_section() -> [SettingsPageItem; 5] {
         [
-            SettingsPageItem::SectionHeader("Git Hunks"),
+            SettingsPageItem::SectionHeader("Git 变更块"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Hunk Style",
+                title: "变更块样式",
                 description: "How Git hunks are displayed visually in the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8542,7 +8542,7 @@ fn version_control_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Diff Base",
+                title: "差异基准",
                 description: "Whether git features show changes relative to HEAD (uncommitted changes) or to the default branch (all changes on the current branch).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8556,7 +8556,7 @@ fn version_control_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Path Style",
+                title: "路径样式",
                 description: "Should the name or path be displayed first in the git view.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8570,7 +8570,7 @@ fn version_control_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Stage/Restore Buttons",
+                title: "显示暂存/还原按钮",
                 description: "Whether to show the stage and restore buttons on diff hunks.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8597,9 +8597,9 @@ fn version_control_page() -> SettingsPage {
 
     fn file_diff_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("File Diff"),
+            SettingsPageItem::SectionHeader("文件差异"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Full File by Default",
+                title: "默认显示完整文件",
                 description: "Whether newly opened file diffs show the full file instead of changes only.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8629,7 +8629,7 @@ fn version_control_page() -> SettingsPage {
     }
 
     SettingsPage {
-        title: "Version Control",
+        title: "版本控制",
         items: concat_sections![
             git_integration_section(),
             git_gutter_section(),
@@ -8646,9 +8646,9 @@ fn version_control_page() -> SettingsPage {
 fn collaboration_page() -> SettingsPage {
     fn calls_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Calls"),
+            SettingsPageItem::SectionHeader("通话"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Mute On Join",
+                title: "加入时静音",
                 description: "Whether the microphone should be muted when joining a channel or a call.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8662,7 +8662,7 @@ fn collaboration_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Share On Join",
+                title: "加入时共享",
                 description: "Whether your current project should be shared when joining an empty channel.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8683,16 +8683,16 @@ fn collaboration_page() -> SettingsPage {
     fn audio_settings() -> [SettingsPageItem; 3] {
         [
             SettingsPageItem::ActionLink(ActionLink {
-                title: "Test Audio".into(),
+                title: "测试音频".into(),
                 description: Some("Test your microphone and speaker setup".into()),
-                button_text: "Test Audio".into(),
+                button_text: "测试音频".into(),
                 on_click: Arc::new(|_settings_window, window, cx| {
                     open_audio_test_window(window, cx);
                 }),
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Output Audio Device",
+                title: "输出音频设备",
                 description: "Select output audio device",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8716,7 +8716,7 @@ fn collaboration_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Input Audio Device",
+                title: "输入音频设备",
                 description: "Select input audio device",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8743,7 +8743,7 @@ fn collaboration_page() -> SettingsPage {
     }
 
     SettingsPage {
-        title: "Collaboration",
+        title: "协作",
         items: concat_sections![calls_section(), audio_settings()],
     }
 }
@@ -8751,9 +8751,9 @@ fn collaboration_page() -> SettingsPage {
 fn network_page() -> SettingsPage {
     fn network_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Network"),
+            SettingsPageItem::SectionHeader("网络"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Proxy",
+                title: "代理",
                 description: "The proxy to use for network requests.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8770,7 +8770,7 @@ fn network_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Server URL",
+                title: "服务器 URL",
                 description: "The URL of the Zed server to connect to.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8790,7 +8790,7 @@ fn network_page() -> SettingsPage {
     }
 
     SettingsPage {
-        title: "Network",
+        title: "网络",
         items: concat_sections![network_section()],
     }
 }
@@ -8833,9 +8833,9 @@ fn language_settings_field_mut<T>(
 fn language_settings_data() -> Box<[SettingsPageItem]> {
     fn indentation_section() -> [SettingsPageItem; 5] {
         [
-            SettingsPageItem::SectionHeader("Indentation"),
+            SettingsPageItem::SectionHeader("缩进"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Tab Size",
+                title: "制表符宽度",
                 description: "How many columns a tab should occupy.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8855,7 +8855,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Hard Tabs",
+                title: "硬制表符",
                 description: "Whether to indent lines using tab characters, as opposed to multiple spaces.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8875,7 +8875,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Indent",
+                title: "自动缩进",
                 description: "Controls automatic indentation behavior when typing.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8895,7 +8895,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Indent On Paste",
+                title: "粘贴时自动缩进",
                 description: "Whether indentation of pasted content should be adjusted based on the context.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8919,9 +8919,9 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn wrapping_section() -> [SettingsPageItem; 7] {
         [
-            SettingsPageItem::SectionHeader("Wrapping"),
+            SettingsPageItem::SectionHeader("换行"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Soft Wrap",
+                title: "软换行",
                 description: "How to soft-wrap long lines of text.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8941,7 +8941,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Soft Wrap Indent",
+                title: "软换行缩进",
                 description: "How to indent soft-wrapped lines.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8961,7 +8961,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Wrap Guides",
+                title: "显示换行参考线",
                 description: "Show wrap guides in the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -8981,7 +8981,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Preferred Line Length",
+                title: "首选行长度",
                 description: "The column at which to soft-wrap lines, for buffers where soft-wrap is enabled.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9001,7 +9001,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Wrap Guides",
+                title: "换行参考线",
                 description: "Character counts at which to show wrap guides in the editor.",
                 field: Box::new(
                     SettingField {
@@ -9028,7 +9028,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Allow Rewrap",
+                title: "允许重新换行",
                 description: "Controls where the `editor::rewrap` action is allowed for this language.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9052,9 +9052,9 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn indent_guides_section() -> [SettingsPageItem; 6] {
         [
-            SettingsPageItem::SectionHeader("Indent Guides"),
+            SettingsPageItem::SectionHeader("缩进参考线"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
+                title: "启用",
                 description: "Display indent guides in the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9077,7 +9077,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Line Width",
+                title: "行宽",
                 description: "The width of the indent guides in pixels, between 1 and 10.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9100,7 +9100,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Active Line Width",
+                title: "活动行宽度",
                 description: "The width of the active indent guide in pixels, between 1 and 10.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9126,7 +9126,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Coloring",
+                title: "着色",
                 description: "Determines how indent guides are colored.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9149,7 +9149,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Background Coloring",
+                title: "背景着色",
                 description: "Determines how indent guide backgrounds are colored.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9178,9 +9178,9 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn formatting_section() -> [SettingsPageItem; 8] {
         [
-            SettingsPageItem::SectionHeader("Formatting"),
+            SettingsPageItem::SectionHeader("格式化"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Format On Save",
+                title: "保存时格式化",
                 description: "On: format the whole buffer.\nOff: do not format.\nModifications: format only lines with unstaged changes; skips formatting when a git diff or LSP range formatting is unavailable.\nModifications If Available: same, but falls back to formatting the whole buffer.",
                 field: Box::new(
                     // TODO(settings_ui): this setting should just be a bool
@@ -9207,7 +9207,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Remove Trailing Whitespace On Save",
+                title: "保存时删除行尾空白",
                 description: "Whether or not to remove any trailing whitespace from lines of a buffer before saving it.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9227,7 +9227,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Ensure Final Newline On Save",
+                title: "保存时确保末尾换行",
                 description: "Whether or not to ensure there's a single newline at the end of a buffer when saving it.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9247,7 +9247,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Line Ending",
+                title: "换行符",
                 description: "How line endings should be handled for new files and during format and save operations.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9270,7 +9270,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Formatter",
+                title: "格式化器",
                 description: "How to perform a buffer format.",
                 field: Box::new(
                     SettingField {
@@ -9297,7 +9297,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use On Type Format",
+                title: "输入时格式化",
                 description: "Whether to use additional LSP queries to format (and amend) the code after every \"trigger\" symbol input, defined by LSP server capabilities",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9317,7 +9317,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Code Actions On Format",
+                title: "格式化时的代码操作",
                 description: "Additional code actions to run when formatting.",
                 field: Box::new(
                     SettingField {
@@ -9348,9 +9348,9 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn autoclose_section() -> [SettingsPageItem; 5] {
         [
-            SettingsPageItem::SectionHeader("Autoclose"),
+            SettingsPageItem::SectionHeader("自动闭合"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use Autoclose",
+                title: "使用自动闭合",
                 description: "Whether to automatically type closing characters for you. For example, when you type '(', Zed will automatically add a closing ')' at the correct position.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9370,7 +9370,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use Auto Surround",
+                title: "使用自动包围",
                 description: "Whether to automatically surround text with characters for you. For example, when you select text and type '(', Zed will automatically surround text with ().",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9390,7 +9390,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Always Treat Brackets As Autoclosed",
+                title: "始终将括号视为自动闭合",
                 description: "Controls whether the closing characters are always skipped over and auto-removed no matter how they were inserted.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9410,7 +9410,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "JSX Tag Auto Close",
+                title: "JSX 标签自动闭合",
                 description: "Whether to automatically close JSX tags.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9435,9 +9435,9 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn whitespace_section() -> [SettingsPageItem; 4] {
         [
-            SettingsPageItem::SectionHeader("Whitespace"),
+            SettingsPageItem::SectionHeader("空白字符"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Whitespaces",
+                title: "显示空白字符",
                 description: "Whether to show tabs and spaces in the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9457,7 +9457,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Space Whitespace Indicator",
+                title: "空格空白指示",
                 description: "Visible character used to render space characters when show_whitespaces is enabled (default: \"•\")",
                 field: Box::new(
                     SettingField {
@@ -9484,7 +9484,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Tab Whitespace Indicator",
+                title: "制表符空白指示",
                 description: "Visible character used to render tab characters when show_whitespaces is enabled (default: \"→\")",
                 field: Box::new(
                     SettingField {
@@ -9515,9 +9515,9 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn completions_section() -> [SettingsPageItem; 8] {
         [
-            SettingsPageItem::SectionHeader("Completions"),
+            SettingsPageItem::SectionHeader("补全"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Completions On Input",
+                title: "输入时显示补全",
                 description: "Whether to pop the completions menu while typing in an editor without explicitly requesting it.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9537,7 +9537,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Completion Documentation",
+                title: "显示补全文档",
                 description: "Whether to display inline and alongside documentation for items in the completions menu.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9557,7 +9557,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Words",
+                title: "单词",
                 description: "Controls how words are completed.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9577,7 +9577,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Words Min Length",
+                title: "单词最小长度",
                 description: "How many characters has to be in the completions query to automatically show the words-based completions.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9600,7 +9600,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Completion Menu Scrollbar",
+                title: "补全菜单滚动条",
                 description: "When to show the scrollbar in the completion menu.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9616,7 +9616,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Completion Detail Alignment",
+                title: "补全详情对齐",
                 description: "Whether to align detail text in code completions context menus left or right.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9632,7 +9632,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Completion Menu Item Kind",
+                title: "补全菜单项类型",
                 description: "How to display the LSP item kind (function, method, variable, etc.) of each entry in the completions menu.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9652,9 +9652,9 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn inlay_hints_section() -> [SettingsPageItem; 10] {
         [
-            SettingsPageItem::SectionHeader("Inlay Hints"),
+            SettingsPageItem::SectionHeader("行内提示"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
+                title: "启用",
                 description: "Global switch to toggle hints on and off.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9674,7 +9674,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Value Hints",
+                title: "显示值提示",
                 description: "Global switch to toggle inline values on and off when debugging.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9697,7 +9697,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Type Hints",
+                title: "显示类型提示",
                 description: "Whether type hints should be shown.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9717,7 +9717,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Parameter Hints",
+                title: "显示参数提示",
                 description: "Whether parameter hints should be shown.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9740,7 +9740,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Other Hints",
+                title: "显示其他提示",
                 description: "Whether other hints should be shown.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9763,7 +9763,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Background",
+                title: "显示背景",
                 description: "Show a background for inlay hints.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9783,7 +9783,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Edit Debounce Ms",
+                title: "编辑防抖（毫秒）",
                 description: "Whether or not to debounce inlay hints updates after buffer edits (set to 0 to disable debouncing).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9806,7 +9806,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Scroll Debounce Ms",
+                title: "滚动防抖（毫秒）",
                 description: "Whether or not to debounce inlay hints updates after buffer scrolls (set to 0 to disable debouncing).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9829,7 +9829,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Toggle On Modifiers Press",
+                title: "按下修饰键时切换",
                 description: "Toggles inlay hints (hides or shows) when the user presses the modifiers specified.",
                 field: Box::new(
                     SettingField {
@@ -9869,9 +9869,9 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn tasks_section() -> [SettingsPageItem; 4] {
         [
-            SettingsPageItem::SectionHeader("Tasks"),
+            SettingsPageItem::SectionHeader("任务"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
+                title: "启用",
                 description: "Whether tasks are enabled for this language.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9891,7 +9891,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Variables",
+                title: "变量",
                 description: "Extra task variables to set for a particular language.",
                 field: Box::new(
                     SettingField {
@@ -9918,7 +9918,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Prefer LSP",
+                title: "优先使用 LSP",
                 description: "Use LSP tasks over Zed language extension tasks.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9942,9 +9942,9 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn miscellaneous_section() -> [SettingsPageItem; 8] {
         [
-            SettingsPageItem::SectionHeader("Miscellaneous"),
+            SettingsPageItem::SectionHeader("杂项"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Language Detection",
+                title: "语言检测",
                 description: "Whether to enable automatic language detection in unsaved buffers.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9958,7 +9958,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Word Diff Enabled",
+                title: "启用单词差异",
                 description: "Whether to enable word diff highlighting in the editor. When enabled, changed words within modified lines are highlighted to show exactly what changed.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -9978,7 +9978,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Debuggers",
+                title: "调试器",
                 description: "Preferred debuggers for this language.",
                 field: Box::new(
                     SettingField {
@@ -10005,7 +10005,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Middle Click Paste",
+                title: "中键粘贴",
                 description: "Enable middle-click paste on Linux.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10019,7 +10019,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Extend Comment On Newline",
+                title: "换行时延续注释",
                 description: "Whether to start a new line with a comment when a previous line is a comment as well.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10039,7 +10039,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Colorize Brackets",
+                title: "括号着色",
                 description: "Whether to colorize brackets in the editor.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10059,7 +10059,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Vim/Emacs Modeline Support",
+                title: "Vim/Emacs Modeline 支持",
                 description: "Number of lines to search for modelines (set to 0 to disable).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10078,7 +10078,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
     fn global_only_miscellaneous_sub_section() -> [SettingsPageItem; 4] {
         [
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Image Viewer",
+                title: "图片查看器",
                 description: "The unit for image file sizes.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10097,7 +10097,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Open Markdown Files in Preview",
+                title: "以预览打开 Markdown 文件",
                 description: "Whether to automatically open Markdown files in the preview.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10122,7 +10122,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
             SettingsPageItem::DynamicItem(DynamicItem {
                 discriminant: SettingItem {
                     files: USER,
-                    title: "Limit Markdown Preview Width",
+                    title: "限制 Markdown 预览宽度",
                     description: "Whether to constrain the markdown preview content to a maximum width, centering it when the pane is wider, for optimal readability.",
                     field: Box::new(SettingField::<bool> {
                         organization_override: None,
@@ -10155,7 +10155,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                     vec![],
                     vec![SettingItem {
                         files: USER,
-                        title: "Max Width",
+                        title: "最大宽度",
                         description: "Maximum content width in pixels. Content will be centered when the pane is wider than this value.",
                         field: Box::new(SettingField {
                             organization_override: None,
@@ -10179,7 +10179,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 ],
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Drop Size Target",
+                title: "放置尺寸目标",
                 description: "Relative size of the drop target in the editor that will open dropped file as a split pane.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10213,7 +10213,7 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
     })];
 
     let lsp_document_colors_item = [SettingsPageItem::SettingItem(SettingItem {
-        title: "LSP Document Colors",
+        title: "LSP 文档颜色",
         description: "How to render LSP color previews in the editor.",
         field: Box::new(SettingField {
             organization_override: None,
@@ -10267,7 +10267,7 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
         [
             SettingsPageItem::SectionHeader("LSP"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enable Language Server",
+                title: "启用语言服务器",
                 description: "Whether to use language servers to provide code intelligence.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10287,7 +10287,7 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Language Servers",
+                title: "语言服务器",
                 description: "The list of language servers to use (or disable) for this language.",
                 field: Box::new(
                     SettingField {
@@ -10314,7 +10314,7 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Linked Edits",
+                title: "关联编辑",
                 description: "Whether to perform linked edits of associated ranges, if the LS supports it. For example, when editing opening <html> tag, the contents of the closing </html> tag will be edited as well.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10334,7 +10334,7 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Go To Definition Fallback",
+                title: "转到定义回退",
                 description: "Whether to follow-up empty Go to definition responses from the language server.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10350,7 +10350,7 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Go To Definition Scroll Strategy",
+                title: "转到定义滚动策略",
                 description: "How to scroll the target into view when navigating to a definition or reference.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10369,7 +10369,7 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "LSP Results Location",
+                title: "LSP 结果位置",
                 description: "Where to show LSP results that can contain multiple locations (Go to Definition, Go to Implementation, Find All References).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10383,7 +10383,7 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Semantic Tokens",
+                title: "语义标记",
                 description: {
                     static DESCRIPTION: OnceLock<&'static str> = OnceLock::new();
                     DESCRIPTION.get_or_init(|| {
@@ -10419,7 +10419,7 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "LSP Folding Ranges",
+                title: "LSP 折叠范围",
                 description: "When enabled, use folding ranges from the language server instead of indent-based folding.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10439,7 +10439,7 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "LSP Document Symbols",
+                title: "LSP 文档符号",
                 description: "When enabled, use the language server's document symbols for outlines and breadcrumbs instead of tree-sitter.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10463,9 +10463,9 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn lsp_completions_section() -> [SettingsPageItem; 4] {
         [
-            SettingsPageItem::SectionHeader("LSP Completions"),
+            SettingsPageItem::SectionHeader("LSP 补全"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
+                title: "启用",
                 description: "Whether to fetch LSP completions or not.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10485,7 +10485,7 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Fetch Timeout (milliseconds)",
+                title: "拉取超时（毫秒）",
                 description: "When fetching LSP completions, determines how long to wait for a response of a particular server (set to 0 to wait indefinitely).",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10508,7 +10508,7 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Insert Mode",
+                title: "插入模式",
                 description: "Controls how LSP completions are inserted.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10532,9 +10532,9 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn debugger_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Debuggers"),
+            SettingsPageItem::SectionHeader("调试器"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Debuggers",
+                title: "调试器",
                 description: "Preferred debuggers for this language.",
                 field: Box::new(
                     SettingField {
@@ -10567,7 +10567,7 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
         [
             SettingsPageItem::SectionHeader("Prettier"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Allowed",
+                title: "允许",
                 description: "Enables or disables formatting with Prettier for a given language.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10587,7 +10587,7 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Parser",
+                title: "解析器",
                 description: "Forces Prettier integration to use a specific parser name when formatting files with the language.",
                 field: Box::new(SettingField {
                     organization_override: None,
@@ -10607,7 +10607,7 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Plugins",
+                title: "插件",
                 description: "Forces Prettier integration to use specific plugins when formatting files with the language.",
                 field: Box::new(
                     SettingField {
@@ -10634,7 +10634,7 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Options",
+                title: "选项",
                 description: "Default Prettier options, in the format as in package.json section for Prettier.",
                 field: Box::new(
                     SettingField {
@@ -10675,9 +10675,9 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
 // edit_prediction/copilot crate 的「Configure Providers」子页。
 fn edit_prediction_language_settings_section() -> [SettingsPageItem; 4] {
     [
-        SettingsPageItem::SectionHeader("Edit Predictions"),
+        SettingsPageItem::SectionHeader("编辑预测"),
         SettingsPageItem::SettingItem(SettingItem {
-            title: "Data Collection",
+            title: "数据收集",
             description: "Controls whether Zed may collect training data when using Zed's Edit Predictions. Data is only collected for files in projects detected as open source. The default value uses the preference previously set via the status-bar toggle, or false if no preference has been stored.",
             field: Box::new(SettingField {
                 organization_override: Some(|org_settings| {
@@ -10712,7 +10712,7 @@ fn edit_prediction_language_settings_section() -> [SettingsPageItem; 4] {
             files: USER,
         }),
         SettingsPageItem::SettingItem(SettingItem {
-            title: "Show Edit Predictions",
+            title: "显示编辑预测",
             description: "Controls whether edit predictions are shown immediately or manually.",
             field: Box::new(SettingField {
                 organization_override: None,
@@ -10732,7 +10732,7 @@ fn edit_prediction_language_settings_section() -> [SettingsPageItem; 4] {
             files: USER | PROJECT,
         }),
         SettingsPageItem::SettingItem(SettingItem {
-            title: "Disable in Language Scopes",
+            title: "在语言作用域中禁用",
             description: "Disable edit predictions in these language scopes, such as \"comment\" and \"string\". Use \"...\" to add scopes without repeating the inherited list.",
             field: Box::new(
                 SettingField {
