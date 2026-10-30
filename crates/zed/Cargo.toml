@@ -90,7 +90,7 @@ audio = { workspace = true, optional = true }
 # B档第五刀：去掉 auto_update 默认路径
 breadcrumbs.workspace = true
 call = { workspace = true, optional = true }
-channel.workspace = true
+# B档第六刀：去掉 channel 默认依赖（启动已不 init；file_finder/title_bar 已卸）
 chrono.workspace = true
 clap.workspace = true
 cli.workspace = true

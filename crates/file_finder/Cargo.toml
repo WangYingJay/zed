@@ -14,7 +14,7 @@ doctest = false
 
 [dependencies]
 anyhow.workspace = true
-channel.workspace = true
+# B档第六刀：去掉 channel（文件查找不再搜 Channel notes）
 client.workspace = true
 collections.workspace = true
 editor.workspace = true

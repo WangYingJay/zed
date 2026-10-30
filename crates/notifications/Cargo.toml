@@ -14,23 +14,14 @@ doctest = false
 test = false
 
 [features]
-test-support = [
-    "channel/test-support",
-
-    "gpui/test-support",
-    "rpc/test-support",
-]
+default = []
+test-support = ["gpui/test-support"]
 
 [dependencies]
+# B档第六刀：去掉 channel/client/rpc/sum_tree（NotificationStore 已卸；仅 status_toast）
 anyhow.workspace = true
-channel.workspace = true
-client.workspace = true
-futures-lite.workspace = true
 component.workspace = true
 gpui.workspace = true
-rpc.workspace = true
-sum_tree.workspace = true
-time.workspace = true
 ui.workspace = true
 util.workspace = true
 workspace.workspace = true

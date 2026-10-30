@@ -6255,7 +6255,6 @@ name = "file_finder"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "channel",
  "client",
  "collections",
  "ctor",
@@ -11299,14 +11298,8 @@ name = "notifications"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "channel",
- "client",
  "component",
- "futures-lite 2.6.1",
  "gpui",
- "rpc",
- "sum_tree",
- "time",
  "ui",
  "util",
  "workspace",
@@ -14725,7 +14718,6 @@ dependencies = [
  "project",
  "release_channel",
  "remote",
- "remote_connection",
  "remote_server",
  "rpc",
  "semver",
@@ -22334,7 +22326,6 @@ dependencies = [
  "audio",
  "breadcrumbs",
  "call",
- "channel",
  "chrono",
  "clap",
  "cli",

@@ -18,7 +18,6 @@ use fs::Fs;
 mod wsl_picker;
 
 use remote::RemoteConnectionOptions;
-pub use remote_connection::{RemoteConnectionModal, connect, connect_with_modal};
 pub use remote_connections::{navigate_to_positions, open_remote_project};
 
 use disconnected_overlay::DisconnectedOverlay;
@@ -1181,13 +1180,12 @@ impl PickerDelegate for RecentProjectsDelegate {
                                         path_list,
                                         host,
                                         Some(key.clone()),
-                                        move |options, window, cx| {
-                                            connect_with_modal(
-                                                &modal_workspace,
-                                                options,
-                                                window,
-                                                cx,
-                                            )
+                                        // B档第六刀：无 remote_connection；本地 host=None 不会进此闭包
+                                        move |_options, _window, _cx| {
+                                            let _ = &modal_workspace;
+                                            Task::ready(Err(anyhow::anyhow!(
+                                                "Remote connections are disabled in this build"
+                                            )))
                                         },
                                         None,
                                         OpenMode::Activate,
