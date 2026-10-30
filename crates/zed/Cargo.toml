@@ -104,10 +104,10 @@ db.workspace = true
 editor.workspace = true
 encoding_selector.workspace = true
 env_logger = { workspace = true, optional = true }
-# extension：轻量代理；extension_host 已从 zed 直依拿掉（仍被 activity_indicator/settings_ui/recent_projects/feedback 硬链 → 卡点）
+# extension：轻量代理；extension_host 已从 zed 直依拿掉（仍被 activity_indicator/settings_ui/recent_projects 硬链 → 卡点）
 extension.workspace = true
 feature_flags.workspace = true
-feedback.workspace = true
+# B档第七刀：卸掉 feedback 整 crate（报 bug / 系统规格外链；出默认树）
 file_finder.workspace = true
 fs.workspace = true
 futures.workspace = true

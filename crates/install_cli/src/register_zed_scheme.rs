@@ -1,5 +1,7 @@
-use client::ZED_URL_SCHEME;
 use gpui::{AsyncApp, actions};
+
+// B档第七刀：常量内联，避免 install_cli → client。
+const ZED_URL_SCHEME: &str = "zed";
 
 actions!(
     cli,

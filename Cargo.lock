@@ -4387,7 +4387,6 @@ dependencies = [
  "async-pipe",
  "async-tar",
  "async-trait",
- "client",
  "collections",
  "dap-types",
  "fs",
@@ -5353,7 +5352,6 @@ dependencies = [
 name = "edit_prediction_types"
 version = "0.1.0"
 dependencies = [
- "client",
  "gpui",
  "icons",
  "language",
@@ -8818,7 +8816,6 @@ name = "install_cli"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "client",
  "gpui",
  "log",
  "release_channel",
@@ -9671,7 +9668,6 @@ name = "language_tools"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "client",
  "collections",
  "command_palette_hooks",
  "editor",
@@ -22342,7 +22338,6 @@ dependencies = [
  "etw_tracing",
  "extension",
  "feature_flags",
- "feedback",
  "file_finder",
  "fs",
  "futures 0.3.34",

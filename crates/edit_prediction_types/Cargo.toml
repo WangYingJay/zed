@@ -14,7 +14,7 @@ test = false
 doctest = false
 
 [dependencies]
-client.workspace = true
+# B档第七刀：EditPredictionUsage 已内联，不再依赖 client
 gpui.workspace = true
 icons.workspace = true
 language.workspace = true

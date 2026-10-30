@@ -1,7 +1,28 @@
 use std::{ops::Range, sync::Arc, time::Duration};
 
-use client::EditPredictionUsage;
 use gpui::{App, Context, Entity, SharedString};
+
+/// B档第七刀：用量类型留在本 crate，断开 edit_prediction_types → client。
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EditPredictionUsage {
+    pub limit: EditPredictionUsageLimit,
+    pub amount: i32,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EditPredictionUsageLimit {
+    Limited(i32),
+    Unlimited,
+}
+
+impl EditPredictionUsage {
+    pub fn over_limit(&self) -> bool {
+        match self.limit {
+            EditPredictionUsageLimit::Limited(limit) => self.amount >= limit,
+            EditPredictionUsageLimit::Unlimited => false,
+        }
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EditPredictionDiscardReason {

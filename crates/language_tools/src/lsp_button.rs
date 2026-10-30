@@ -10,7 +10,7 @@ use sysinfo::{Pid, ProcessRefreshKind, RefreshKind, System};
 
 use language::language_settings::{EditPredictionProvider, all_language_settings};
 
-use client::proto;
+// B档第七刀：直接用依赖 crate `proto`（不再经 client 再导出）。
 use collections::HashSet;
 use editor::{Editor, EditorEvent};
 use gpui::{Action as _, Anchor, App, Entity, Subscription, Task, TaskExt, WeakEntity, actions};

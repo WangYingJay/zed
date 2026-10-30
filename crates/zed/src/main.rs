@@ -675,7 +675,7 @@ fn main() {
         #[cfg(not(feature = "calls"))]
         title_bar::init(cx);
         git_ui::init(cx);
-        feedback::init(cx);
+        // B档第七刀：卸掉 feedback（仅系统规格/报 bug 外链；无 client 旁路价值，整 crate 出默认树）
         settings_ui::init(cx);
         json_schema_store::init(cx);
         miniprofiler_ui::init(*STARTUP_TIME.get().unwrap(), cx);

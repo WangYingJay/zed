@@ -27,7 +27,7 @@ async-compression.workspace = true
 async-pipe = { workspace = true, optional = true }
 async-tar.workspace = true
 async-trait.workspace = true
-client.workspace = true
+# B档第七刀：proto 直依，不再经 client 再导出
 collections.workspace = true
 dap-types.workspace = true
 fs.workspace = true

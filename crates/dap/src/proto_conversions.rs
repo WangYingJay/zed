@@ -1,9 +1,10 @@
 use anyhow::{Context as _, Result};
-use client::proto::{
+use dap_types::{OutputEventCategory, OutputEventGroup, ScopePresentationHint, Source};
+// B档第七刀：直接用 proto，避免 dap → client 再导出。
+use proto::{
     self, DapChecksum, DapChecksumAlgorithm, DapEvaluateContext, DapModule, DapScope,
     DapScopePresentationHint, DapSource, DapSourcePresentationHint, DapStackFrame, DapVariable,
 };
-use dap_types::{OutputEventCategory, OutputEventGroup, ScopePresentationHint, Source};
 
 pub trait ProtoConversion {
     type ProtoType;
