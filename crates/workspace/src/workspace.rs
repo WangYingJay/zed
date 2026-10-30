@@ -10295,6 +10295,15 @@ impl WorkspaceStore {
         }
     }
 
+    /// B档第四刀：本地壳不注册 follow/RPC 处理器，仍持 Client 供其它路径读 http/telemetry。
+    pub fn offline(client: Arc<Client>) -> Self {
+        Self {
+            workspaces: Default::default(),
+            _subscriptions: Vec::new(),
+            client,
+        }
+    }
+
     pub fn update_followers(
         &self,
         project_id: Option<u64>,

@@ -19,17 +19,12 @@ use anyhow::{Context as _, Result};
 use clap::Parser;
 use cli::FORCE_CLI_MODE_ENV_VAR_NAME;
 use client::{Client, ProxySettings, UserStore, parse_zed_link};
-#[cfg(feature = "calls")]
-use collab_ui::channel_view::ChannelView;
 use collections::HashMap;
 use crashes::InitCrashHandler;
 use db::kvp::{GlobalKeyValueStore, KeyValueStore};
 use editor::Editor;
 use fs::{Fs, RealFs};
 use futures::{FutureExt, StreamExt, channel::oneshot};
-// join_all 仅用于 calls 下打开 Channel notes
-#[cfg(feature = "calls")]
-use futures::future;
 use git::GitHostingProviderRegistry;
 use git_ui::clone::clone_and_open;
 use gpui::{
@@ -64,15 +59,13 @@ use std::{
 };
 use theme::{ActiveTheme, GlobalTheme, ThemeRegistry};
 use theme_settings::load_user_theme;
-use util::{ResultExt, maybe};
+use util::ResultExt;
 use uuid::Uuid;
 use workspace::{
     AppState, MultiWorkspace, SerializedWorkspaceLocation, SessionWorkspace, Toast,
     WorkspaceSettings, WorkspaceStore,
     notifications::NotificationId, restore_multiworkspace,
 };
-#[cfg(feature = "calls")]
-use workspace::notifications::NotifyResultExt;
 use zed::{
     OpenListener, OpenRequest, RawOpenRequest, app_menus, build_window_options,
     derive_paths_with_position, handle_cli_connection, handle_keymap_file_changes,
@@ -560,10 +553,10 @@ fn main() {
         let node_runtime = NodeRuntime::new(client.http_client(), Some(shell_env_loaded_rx), rx);
 
         languages::init(languages.clone(), fs.clone(), node_runtime.clone(), cx);
-        // B档第三刀：AppState 仍持 UserStore（Project/Workspace/channel 等基础设施依赖），
-        // 但不 authenticate / 无登录 UI；仅在已有会话时由 Client 状态被动刷新。
-        let user_store = cx.new(|cx| UserStore::new(client.clone(), cx));
-        let workspace_store = cx.new(|cx| WorkspaceStore::new(client.clone(), cx));
+        // B档第四刀：AppState 仍持 UserStore/Client（Project/Workspace 类型缠绕），
+        // 但用 offline stub，不挂账号 RPC、不拉 authenticated user；也不注册 SignIn 动作。
+        let user_store = cx.new(|cx| UserStore::offline(cx));
+        let workspace_store = cx.new(|_cx| WorkspaceStore::offline(client.clone()));
 
         Client::set_global(client.clone(), cx);
 
@@ -571,7 +564,7 @@ fn main() {
         #[cfg(target_os = "macos")]
         zed::move_to_applications::init(cx);
         project::Project::init(&client, cx);
-        client::init(&client, cx);
+        // B档第四刀：跳过 client::init（SignIn/SignOut/Reconnect）
         feature_flags::FeatureFlagStore::init(cx);
 
         let system_id = cx.foreground_executor().block_on(system_id).ok();
@@ -585,24 +578,7 @@ fn main() {
             session.id().to_owned(),
             cx,
         );
-        cx.subscribe(&user_store, {
-            let telemetry = telemetry.clone();
-            move |_, evt: &client::user::Event, cx| match evt {
-                client::user::Event::PrivateUserInfoUpdated => {
-                    if let Some(crash_client) = cx.try_global::<CrashHandler>() {
-                        crashes::set_user_info(
-                            &crash_client.0,
-                            crashes::UserInfo {
-                                metrics_id: telemetry.metrics_id().map(|s| s.to_string()),
-                                is_staff: telemetry.is_staff(),
-                            },
-                        );
-                    }
-                }
-                _ => {}
-            }
-        })
-        .detach();
+        // B档第四刀：offline UserStore 不会发 PrivateUserInfoUpdated，去掉账号遥测订阅
 
         // B档硬删：不再区分 new install 的 Agent/onboarding 路径
         let _is_new_install = matches!(&installation_id, Some(IdType::New(_)));
@@ -669,7 +645,7 @@ fn main() {
         project_panel::init(cx);
         outline_panel::init(cx);
         tasks_ui::init(cx);
-        channel::init(&app_state.client.clone(), app_state.user_store.clone(), cx);
+        // B档第四刀：不 init ChannelStore（file_finder 已 try_global；collab 仅 calls）
         search::init(cx);
         lsp_locations::init(cx);
         cx.set_global(workspace::PaneSearchBarCallbacks {
@@ -692,7 +668,7 @@ fn main() {
         language_tools::init(cx);
         #[cfg(feature = "calls")]
         call::init(app_state.client.clone(), app_state.user_store.clone(), cx);
-        notifications::init(app_state.client.clone(), app_state.user_store.clone(), cx);
+        // B档第四刀：不 init NotificationStore（依赖 ChannelStore；toast 不依赖 store）
         // collab_ui::init 会顺带 title_bar::init；无 calls 时需单独初始化标题栏
         #[cfg(feature = "calls")]
         collab_ui::init(&app_state, cx);
@@ -1171,68 +1147,14 @@ fn handle_open_request(request: OpenRequest, app_state: Arc<AppState>, cx: &mut 
         }));
     }
 
+    // B档第四刀：无账号/协作，忽略 join_channel 与 channel notes（也不再 client.connect）
     if !request.open_channel_notes.is_empty() || request.join_channel.is_some() {
-        cx.spawn(async move |cx| {
-            let result = maybe!(async {
-                if let Some(task) = task {
-                    task.await?;
-                }
-                let client = app_state.client.clone();
-                // we continue even if connection fails as join_channel/ open channel notes will
-                // show a visible error message.
-                client.connect(true, cx).await.into_response().log_err();
+        log::warn!(
+            "join_channel / open_channel_notes ignored (local-only: no account/collaboration)"
+        );
+    }
 
-                if let Some(channel_id) = request.join_channel {
-                    cx.update(|cx| {
-                        workspace::join_channel(
-                            client::ChannelId(channel_id),
-                            app_state.clone(),
-                            None,
-                            None,
-                            cx,
-                        )
-                    })
-                    .await?;
-                }
-
-                let workspace_window =
-                    workspace::get_any_active_multi_workspace(app_state, cx.clone()).await?;
-
-                let workspace = workspace_window.read_with(cx, |mw, _| mw.workspace().clone())?;
-                let weak_workspace = workspace.downgrade();
-
-                // Channel notes UI 属于 collab_ui，无 calls feature 时跳过打开
-                #[cfg(feature = "calls")]
-                {
-                    let mut promises = Vec::new();
-                    for (channel_id, heading) in request.open_channel_notes {
-                        promises.push(cx.update_window(workspace_window.into(), |_, window, cx| {
-                            ChannelView::open(
-                                client::ChannelId(channel_id),
-                                heading,
-                                workspace.clone(),
-                                window,
-                                cx,
-                            )
-                        })?)
-                    }
-                    for result in future::join_all(promises).await {
-                        result.notify_workspace_async_err(weak_workspace.clone(), cx);
-                    }
-                }
-                #[cfg(not(feature = "calls"))]
-                {
-                    let _ = (request.open_channel_notes, workspace, weak_workspace);
-                }
-                anyhow::Ok(())
-            })
-            .await;
-            if let Err(err) = result {
-                fail_to_open_window_async(err, cx);
-            }
-        })
-        .detach()
-    } else if let Some(task) = task {
+    if let Some(task) = task {
         cx.spawn(async move |cx| {
             if let Err(err) = task.await {
                 fail_to_open_window_async(err, cx);

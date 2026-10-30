@@ -310,6 +310,46 @@ impl UserStore {
         }
     }
 
+    /// B档第四刀：本地编辑器壳用离线 UserStore。
+    /// 不挂 Client、不订阅 RPC/联系人、不拉 authenticated user；仅满足 AppState/Project 持有句柄。
+    pub fn offline(cx: &Context<Self>) -> Self {
+        let (_current_user_tx, current_user_rx) = watch::channel();
+        let (update_contacts_tx, mut update_contacts_rx) = mpsc::unbounded();
+
+        Self {
+            users: Default::default(),
+            current_user: current_user_rx,
+            current_organization: None,
+            organizations: Vec::new(),
+            plans_by_organization: HashMap::default(),
+            configuration_by_organization: HashMap::default(),
+            plan_info: None,
+            edit_prediction_usage: None,
+            contacts: Default::default(),
+            incoming_contact_requests: Default::default(),
+            participant_indices: Default::default(),
+            outgoing_contact_requests: Default::default(),
+            client: Weak::new(),
+            update_contacts_tx,
+            // 仅消化 Wait/Clear，避免外部 await clear_contacts 死等
+            _maintain_contacts: cx.spawn(async move |this, cx| {
+                while let Some(message) = update_contacts_rx.next().await {
+                    if let Ok(task) =
+                        this.update(cx, |this, cx| this.update_contacts(message, cx))
+                    {
+                        task.log_err().await;
+                    } else {
+                        break;
+                    }
+                }
+            }),
+            _maintain_current_user: Task::ready(Ok(())),
+            _handle_sign_out: Task::ready(()),
+            pending_contact_requests: Default::default(),
+            weak_self: cx.weak_entity(),
+        }
+    }
+
     #[cfg(feature = "test-support")]
     pub fn clear_cache(&mut self) {
         self.users.clear();
