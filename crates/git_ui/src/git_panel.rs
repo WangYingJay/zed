@@ -322,17 +322,17 @@ fn git_panel_context_menu(
     ContextMenu::build(window, cx, |context_menu, _, _| {
         context_menu
             .context(focus_handle.clone())
-            .action_disabled_when(!has_unstaged_changes, "Stage All", StageAll.boxed_clone())
-            .action_disabled_when(!has_staged_changes, "Unstage All", UnstageAll.boxed_clone())
+            .action_disabled_when(!has_unstaged_changes, "全部暂存", StageAll.boxed_clone())
+            .action_disabled_when(!has_staged_changes, "全部取消暂存", UnstageAll.boxed_clone())
             .action_disabled_when(
                 !has_staged_tracked_changes,
-                "Restore All Changes",
+                "还原全部更改",
                 RestoreTrackedFiles.boxed_clone(),
             )
             .separator()
             .action_disabled_when(
                 !(has_new_changes || has_tracked_changes),
-                "Stash All",
+                "全部贮藏",
                 StashAll.boxed_clone(),
             )
             // Offer the stash variant that matches how the list is currently grouped,
@@ -340,34 +340,34 @@ fn git_panel_context_menu(
             .when(group_by == GitPanelGroupBy::Status, |context_menu| {
                 context_menu.action_disabled_when(
                     !has_tracked_changes,
-                    "Stash Tracked",
+                    "贮藏已跟踪",
                     StashTracked.boxed_clone(),
                 )
             })
             .when(group_by == GitPanelGroupBy::Staging, |context_menu| {
                 context_menu.action_disabled_when(
                     !has_staged_changes,
-                    "Stash Staged",
+                    "贮藏已暂存",
                     StashStaged.boxed_clone(),
                 )
             })
-            .action_disabled_when(!has_stash_items, "Stash Pop", StashPop.boxed_clone())
-            .action("View Stash", zed_actions::git::ViewStash.boxed_clone())
+            .action_disabled_when(!has_stash_items, "弹出贮藏", StashPop.boxed_clone())
+            .action("查看贮藏", zed_actions::git::ViewStash.boxed_clone())
             .when(include_copy_paths, |context_menu| {
                 context_menu
                     .separator()
-                    .action("Copy Path", CopyPath.boxed_clone())
-                    .action("Copy Relative Path", CopyRelativePath.boxed_clone())
+                    .action("复制路径", CopyPath.boxed_clone())
+                    .action("复制相对路径", CopyRelativePath.boxed_clone())
             })
             .separator()
             .action_disabled_when(
                 !has_staged_tracked_changes,
-                "Discard Tracked Changes",
+                "丢弃已跟踪更改",
                 RestoreTrackedFiles.boxed_clone(),
             )
             .action_disabled_when(
                 !has_untracked_files,
-                "Trash Untracked Files",
+                "将未跟踪文件移到废纸篓",
                 TrashUntrackedFiles.boxed_clone(),
             )
     })
@@ -389,10 +389,10 @@ fn git_panel_view_options_menu(
 
         context_menu
             .context(focus_handle.clone())
-            .header("View")
+            .header("视图")
             .item({
                 let view_options_menu_state = view_options_menu_state.clone();
-                ContextMenuEntry::new("List")
+                ContextMenuEntry::new("列表")
                     .toggle(IconPosition::End, !state.tree_view)
                     .handler(move |window, cx| {
                         if state.tree_view {
@@ -406,7 +406,7 @@ fn git_panel_view_options_menu(
             })
             .item({
                 let view_options_menu_state = view_options_menu_state.clone();
-                ContextMenuEntry::new("Tree")
+                ContextMenuEntry::new("树形")
                     .toggle(IconPosition::End, state.tree_view)
                     .handler(move |window, cx| {
                         if !state.tree_view {
@@ -420,10 +420,10 @@ fn git_panel_view_options_menu(
             })
             .when(!state.tree_view, |this| {
                 this.separator()
-                    .header("Sort By")
+                    .header("排序方式")
                     .item({
                         let view_options_menu_state = view_options_menu_state.clone();
-                        ContextMenuEntry::new("Path")
+                        ContextMenuEntry::new("路径")
                             .toggle(IconPosition::End, state.sort_by == GitPanelSortBy::Path)
                             .handler(move |window, cx| {
                                 if !state.tree_view {
@@ -437,7 +437,7 @@ fn git_panel_view_options_menu(
                     })
                     .item({
                         let view_options_menu_state = view_options_menu_state.clone();
-                        ContextMenuEntry::new("Name")
+                        ContextMenuEntry::new("名称")
                             .toggle(IconPosition::End, state.sort_by == GitPanelSortBy::Name)
                             .handler(move |window, cx| {
                                 if !state.tree_view {
@@ -451,10 +451,10 @@ fn git_panel_view_options_menu(
                     })
             })
             .separator()
-            .header("Group By")
+            .header("分组方式")
             .item({
                 let view_options_menu_state = view_options_menu_state.clone();
-                ContextMenuEntry::new("None")
+                ContextMenuEntry::new("无")
                     .toggle(IconPosition::End, state.group_by == GitPanelGroupBy::None)
                     .handler(move |window, cx| {
                         if state.group_by != GitPanelGroupBy::None {
@@ -468,7 +468,7 @@ fn git_panel_view_options_menu(
             })
             .item({
                 let view_options_menu_state = view_options_menu_state.clone();
-                ContextMenuEntry::new("Tracked & Untracked")
+                ContextMenuEntry::new("已跟踪与未跟踪")
                     .toggle(IconPosition::End, state.group_by == GitPanelGroupBy::Status)
                     .handler(move |window, cx| {
                         if state.group_by != GitPanelGroupBy::Status {
@@ -482,7 +482,7 @@ fn git_panel_view_options_menu(
             })
             .item({
                 let view_options_menu_state = view_options_menu_state.clone();
-                ContextMenuEntry::new("Staged & Unstaged")
+                ContextMenuEntry::new("已暂存与未暂存")
                     .toggle(
                         IconPosition::End,
                         state.group_by == GitPanelGroupBy::Staging,
@@ -711,9 +711,9 @@ impl StageIntent {
 
     fn label(self, stage_status: impl FnOnce() -> StageStatus) -> &'static str {
         if self.resolve_with(stage_status) {
-            "Stage"
+            "暂存"
         } else {
-            "Unstage"
+            "取消暂存"
         }
     }
 }
@@ -1305,8 +1305,8 @@ pub(crate) fn commit_message_editor(
         Some(ContextMenu::build(window, cx, |menu, _, _| {
             menu.context(focus_handle)
                 .action_disabled_when(!has_selection, "Cut", Box::new(editor::actions::Cut))
-                .action_disabled_when(!has_selection, "Copy", Box::new(editor::actions::Copy))
-                .action("Paste", Box::new(editor::actions::Paste))
+                .action_disabled_when(!has_selection, "复制", Box::new(editor::actions::Copy))
+                .action("粘贴", Box::new(editor::actions::Paste))
         }))
     });
     commit_editor
@@ -6175,14 +6175,14 @@ impl GitPanel {
                         // output of a push command, we'll simply dispatch the
                         // generic `CreatePullRequest` action when the toast
                         // button is pressed.
-                        this.action("Create Pull Request", move |window, cx| {
+                        this.action("创建拉取请求", move |window, cx| {
                             window
                                 .dispatch_action(Box::new(zed_actions::git::CreatePullRequest), cx);
                         })
                     }
                     (Toast, false) => this,
                     (ToastWithLog { output }, false) => {
-                        this.action("View Log", move |window, cx| {
+                        this.action("查看日志", move |window, cx| {
                             let output = output.clone();
                             let output =
                                 format!("stdout:\n{}\nstderr:\n{}", output.stdout, output.stderr);
@@ -6375,7 +6375,7 @@ impl GitPanel {
                             })
                             .when(has_previous_commit, |this| {
                                 this.toggleable_entry(
-                                    "Amend",
+                                    "修订",
                                     amend,
                                     IconPosition::Start,
                                     Some(Box::new(Amend)),
@@ -6392,14 +6392,14 @@ impl GitPanel {
                                 )
                             })
                             .toggleable_entry(
-                                "Signoff",
+                                "署名",
                                 signoff,
                                 IconPosition::Start,
                                 Some(Box::new(Signoff)),
                                 move |window, cx| window.dispatch_action(Box::new(Signoff), cx),
                             )
                             .item(
-                                ContextMenuEntry::new("Skip Hooks")
+                                ContextMenuEntry::new("跳过钩子")
                                     .toggleable(IconPosition::Start, skip_hooks)
                                     .action(Box::new(SkipHooks))
                                     .handler(move |window, cx| {
@@ -6563,9 +6563,9 @@ impl GitPanel {
 
     fn render_git_changes_actions_button(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let (text, action, stage, tooltip) = if self.primary_changes_action_stages() {
-            ("Stage All", StageAll.boxed_clone(), true, "git add --all")
+            ("全部暂存", StageAll.boxed_clone(), true, "git add --all")
         } else {
-            ("Unstage All", UnstageAll.boxed_clone(), false, "git reset")
+            ("全部取消暂存", UnstageAll.boxed_clone(), false, "git reset")
         };
 
         SplitButton::new(
@@ -8214,8 +8214,8 @@ impl GitPanel {
                     Some("All conflicts marked as resolved")
                 } else {
                     match stage_intent {
-                        StageIntent::Stage => Some("Stage All"),
-                        StageIntent::Unstage => Some("Unstage All"),
+                        StageIntent::Stage => Some("全部暂存"),
+                        StageIntent::Unstage => Some("全部取消暂存"),
                         StageIntent::Toggle => None,
                     }
                 };
@@ -8285,52 +8285,52 @@ impl GitPanel {
         // being affected.
         // As such, we need to ensure we show the correct label, depending on
         // the actual `file_count`.
-        let file_label = if file_count == 1 { "File" } else { "Files" };
+        let file_label = if file_count == 1 { "文件" } else { "文件" };
 
         let stage_title = match (target_kind, will_unstage) {
-            (SelectionTargetKind::Directory, true) => "Unstage Folder",
-            (SelectionTargetKind::Directory, false) => "Stage Folder",
-            (SelectionTargetKind::File, true) => "Unstage File",
-            (SelectionTargetKind::File, false) => "Stage File",
-            (SelectionTargetKind::Multiple, true) => &format!("Unstage {file_count} {file_label}"),
-            (SelectionTargetKind::Multiple, false) => &format!("Stage {file_count} {file_label}"),
+            (SelectionTargetKind::Directory, true) => "取消暂存文件夹",
+            (SelectionTargetKind::Directory, false) => "暂存文件夹",
+            (SelectionTargetKind::File, true) => "取消暂存文件",
+            (SelectionTargetKind::File, false) => "暂存文件",
+            (SelectionTargetKind::Multiple, true) => &format!("取消暂存 {file_count} 个{file_label}"),
+            (SelectionTargetKind::Multiple, false) => &format!("暂存 {file_count} 个{file_label}"),
         };
 
         let restore_title = match (target_kind, all_trashed, all_deleted) {
-            (SelectionTargetKind::Directory, true, _) => "Trash Folder",
-            (SelectionTargetKind::Directory, false, _) => "Discard Changes",
-            (SelectionTargetKind::File, true, _) => "Trash File",
-            (SelectionTargetKind::File, _, true) => "Restore File",
-            (SelectionTargetKind::File, _, _) => "Discard Changes",
-            (SelectionTargetKind::Multiple, true, _) => &format!("Trash {file_count} {file_label}"),
+            (SelectionTargetKind::Directory, true, _) => "将文件夹移到废纸篓",
+            (SelectionTargetKind::Directory, false, _) => "丢弃更改",
+            (SelectionTargetKind::File, true, _) => "将文件移到废纸篓",
+            (SelectionTargetKind::File, _, true) => "还原文件",
+            (SelectionTargetKind::File, _, _) => "丢弃更改",
+            (SelectionTargetKind::Multiple, true, _) => &format!("将 {file_count} 个{file_label}移到废纸篓"),
             (SelectionTargetKind::Multiple, _, true) => {
-                &format!("Restore {file_count} {file_label}")
+                &format!("还原 {file_count} 个{file_label}")
             }
             (SelectionTargetKind::Multiple, _, _) => {
-                &format!("Discard Changes to {file_count} {file_label}")
+                &format!("丢弃 {file_count} 个{file_label}的更改")
             }
         };
         let is_bulk = matches!(target_kind, SelectionTargetKind::Multiple);
         let is_file_or_bulk = !matches!(target_kind, SelectionTargetKind::Directory);
         let has_tracked = !all_created;
         let plural = file_count > 1;
-        let copy_path_title = if plural { "Copy Paths" } else { "Copy Path" };
+        let copy_path_title = if plural { "复制路径" } else { "复制路径" };
         let copy_relative_path_title = if plural {
-            "Copy Relative Paths"
+            "复制相对路径"
         } else {
-            "Copy Relative Path"
+            "复制相对路径"
         };
         let open_file_diff_title = if plural {
-            "Open File Diffs"
+            "打开文件差异"
         } else {
-            "Open File Diff"
+            "打开文件差异"
         };
-        let view_file_title = if plural { "View Files" } else { "View File" };
-        let open_diff_title = if plural { "Open Diffs" } else { "Open Diff" };
+        let view_file_title = if plural { "查看文件" } else { "查看文件" };
+        let open_diff_title = if plural { "打开差异" } else { "打开差异" };
         let view_file_history_title = if plural {
-            "View File Histories"
+            "查看文件历史"
         } else {
-            "View File History"
+            "查看文件历史"
         };
         ContextMenu::build(window, cx, |context_menu, _, _| {
             context_menu
@@ -8347,18 +8347,18 @@ impl GitPanel {
                 .action_disabled_when(
                     !all_created,
                     if is_bulk && plural {
-                        "Add Files to .gitignore"
+                        "将文件添加到 .gitignore"
                     } else {
-                        "Add to .gitignore"
+                        "添加到 .gitignore"
                     },
                     git::AddToGitignore.boxed_clone(),
                 )
                 .action_disabled_when(
                     !all_created,
                     if is_bulk && plural {
-                        "Add Files to .git/info/exclude"
+                        "将文件添加到 .git/info/exclude"
                     } else {
-                        "Add to .git/info/exclude"
+                        "添加到 .git/info/exclude"
                     },
                     git::AddToGitInfoExclude.boxed_clone(),
                 )

@@ -1721,7 +1721,7 @@ impl GutterButtonIntent {
     fn as_str(&self) -> &'static str {
         match self {
             Self::SetBookmark => "Set Bookmark",
-            Self::SetBreakpoint => "Set Breakpoint",
+            Self::SetBreakpoint => "设置断点",
         }
     }
 
@@ -4383,7 +4383,7 @@ impl Editor {
             }))
             .tooltip(move |_window, cx| {
                 Tooltip::with_meta_in(
-                    "Remove Bookmark",
+                    "移除书签",
                     Some(&ToggleBookmark),
                     SharedString::from("Right-click for more options"),
                     &focus_handle,
@@ -4473,47 +4473,47 @@ impl Editor {
             .map(|(anchor, bp)| (anchor, Arc::from(bp)));
 
         let log_breakpoint_msg = if breakpoint.as_ref().is_some_and(|bp| bp.1.message.is_some()) {
-            "Edit Log Breakpoint"
+            "编辑日志断点"
         } else {
-            "Set Log Breakpoint"
+            "设置日志断点"
         };
 
         let condition_breakpoint_msg = if breakpoint
             .as_ref()
             .is_some_and(|bp| bp.1.condition.is_some())
         {
-            "Edit Condition Breakpoint"
+            "编辑条件断点"
         } else {
-            "Set Condition Breakpoint"
+            "设置条件断点"
         };
 
         let hit_condition_breakpoint_msg = if breakpoint
             .as_ref()
             .is_some_and(|bp| bp.1.hit_condition.is_some())
         {
-            "Edit Hit Condition Breakpoint"
+            "编辑命中次数断点"
         } else {
-            "Set Hit Condition Breakpoint"
+            "设置命中次数断点"
         };
 
         let set_breakpoint_msg = if breakpoint.as_ref().is_some() {
-            "Unset Breakpoint"
+            "取消断点"
         } else {
-            "Set Breakpoint"
+            "设置断点"
         };
 
         let git_blame_msg = if self.show_git_blame_gutter {
-            "Close Git Blame"
+            "关闭 Git 追溯"
         } else {
-            "Open Git Blame"
+            "打开 Git 追溯"
         };
 
         let bookmark = self.bookmark_at_row(row, window, cx);
 
         let set_bookmark_msg = if bookmark.as_ref().is_some() {
-            "Remove Bookmark"
+            "移除书签"
         } else {
-            "Add Bookmark"
+            "添加书签"
         };
         let has_bookmark = bookmark.as_ref().is_some();
 
@@ -4531,10 +4531,10 @@ impl Editor {
         let toggle_state_entry: Option<(&str, Box<dyn Action>)> =
             breakpoint.as_ref().map(|bp| match bp.1.state {
                 BreakpointState::Enabled => {
-                    ("Disable", crate::actions::DisableBreakpoint.boxed_clone())
+                    ("禁用", crate::actions::DisableBreakpoint.boxed_clone())
                 }
                 BreakpointState::Disabled => {
-                    ("Enable", crate::actions::EnableBreakpoint.boxed_clone())
+                    ("启用", crate::actions::EnableBreakpoint.boxed_clone())
                 }
             });
 
@@ -4547,7 +4547,7 @@ impl Editor {
                 .when_some(
                     clear_runnable_task_status,
                     |this, (buffer_id, buffer_row)| {
-                        this.entry("Clear Run Status", None, {
+                        this.entry("清除运行状态", None, {
                             let weak_editor = weak_editor.clone();
                             move |_window, cx| {
                                 weak_editor
@@ -4563,7 +4563,7 @@ impl Editor {
                 .when(run_to_cursor, |this| {
                     let weak_editor = weak_editor.clone();
                     this.entry(
-                        "Run to Cursor",
+                        "运行到光标处",
                         Some(RunToCursor.boxed_clone()),
                         move |window, cx| {
                             weak_editor

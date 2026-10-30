@@ -151,7 +151,7 @@ impl PickerDelegate for CommitTagPickerDelegate {
     }
 
     fn placeholder_text(&self, _window: &mut Window, _cx: &mut App) -> Arc<str> {
-        "Copy Tag".into()
+        "复制标签".into()
     }
 
     fn match_count(&self) -> usize {
@@ -1403,16 +1403,16 @@ impl RefMenuEntry {
         window: &mut Window,
     ) -> ContextMenu {
         if let Some(ref_name) = self.ref_name {
-            menu = menu.entry("Copy Ref Name", None, move |_window, cx| {
+            menu = menu.entry("复制引用名", None, move |_window, cx| {
                 cx.write_to_clipboard(ClipboardItem::new_string(ref_name.to_string()));
             });
         }
 
-        menu = menu.separator().header("Custom Commands");
+        menu = menu.separator().header("自定义命令");
 
         if self.git_tasks.is_empty() {
             return menu.item(
-                ContextMenuEntry::new("Learn More")
+                ContextMenuEntry::new("了解更多")
                     .icon(IconName::ArrowUpRight)
                     .icon_color(Color::Muted)
                     .icon_position(IconPosition::End)
@@ -2662,7 +2662,7 @@ impl GitGraph {
         let ref_entry = self.ref_menu_entry(commit.data.sha, &name, cx);
         let git_graph = cx.entity();
         let context_menu = ContextMenu::build(window, cx, move |menu, window, _| {
-            menu.header(format!("Ref {name}"))
+            menu.header(format!("引用 {name}"))
                 .map(|menu| ref_entry.add_entries(menu, &git_graph, window))
         });
 
@@ -2691,7 +2691,7 @@ impl GitGraph {
 
         let git_graph = cx.entity();
         let context_menu = ContextMenu::build(window, cx, move |mut menu, _window, _| {
-            menu = menu.header("Refs");
+            menu = menu.header("引用");
             for (ref_entry, name) in ref_entries {
                 let git_graph = git_graph.clone();
                 menu = menu.submenu(name, move |submenu, window, _cx| {
@@ -2809,9 +2809,9 @@ impl GitGraph {
     ) {
         let is_path_history = matches!(self.log_source, LogSource::Path(_));
         let columns: &[&str] = if is_path_history {
-            &["Description", "Date", "Author", "Commit"]
+            &["说明", "日期", "作者", "提交"]
         } else {
-            &["Graph", "Description", "Date", "Author", "Commit"]
+            &["图", "说明", "日期", "作者", "提交"]
         };
 
         let filter = self.column_visibility.clone();
@@ -2824,7 +2824,7 @@ impl GitGraph {
         let focus_handle = self.focus_handle.clone();
         let git_graph = cx.entity();
         let context_menu = ContextMenu::build(window, cx, |mut context_menu, _window, _cx| {
-            context_menu = context_menu.context(focus_handle).header("Columns");
+            context_menu = context_menu.context(focus_handle).header("列");
             for (col_idx, label) in columns.iter().enumerate() {
                 let is_visible = !filter.get(col_idx).copied().unwrap_or(false);
                 // Disable hiding the last remaining visible column.

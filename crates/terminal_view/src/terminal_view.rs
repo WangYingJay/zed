@@ -633,7 +633,7 @@ impl TerminalView {
                 )
                 .when(self.shows_workspace_actions(), |menu| {
                     menu.separator().action(
-                        "Close Terminal Tab",
+                        "关闭终端标签",
                         Box::new(CloseActiveItem {
                             save_intent: None,
                             close_pinned: true,

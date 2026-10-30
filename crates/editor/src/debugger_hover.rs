@@ -292,15 +292,15 @@ impl DebuggerHoverView {
         let view = cx.entity().downgrade();
         let menu = ContextMenu::build(window, cx, |menu, _, _| {
             menu.key_context("menu DebuggerHoverMenu")
-                .entry("Copy Value", None, move |_, cx| {
+                .entry("复制值", None, move |_, cx| {
                     cx.write_to_clipboard(gpui::ClipboardItem::new_string(variable.value.clone()));
                 })
                 .when_some(variable.evaluate_name, |menu, expression| {
                     let watch_expression = expression.clone();
-                    menu.entry("Copy as Expression", None, move |_, cx| {
+                    menu.entry("复制为表达式", None, move |_, cx| {
                         cx.write_to_clipboard(gpui::ClipboardItem::new_string(expression.clone()));
                     })
-                    .entry("Add to Watch", None, move |_, cx| {
+                    .entry("添加到监视", None, move |_, cx| {
                         view.update(cx, |view, cx| view.add_watch(watch_expression.clone(), cx))
                             .log_err();
                     })
