@@ -141,6 +141,12 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
             context: Some(go_context_provider),
             ..Default::default()
         },
+        // HTML：从 extensions/html 收编为内置语言，走原生 tree-sitter-html（白名单），默认即可高亮 .html
+        LanguageInfo {
+            name: "html",
+            adapters: vec![],
+            ..Default::default()
+        },
         LanguageInfo {
             name: "json",
             adapters: vec![json_lsp_adapter.clone(), node_version_lsp_adapter],
@@ -198,6 +204,7 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
             context: Some(typescript_context.clone()),
             ..Default::default()
         },
+        // JavaScript / JSX：grammar 指向已白名单的 tsx（见 grammars/src/javascript/config.toml）
         LanguageInfo {
             name: "javascript",
             adapters: vec![typescript_lsp_adapter.clone(), vtsls_adapter.clone()],
@@ -211,6 +218,12 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
         },
         LanguageInfo {
             name: "regex",
+            adapters: vec![],
+            ..Default::default()
+        },
+        // Vue：收编 zed-extensions/vue 的语言配置/查询，原生 tree-sitter-vue（白名单），默认高亮 .vue
+        LanguageInfo {
+            name: "vue",
             adapters: vec![],
             ..Default::default()
         },

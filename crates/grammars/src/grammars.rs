@@ -16,6 +16,9 @@ util::fs_embed! {
 ///
 /// Each grammar is registered as a `(&str, tree_sitter_language::LanguageFn)` pair.
 /// This must be called before loading language configs/queries.
+///
+/// 说明：`javascript` 语言配置的 `grammar = "tsx"`，故此处不单独注册 javascript grammar；
+/// `html` / `vue` 为英杰要求补进默认构建的原生高亮（非扩展 WASM）。
 #[cfg(feature = "load-grammars")]
 pub fn native_grammars() -> Vec<(&'static str, tree_sitter::Language)> {
     vec![
@@ -27,6 +30,7 @@ pub fn native_grammars() -> Vec<(&'static str, tree_sitter::Language)> {
         ("go", tree_sitter_go::LANGUAGE.into()),
         ("gomod", tree_sitter_go_mod::LANGUAGE.into()),
         ("gowork", tree_sitter_gowork::LANGUAGE.into()),
+        ("html", tree_sitter_html::LANGUAGE.into()),
         ("jsdoc", tree_sitter_jsdoc::LANGUAGE.into()),
         ("json", tree_sitter_json::LANGUAGE.into()),
         ("jsonc", tree_sitter_json::LANGUAGE.into()),
@@ -40,6 +44,7 @@ pub fn native_grammars() -> Vec<(&'static str, tree_sitter::Language)> {
             "typescript",
             tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into(),
         ),
+        ("vue", tree_sitter_vue::LANGUAGE.into()),
         ("yaml", tree_sitter_yaml::LANGUAGE.into()),
         ("gitcommit", tree_sitter_gitcommit::LANGUAGE.into()),
     ]

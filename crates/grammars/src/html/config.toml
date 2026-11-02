@@ -1,0 +1,20 @@
+# 精简二开：HTML 收编为内置语言（原 extensions/html），配合 load-grammars 白名单中的 tree-sitter-html。
+name = "HTML"
+grammar = "html"
+path_suffixes = ["html", "htm", "shtml"]
+autoclose_before = ">})"
+block_comment = { start = "<!--", prefix = "", end = "-->", tab_size = 0 }
+wrap_characters = { start_prefix = "<", start_suffix = ">", end_prefix = "</", end_suffix = ">" }
+brackets = [
+    { start = "{", end = "}", close = true, newline = true },
+    { start = "[", end = "]", close = true, newline = true },
+    { start = "(", end = ")", close = true, newline = true },
+    { start = "\"", end = "\"", close = true, newline = false, not_in = ["comment", "string"] },
+    { start = "<", end = ">", close = false, newline = true, not_in = ["comment", "string"] },
+    { start = "!--", end = " --", close = true, newline = false, not_in = ["comment", "string"] },
+]
+completion_query_characters = ["-"]
+prettier_parser_name = "html"
+
+[overrides.default]
+linked_edit_characters = ["-"]

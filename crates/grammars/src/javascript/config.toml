@@ -1,3 +1,4 @@
+# 精简二开：JS/JSX 无独立 tree-sitter-javascript，复用白名单内的 tsx grammar（与上游一致）。
 name = "JavaScript"
 grammar = "tsx"
 path_suffixes = ["js", "jsx", "mjs", "cjs"]
