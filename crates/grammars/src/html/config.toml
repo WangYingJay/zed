@@ -1,4 +1,5 @@
-# 精简二开：HTML 收编为内置语言（原 extensions/html），配合 load-grammars 白名单中的 tree-sitter-html。
+# HTML 原先靠 extensions/html；B档不跑扩展后 .html 也会变成 Unknown。
+# 与 Vue 一并内置，保证模板注入与独立 .html 高亮可用。
 name = "HTML"
 grammar = "html"
 path_suffixes = ["html", "htm", "shtml"]

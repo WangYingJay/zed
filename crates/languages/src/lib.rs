@@ -141,7 +141,7 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
             context: Some(go_context_provider),
             ..Default::default()
         },
-        // HTML：从 extensions/html 收编为内置语言，走原生 tree-sitter-html（白名单），默认即可高亮 .html
+        // HTML 原属 extensions/html；无 extension_host 时必须在此注册，否则 .html → Unknown。
         LanguageInfo {
             name: "html",
             adapters: vec![],
@@ -221,15 +221,15 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
             adapters: vec![],
             ..Default::default()
         },
-        // Vue：收编 zed-extensions/vue 的语言配置/查询，原生 tree-sitter-vue（白名单），默认高亮 .vue
-        LanguageInfo {
-            name: "vue",
-            adapters: vec![],
-            ..Default::default()
-        },
         LanguageInfo {
             name: "yaml",
             adapters: vec![yaml_lsp_adapter],
+            ..Default::default()
+        },
+        // Vue.js：官方走 zed-extensions/vue；B档不加载扩展 WASM，内置 path_suffixes=["vue"]。
+        LanguageInfo {
+            name: "vue",
+            adapters: vec![],
             ..Default::default()
         },
         LanguageInfo {
@@ -449,5 +449,52 @@ mod tests {
         assert_eq!(language_of(".env", cx), Some("Env".into()));
         assert_eq!(language_of(".envrc", cx), Some("Shell Script".into()));
         assert_eq!(language_of("deploy.sh", cx), Some("Shell Script".into()));
+    }
+
+    /// B档无扩展时，`.vue` / `.html` 必须靠内置 path_suffixes 命中，不能落到 Unknown。
+    #[gpui::test]
+    fn test_vue_and_html_file_suffixes(cx: &mut App) {
+        let settings_store = SettingsStore::test(cx);
+        cx.set_global(settings_store);
+
+        let registry = Arc::new(LanguageRegistry::test(cx.background_executor().clone()));
+        registry.add(crate::language(
+            "vue",
+            tree_sitter_vue::LANGUAGE.into(),
+        ));
+        registry.add(crate::language(
+            "html",
+            tree_sitter_html::LANGUAGE.into(),
+        ));
+        registry.add(crate::language(
+            "javascript",
+            tree_sitter_typescript::LANGUAGE_TSX.into(),
+        ));
+        registry.add(crate::language(
+            "css",
+            tree_sitter_css::LANGUAGE.into(),
+        ));
+        registry.add(crate::language(
+            "json",
+            tree_sitter_json::LANGUAGE.into(),
+        ));
+
+        let language_of = |path: &str, cx: &App| {
+            let file: Arc<dyn File> = Arc::new(TestFile {
+                path: Arc::from(rel_path(path)),
+                root_name: "zed".into(),
+                local_root: None,
+            });
+
+            registry
+                .language_for_file(&file, None, cx)
+                .and_then(|id| registry.language_name_for_id(id))
+        };
+
+        assert_eq!(language_of("ApiAccessLogDetail.vue", cx), Some("Vue.js".into()));
+        assert_eq!(language_of("index.html", cx), Some("HTML".into()));
+        assert_eq!(language_of("app.js", cx), Some("JavaScript".into()));
+        assert_eq!(language_of("app.css", cx), Some("CSS".into()));
+        assert_eq!(language_of("package.json", cx), Some("JSON".into()));
     }
 }

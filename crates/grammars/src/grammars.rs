@@ -17,8 +17,9 @@ util::fs_embed! {
 /// Each grammar is registered as a `(&str, tree_sitter_language::LanguageFn)` pair.
 /// This must be called before loading language configs/queries.
 ///
-/// 说明：`javascript` 语言配置的 `grammar = "tsx"`，故此处不单独注册 javascript grammar；
-/// `html` / `vue` 为英杰要求补进默认构建的原生高亮（非扩展 WASM）。
+/// 说明：`javascript` 语言配置的 `grammar = "tsx"`，故此处不单独注册 javascript grammar。
+/// `html` / `vue` 原靠扩展；B档只 init 轻量 ExtensionHostProxy、不拉 WASM，必须内置，
+/// 否则 `.html` / `.vue` 匹配不到语言（状态栏 Unknown、无高亮）。
 #[cfg(feature = "load-grammars")]
 pub fn native_grammars() -> Vec<(&'static str, tree_sitter::Language)> {
     vec![

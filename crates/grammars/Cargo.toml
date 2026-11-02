@@ -40,11 +40,11 @@ tree-sitter-vue = { workspace = true, optional = true }
 tree-sitter-yaml = { workspace = true, optional = true }
 
 [features]
-# B档第十刀语法白名单（默认只编进这些原生 tree-sitter；勿卸 wasmtime、勿恢复全量语法）。
+# B档语法白名单（默认只编进这些原生 tree-sitter；勿卸 wasmtime、勿恢复全量语法）。
 # 核心：bash/c/cpp/css/diff/gitcommit/go/html/json/markdown/python/regex/rust/typescript/vue/yaml
 # 伴随：gomod/gowork（Go）、jsdoc（TS/JS 注释）、json 兼作 jsonc。
-# JS/JSX：无独立 tree-sitter-javascript；语言 `javascript` 复用已编入的 `tsx` grammar（见 languages + javascript/config.toml）。
-# 英杰要求默认高亮 JS/Vue/HTML/JSON/CSS：json/css 原本已在；本刀补 html + vue。
+# JS/JSX：无独立 tree-sitter-javascript；语言 `javascript` 复用已编入的 `tsx` grammar。
+# html/vue：B档不跑 extension_host，须内置，否则 .html/.vue 状态栏为 Unknown。
 load-grammars = [
     "tree-sitter",
     "tree-sitter-bash",

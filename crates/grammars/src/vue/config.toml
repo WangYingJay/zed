@@ -1,9 +1,10 @@
-# 精简二开：Vue 收编为内置语言（源自 zed-extensions/vue），配合白名单 tree-sitter-vue（tree-sitter-vue-next）。
+# B档精简卸掉了 extension_host WASM，官方 Vue 扩展不会进进程。
+# 因此把 Vue.js 收进 grammars 白名单：path_suffixes=["vue"]，状态栏显示 "Vue.js"。
 name = "Vue.js"
 code_fence_block_name = "vue"
 grammar = "vue"
 path_suffixes = ["vue"]
-block_comment = ["<!-- ", " -->"]
+block_comment = { start = "<!--", prefix = "", end = "-->", tab_size = 0 }
 autoclose_before = ";:.,=}])>"
 brackets = [
     { start = "{", end = "}", close = true, newline = true },
