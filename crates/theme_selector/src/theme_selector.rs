@@ -12,6 +12,7 @@ use std::sync::Arc;
 use theme::{Appearance, SystemAppearance, Theme, ThemeMeta, ThemeRegistry};
 use theme_settings::{
     ThemeAppearanceMode, ThemeName, ThemeSelection, ThemeSettings, appearance_to_mode,
+    ensure_all_bundled_themes_loaded,
 };
 use ui::{ListItem, ListItemSpacing, prelude::*, v_flex};
 use util::ResultExt;
@@ -162,6 +163,8 @@ impl ThemeSelectorDelegate {
         let original_system_appearance = SystemAppearance::global(cx).0;
 
         let registry = ThemeRegistry::global(cx);
+        // B档：打开主题选择器时再解析其余内置主题 family，避免启动期全量 serde。
+        ensure_all_bundled_themes_loaded(&registry);
         let mut themes = registry
             .list()
             .into_iter()

@@ -2,7 +2,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod reliability;
-mod watcher_debug;
 mod zed;
 
 // Ensure the binary name stays in sync with APP_NAME so that the paths used
@@ -69,7 +68,7 @@ use zed::{
     initialize_workspace, open_paths_with_positions,
 };
 
-use crate::zed::{OpenRequestKind, eager_load_active_theme_and_icon_theme};
+use crate::zed::OpenRequestKind;
 
 #[cfg(feature = "mimalloc")]
 #[global_allocator]
@@ -556,16 +555,14 @@ fn main() {
         });
         AppState::set_global(app_state.clone(), cx);
 
-        watcher_debug::init(app_state.clone(), cx);
+        // B档启动内存刀：跳过 watcher_debug / telemetry_log / remote_debug（开发与已 stub 远程路径）
         // B档第五刀：跳过 auto_update::init（本地编辑器不做检查/下载更新）
         reliability::init(client.clone(), app_state.workspace_store.clone(), cx);
 
         theme_settings::init(theme::LoadThemes::All(Box::new(Assets)), cx);
-        eager_load_active_theme_and_icon_theme(fs.clone(), cx);
+        // B档：eager_load_active_theme_and_icon_theme 已为空（无 extension 主题预取），不再调用
         command_palette::init(cx);
 
-        zed::telemetry_log::init(cx);
-        zed::remote_debug::init(cx);
         snippet_provider::init(cx);
         recent_projects::init(cx);
 
@@ -1538,6 +1535,7 @@ fn load_embedded_fonts(cx: &App) {
     let embedded_fonts = Mutex::new(Vec::new());
     let executor = cx.background_executor();
 
+    // B档：Assets 已只嵌首屏必需字重；此处仍按 list 加载全部已嵌 .ttf（与 embed 白名单对齐）。
     cx.foreground_executor().block_on(executor.scoped(|scope| {
         for font_path in &font_paths {
             if !font_path.ends_with(".ttf") {
@@ -1558,6 +1556,7 @@ fn load_embedded_fonts(cx: &App) {
 
 #[cfg(target_os = "linux")]
 fn prewarm_fonts(cx: &mut App) {
+    // B档：只预热实际嵌入的字重，避免为未嵌入的 Italic/BoldItalic 触发系统回退匹配。
     let theme_settings = theme::theme_settings(cx);
     let ui_font = theme_settings.ui_font(cx).clone();
     let buffer_font = theme_settings.buffer_font(cx).clone();
@@ -1569,14 +1568,11 @@ fn prewarm_fonts(cx: &mut App) {
         fonts.push(font);
     };
 
-    for weight in [
-        gpui::FontWeight::MEDIUM,
+    add_variant(
+        &ui_font,
         gpui::FontWeight::SEMIBOLD,
-        gpui::FontWeight::BOLD,
-    ] {
-        add_variant(&ui_font, weight, gpui::FontStyle::Normal);
-    }
-    add_variant(&ui_font, gpui::FontWeight::NORMAL, gpui::FontStyle::Italic);
+        gpui::FontStyle::Normal,
+    );
     add_variant(
         &buffer_font,
         gpui::FontWeight::BOLD,
@@ -1585,11 +1581,6 @@ fn prewarm_fonts(cx: &mut App) {
     add_variant(
         &buffer_font,
         gpui::FontWeight::NORMAL,
-        gpui::FontStyle::Italic,
-    );
-    add_variant(
-        &buffer_font,
-        gpui::FontWeight::BOLD,
         gpui::FontStyle::Italic,
     );
 

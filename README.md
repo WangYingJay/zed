@@ -1,3 +1,5 @@
+> [!IMPORTANT]
+> Remove this line to confirm you've reviewed this PR before submitting.
 # Zed（精简二开）
 
 本仓库是基于 [Zed](https://github.com/zed-industries/zed) 的**精简二开**，面向更低内存占用与本地编辑器场景（精简协作/云端/AI 等默认路径，并做了界面汉化）。**不是** [Zed Industries](https://zed.dev) 的官方发行版，也不代表官方。

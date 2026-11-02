@@ -9,6 +9,7 @@ mod schema;
 mod settings;
 
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use ::settings::{IntoGpui, Settings, SettingsStore};
 use anyhow::{Context as _, Result};
@@ -39,6 +40,9 @@ pub use crate::settings::{
     reset_ui_font_size, set_icon_theme, set_mode, set_theme, setup_ui_font,
 };
 pub use theme::UiDensity;
+
+/// B档：内置主题 JSON 是否已全部解析进 registry（主题选择器打开时置 true）。
+static BUNDLED_THEMES_FULLY_LOADED: AtomicBool = AtomicBool::new(false);
 
 struct ThemeSettingsProviderImpl;
 
@@ -76,7 +80,23 @@ pub fn init(themes_to_load: LoadThemes, cx: &mut App) {
 
     if load_user_themes {
         let registry = ThemeRegistry::global(cx);
-        load_bundled_themes(&registry);
+        // B档：启动只解析当前外观对应主题所在 family（默认 One ≈ 27KiB），
+        // 避免一次 serde 全部 ayu/gruvbox；其余在主题选择器或切到缺失主题时补载。
+        let appearance = *SystemAppearance::global(cx);
+        let theme_name = ThemeSettings::get_global(cx).theme.name(appearance);
+        load_bundled_theme_family_for_name(&registry, &theme_name.0);
+        // system 模式可能在亮/暗间切换，把另一侧 One 变体也带上（同 family，一次解析）。
+        let alternate = match appearance {
+            Appearance::Dark => ThemeSettings::get_global(cx)
+                .theme
+                .name(Appearance::Light),
+            Appearance::Light => ThemeSettings::get_global(cx)
+                .theme
+                .name(Appearance::Dark),
+        };
+        if registry.get(&alternate.0).is_err() {
+            load_bundled_theme_family_for_name(&registry, &alternate.0);
+        }
     }
 
     let theme = configured_theme(cx);
@@ -170,13 +190,26 @@ fn configured_theme(cx: &mut App) -> Arc<Theme> {
 
     let theme = match themes.get(&theme_name.0) {
         Ok(theme) => theme,
-        Err(err) => {
-            if themes.extensions_loaded() {
-                log::error!("{err}");
+        Err(_) => {
+            // B档：设置指向尚未解析的内置主题时，先按名补载对应 family，再必要时全量补载。
+            load_bundled_theme_family_for_name(&themes, &theme_name.0);
+            match themes.get(&theme_name.0) {
+                Ok(theme) => theme,
+                Err(err) => {
+                    ensure_all_bundled_themes_loaded(&themes);
+                    match themes.get(&theme_name.0) {
+                        Ok(theme) => theme,
+                        Err(_) => {
+                            if themes.extensions_loaded() {
+                                log::error!("{err}");
+                            }
+                            themes
+                                .get(default_theme(*system_appearance))
+                                .unwrap_or_else(|_| themes.get(DEFAULT_DARK_THEME).unwrap())
+                        }
+                    }
+                }
             }
-            themes
-                .get(default_theme(*system_appearance))
-                .unwrap_or_else(|_| themes.get(DEFAULT_DARK_THEME).unwrap())
         }
     };
     theme_settings.apply_theme_overrides(theme)
@@ -214,30 +247,73 @@ pub fn reload_icon_theme(cx: &mut App) {
     cx.refresh_windows();
 }
 
-/// Loads the themes bundled with the Zed binary into the registry.
+/// Loads every theme family bundled with the Zed binary into the registry.
 pub fn load_bundled_themes(registry: &ThemeRegistry) {
-    let theme_paths = registry
-        .assets()
-        .list("themes/")
-        .expect("failed to list theme assets")
-        .into_iter()
-        .filter(|path| path.ends_with(".json"));
+    for path in bundled_theme_paths(registry) {
+        insert_bundled_theme_family_at_path(registry, &path);
+    }
+    BUNDLED_THEMES_FULLY_LOADED.store(true, Ordering::SeqCst);
+}
 
-    for path in theme_paths {
-        let Some(theme) = registry.assets().load(&path).log_err().flatten() else {
+/// B档：确保内置主题全部进入 registry（主题选择器 / 设置页打开时调用，幂等）。
+pub fn ensure_all_bundled_themes_loaded(registry: &ThemeRegistry) {
+    if BUNDLED_THEMES_FULLY_LOADED.load(Ordering::SeqCst) {
+        return;
+    }
+    load_bundled_themes(registry);
+}
+
+/// B档：只解析并注册包含 `theme_name` 的那个内置 family（找不到则 no-op）。
+pub fn load_bundled_theme_family_for_name(registry: &ThemeRegistry, theme_name: &str) {
+    if registry.get(theme_name).is_ok() {
+        return;
+    }
+    for path in bundled_theme_paths(registry) {
+        let Some(bytes) = registry.assets().load(&path).log_err().flatten() else {
             continue;
         };
-
-        let Some(theme_family) = serde_json::from_slice(&theme)
+        let Some(theme_family) = serde_json::from_slice::<ThemeFamilyContent>(&bytes)
             .with_context(|| format!("failed to parse theme at path \"{path}\""))
             .log_err()
         else {
             continue;
         };
-
-        let refined = refine_theme_family(theme_family);
-        registry.insert_theme_families([refined]);
+        if theme_family
+            .themes
+            .iter()
+            .any(|theme| theme.name == theme_name)
+        {
+            let refined = refine_theme_family(theme_family);
+            registry.insert_theme_families([refined]);
+            return;
+        }
     }
+}
+
+fn bundled_theme_paths(registry: &ThemeRegistry) -> impl Iterator<Item = String> {
+    registry
+        .assets()
+        .list("themes/")
+        .expect("failed to list theme assets")
+        .into_iter()
+        .filter(|path| path.ends_with(".json"))
+        .map(|path| path.to_string())
+}
+
+fn insert_bundled_theme_family_at_path(registry: &ThemeRegistry, path: &str) {
+    let Some(theme) = registry.assets().load(path).log_err().flatten() else {
+        return;
+    };
+
+    let Some(theme_family) = serde_json::from_slice(&theme)
+        .with_context(|| format!("failed to parse theme at path \"{path}\""))
+        .log_err()
+    else {
+        return;
+    };
+
+    let refined = refine_theme_family(theme_family);
+    registry.insert_theme_families([refined]);
 }
 
 /// Loads a user theme from the given bytes into the registry.

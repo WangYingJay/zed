@@ -7,8 +7,7 @@ pub(crate) mod move_to_applications;
 mod open_listener;
 mod open_url_modal;
 mod quick_action_bar;
-pub mod remote_debug;
-pub mod telemetry_log;
+// B档启动内存刀：remote_debug / telemetry_log 不再编译进默认路径（远程 connect 已 stub、遥测 no-op）
 #[cfg(all(target_os = "macos", feature = "visual-tests"))]
 pub mod visual_tests;
 #[cfg(target_os = "windows")]
@@ -78,8 +77,8 @@ use std::{
     sync::atomic::{self, AtomicBool},
 };
 use terminal_view::terminal_panel::{self, TerminalPanel};
-use theme::{ActiveTheme, SystemAppearance, ThemeRegistry};
-use theme_settings::{ThemeSettings, load_user_theme};
+use theme::ActiveTheme;
+use theme_settings::ThemeSettings;
 use ui::{Navigable, NavigableEntry, PopoverMenuHandle, TintColor, prelude::*};
 use util::markdown::MarkdownString;
 use util::rel_path::RelPath;
@@ -1247,9 +1246,7 @@ fn initialize_pane(
             toolbar.add_item(project_search_bar, window, cx);
             let lsp_log_item = cx.new(|_| LspLogToolbarItemView::new());
             toolbar.add_item(lsp_log_item, window, cx);
-            let telemetry_log_item =
-                cx.new(|cx| telemetry_log::TelemetryLogToolbarItemView::new(window, cx));
-            toolbar.add_item(telemetry_log_item, window, cx);
+            // B档：不再挂 TelemetryLog 工具条项（遥测已 no-op，省一个常驻 Entity）
             let syntax_tree_item = cx.new(|_| language_tools::SyntaxTreeToolbarItemView::new());
             toolbar.add_item(syntax_tree_item, window, cx);
             let migration_banner =
@@ -2478,98 +2475,6 @@ fn open_settings_file(
         anyhow::Ok(())
     })
     .detach_and_log_err(cx);
-}
-
-/// Eagerly loads the active theme and icon theme based on the selections in the
-/// theme settings.
-///
-/// B档硬删：不再从 extension_host 预取扩展主题（未 init WASM 主机）；仅依赖内置主题注册表。
-pub(crate) fn eager_load_active_theme_and_icon_theme(fs: Arc<dyn Fs>, cx: &mut App) {
-    let theme_registry = ThemeRegistry::global(cx);
-    let theme_settings = ThemeSettings::get_global(cx);
-    let appearance = SystemAppearance::global(cx).0;
-
-    enum LoadTarget {
-        Theme(PathBuf),
-        IconTheme((PathBuf, PathBuf)),
-    }
-
-    let theme_name = theme_settings.theme.name(appearance);
-    let icon_theme_name = theme_settings.icon_theme.name(appearance);
-    // 无 ExtensionStore：扩展主题路径恒为 None，内置主题已在 registry 则跳过
-    let themes_to_load = [
-        theme_registry
-            .get(&theme_name.0)
-            .is_err()
-            .then(|| None::<PathBuf>)
-            .flatten()
-            .map(LoadTarget::Theme),
-        theme_registry
-            .get_icon_theme(&icon_theme_name.0)
-            .is_err()
-            .then(|| None::<(PathBuf, PathBuf)>)
-            .flatten()
-            .map(LoadTarget::IconTheme),
-    ];
-
-    enum ReloadTarget {
-        Theme,
-        IconTheme,
-    }
-
-    let executor = cx.background_executor();
-    let reload_tasks = parking_lot::Mutex::new(Vec::with_capacity(themes_to_load.len()));
-
-    let mut themes_to_load = themes_to_load.into_iter().flatten().peekable();
-
-    if themes_to_load.peek().is_none() {
-        return;
-    }
-
-    cx.foreground_executor().block_on(executor.scoped(|scope| {
-        for load_target in themes_to_load {
-            let theme_registry = &theme_registry;
-            let reload_tasks = &reload_tasks;
-            let fs = fs.clone();
-
-            scope.spawn(async move {
-                match load_target {
-                    LoadTarget::Theme(theme_path) => {
-                        if let Some(bytes) = fs
-                            .load_bytes(&theme_path)
-                            .await
-                            .with_context(|| format!("loading theme bytes from {theme_path:?}"))
-                            .log_err()
-                            && load_user_theme(theme_registry, &bytes).log_err().is_some()
-                        {
-                            reload_tasks.lock().push(ReloadTarget::Theme);
-                        }
-                    }
-                    LoadTarget::IconTheme((icon_theme_path, icons_root_path)) => {
-                        if let Some(bytes) = fs
-                            .load_bytes(&icon_theme_path)
-                            .await
-                            .with_context(|| format!("loading icon bytes from {icon_theme_path:?}"))
-                            .log_err()
-                            && theme_registry
-                                .load_icon_theme(&icon_theme_path, &icons_root_path, bytes)
-                                .log_err()
-                                .is_some()
-                        {
-                            reload_tasks.lock().push(ReloadTarget::IconTheme);
-                        }
-                    }
-                }
-            });
-        }
-    }));
-
-    for reload_target in reload_tasks.into_inner() {
-        match reload_target {
-            ReloadTarget::Theme => theme_settings::reload_theme(cx),
-            ReloadTarget::IconTheme => theme_settings::reload_icon_theme(cx),
-        };
-    }
 }
 
 #[cfg(test)]

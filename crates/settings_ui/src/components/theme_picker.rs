@@ -4,6 +4,7 @@ use fuzzy::{StringMatch, StringMatchCandidate};
 use gpui::{AnyElement, App, Context, DismissEvent, SharedString, Task, Window};
 use picker::{Picker, PickerDelegate};
 use theme::ThemeRegistry;
+use theme_settings::ensure_all_bundled_themes_loaded;
 use ui::{ListItem, ListItemSpacing, prelude::*};
 
 type ThemePicker = Picker<ThemePickerDelegate>;
@@ -23,6 +24,8 @@ impl ThemePickerDelegate {
         cx: &mut Context<ThemePicker>,
     ) -> Self {
         let theme_registry = ThemeRegistry::global(cx);
+        // B档：设置页主题下拉打开时补全内置主题列表。
+        ensure_all_bundled_themes_loaded(&theme_registry);
 
         let themes = theme_registry.list_names();
         let selected_index = themes
